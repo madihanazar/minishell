@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-t_tree	*create_node(char *str)
+t_tree	*create_node(char *str, t_node_type type)
 {
 	t_tree	*node;
 
@@ -21,6 +21,46 @@ t_tree	*create_node(char *str)
 		return (NULL);
 	node->left = NULL;
 	node->right = NULL;
-	node->cmd = str;
+	node->cmd = ft_strdup(str);
+	node->type = type;
 	return (node);
+}
+
+void free_result(char **result, int count)
+{
+	if (!result)
+		return ;
+	int i;
+	i = 0;
+	while (i < count)
+	{
+		free(result[i]);
+		i++;
+	}
+	free(result);
+}
+
+void free_split(char **result)
+{
+	if (!result)
+		return ;
+	int i;
+	i = 0;
+	while (result[i])
+	{
+		free(result[i]);
+		i++;
+	}
+	free(result);
+}
+
+void free_ast(t_tree *node)
+{
+    if (!node)
+        return ;
+    free_ast(node->left);
+    free_ast(node->right);
+    if (node->cmd)
+        free(node->cmd);
+    free(node);
 }

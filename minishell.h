@@ -15,12 +15,95 @@
 
 # include <unistd.h>
 # include <stdlib.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <sys/wait.h>
+# include <string.h>
+# include "readline/readline.h"
+#include <termios.h>
+
+extern int g_sig;
+
+typedef struct s_cmd {
+    char    *cmd_name;   
+    char    **args;     
+    int     arg_count;
+} t_cmd;
+
+typedef enum e_node_type {
+    NODE_COMMAND,
+	NODE_ARG,
+    PIPE,       
+    REDIR_IN,  
+    REDIR_OUT,  
+    HEREDOC,    
+    APPEND      
+} t_node_type;
 
 typedef struct s_tree
 {
 	struct s_tree	*left;
 	struct s_tree	*right;
 	char			*cmd;
+	t_node_type		type;
 }	t_tree;
+
+typedef struct s_expand
+{
+    char    *result;
+    int     i;          // index for input string
+    int     j;          // index for result string
+    int     len;        // length for variable names or allocations
+    int     s_quote;    // single quote flag
+    int     d_quote;    // double quote flag
+} t_expand;
+
+char	*find_last_pipe(char *str);
+char	*find_last_redir(char *str);
+t_tree *build_ast(char *str, char **env);
+t_tree *create_tree(char *str, char **env);
+t_tree	*create_node(char *str,  t_node_type type);
+char **split_cmd(char *str, char split_char, char **env);
+void free_result(char **result, int count);
+char *expand_var(char *str, int *i, char **env);
+char *get_env_value(char *name, char **env);
+void free_ast(t_tree *node);
+void free_split(char **result);
+char *check_expand_var(char *value, int j, int len, int i);
+void print_ast(t_tree *node, int depth);
+//string utils
 char	*ft_substr(char const *s, unsigned int start, size_t len);
+char *ft_strdup(char *s);
+char *ft_strtrim(char const *s1, char const *set);
+int ft_strlen(const char *str);
+char *ft_strchr(const char *str, int c);
+int	ft_isalnum(int c);
+int	ft_strncmp(const char *str1, const char *str2, size_t n);
+char *ft_strcpy(char *dest, const char *src);
+void	ft_bzero(void *ptr, size_t n);
+char	*ft_strjoin(char const *s1, char const *s2);
+
+char	**ft_split(const char *s, char c);
+void	ft_putstr_fd(char *s, int fd);
+
+int execute_pipe(t_tree *node, char **env);
+int execute_redir(t_tree *node, char **env);
+int is_builtin(char *cmd);
+int execute_builtin(t_tree *node, char **args, char **env);
+char *join_path(char *path, char *args);
+char	*extract_path(char *envp[], char *args);
+int execute_command(t_tree *node, char **env);
+int execute_node(t_tree *node, char **env);
+char **build_args(t_tree *node);
+void test_command(char **env, char *test_name, char *cmd);
+int execute_heredoc(t_tree *node, char **env);
+
+//built in
+int builtin_cd(t_tree *node, char **args, char **env);
+int builtin_pwd(t_tree *node, char **args, char **env);
+int builtin_echo(t_tree *node, char **argv, char **env);
+
+//signal
+void handle_sigint(int sig);
+
 #endif
