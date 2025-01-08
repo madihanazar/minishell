@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ast_tree.c                                         :+:      :+:    :+:   */
+/*   build_tree.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 20:31:33 by mnazar            #+#    #+#             */
-/*   Updated: 2024/12/23 21:21:50 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/01/07 19:47:43 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,9 +109,18 @@ static char *extract_token(char *str, int len, char **env)
     while (i < len)
     {
         if (str[i] == '"' && !single_quote)
-            double_quote = !double_quote;
+        {
+			double_quote = !double_quote;
+			i++;   
+			continue;    // to move on and not the quotes in the argument 
+			// echo "hi" will now give hi and not "hi"
+		}    
         else if (str[i] == '\'' && !double_quote)
-            single_quote = !single_quote;
+        {
+			single_quote = !single_quote;
+			i++;
+			continue;
+		}
         else if (str[i] == '$' && !single_quote)
         {
             value = expand_var(str, &i, env);
@@ -163,7 +172,10 @@ char **split_cmd(char *str, char split_char, char **env)
 	while (str[i])
 	{
     	if (str[i] == '"' && !single_quote)
-        	double_quote = !double_quote;
+        {
+			double_quote = !double_quote;
+			
+		}
     	else if (str[i] == '\'' && !double_quote)
         	single_quote = !single_quote;
     	if (str[i] == split_char && !double_quote && !single_quote)

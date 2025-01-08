@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 20:50:09 by mnazar            #+#    #+#             */
-/*   Updated: 2024/12/23 20:51:34 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/01/08 20:20:23 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,8 @@ int execute_heredoc(t_tree *node, char **env);
 int builtin_cd(t_tree *node, char **args, char **env);
 int builtin_pwd(t_tree *node, char **args, char **env);
 int builtin_echo(t_tree *node, char **argv, char **env);
+int builtin_env(t_tree *node, char **args, char **env);
+int builtin_export(t_tree *node, char **args, char **env);
 
 //signal
 void handle_sigint(int sig);

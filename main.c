@@ -103,8 +103,8 @@ int main(int argc, char **argv, char **env)
     char *input;
     int status;
 
-    signal(SIGINT, handle_sigint);   // Ctrl+C
-    signal(SIGQUIT, SIG_IGN);
+    // signal(SIGINT, handle_sigint);   // Ctrl+C
+    // signal(SIGQUIT, SIG_IGN);
     while (1)
     {
         input = readline("minishell>");
@@ -119,11 +119,11 @@ int main(int argc, char **argv, char **env)
     return (status);
 }
 
-void handle_sigint(int sig)
-{
-    g_sig = sig;
-    write(1, "\n", 1);          
-    rl_on_new_line();     
-    rl_replace_line("", 0); 
-    rl_redisplay();     
-}  
+// void handle_sigint(int sig)
+// {
+//     g_sig = sig;
+//     write(1, "\n", 1);          
+//     rl_on_new_line();     
+//     rl_replace_line("", 0); 
+//     rl_redisplay();     
+// }  
