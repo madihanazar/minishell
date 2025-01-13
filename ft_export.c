@@ -117,43 +117,251 @@ static int check_export(char *str)
 
 //     return (1);
 // }
+// static int add_export(char *str, char ***env)
+// {
+//     int i = 0;
+//     char *new_value;
+//     char **new_env;
+//     char *key;
+//     char *equals;
+
+//     // For empty export command or just a key without '='
+//     equals = ft_strchr(str, '=');
+//     if (!equals)
+//         return (1);  // Valid but nothing to add to env
+
+//     // Get key length
+//     key = ft_substr(str, 0, equals - str);
+//     if (!key)
+//         return (0);
+// 	printf("im in\n");
+// 	new_env = malloc(sizeof(char *) * (i + 2));  
+// 	if (!new_env)
+//     {
+//         free(key);
+//         return (0);
+//     }
+// 	while((*env)[i])
+// 		i++;
+// 	int j = 0;
+// 	for (j = 0; j < i; j++)
+//         new_env[j] = (*env)[j];
+// 	new_env[j + 1] = NULL;
+// 	i = 0;
+//     // Look for existing key
+//     while ((*new_env)[i])
+//     {
+//         printf("im in\n");
+// 		printf("%s\n", (*new_env)[i]);
+// 		printf("%s\n", key);
+// 		if (ft_strncmp((*new_env)[i], key, ft_strlen(key)) == 0 && 
+//             (*new_env)[i][ft_strlen(key)] == '=')
+//         {
+// 			printf("im in\n");
+//             new_value = ft_strdup(str);
+//             if (!new_value)
+//             {
+//                 free(key);
+//                 return (0);
+//             }
+// 			printf("Freeing (*env)[%d]: %s\n", i, (*env)[i]);
+
+//             free((*new_env)[i]);  // Free only if we successfully created new_value
+//             (*new_env)[i] = new_value;
+//             free(key);
+//             return (1);
+//         }
+//         i++;
+//     }
+
+//     // Add new entry
+//     //new_env[i] = ft_strdup(str);
+//     // if (!new_env[i])
+//     // {
+//     //     free(key);
+//     //     free(new_env);
+//     //     return (0);
+//     // }
+//     // new_env[i + 1] = NULL;
+
+//     // Update environment pointer
+//     free(*env);
+//     *env = new_env;
+//     free(key);
+
+//     return (1);
+// }
+
+// static int add_export(char *str, char ***env)
+// {
+//     int i = 0;
+//     char **new_env;
+
+//     // Skip if no '='
+//     if (!ft_strchr(str, '='))
+//         return (1);
+
+//     // Count current environment variables
+//     while ((*env)[i])
+//         i++;
+
+//     // Allocate new environment array
+//     new_env = malloc(sizeof(char *) * (i + 2));
+//     if (!new_env)
+//         return (0);
+
+//     // Copy pointers to existing environment strings
+//     for (int j = 0; j < i; j++)
+//         new_env[j] = (*env)[j];
+
+//     // Add new entry
+//     new_env[i] = ft_strdup(str);
+//     if (!new_env[i])
+//     {
+//         free(new_env);
+//         return (0);
+//     }
+//     new_env[i + 1] = NULL;
+
+//     // Only free the array pointer, not the strings
+//     if (*env)
+//         free(*env);
+//     *env = new_env;
+
+//     return (1);
+// }
+
+// static int add_export(char *str, char ***env)
+// {
+//     int i = 0;
+//     char *new_value;
+//     char **new_env;
+//     char *key;
+//     char *equals;
+
+//     // For empty export command or just a key without '='
+//     equals = ft_strchr(str, '=');
+//     if (!equals)
+//         return (1);  // Valid but nothing to add to env
+
+//     // Get key length
+//     key = ft_substr(str, 0, equals - str);
+//     if (!key)
+//         return (0);
+// 	printf("im in\n");
+//     // Count environment variables
+//     while ((*env)[i])
+//         i++;
+
+//     // Create new environment array
+//     new_env = malloc(sizeof(char *) * (i + 2));  
+//     if (!new_env)
+//     {
+//         free(key);
+//         return (0);
+//     }
+
+//     // Copy existing environment to new array
+// 	printf("im in\n");
+//     for (int j = 0; j < i; j++)
+//         new_env[j] = ft_strdup((*env)[j]);  // Create copies of strings
+//     new_env[i] = NULL;  // Null terminate the array
+//     // Look for existing key in new array
+//     i = 0;
+//     while (new_env[i])
+//     {
+//         //printf("%s\n", new_env[i]);
+// 		printf("im in\n");
+// 		if (ft_strncmp(new_env[i], key, ft_strlen(key)) && 
+//             new_env[i][ft_strlen(key)] == '=')
+//         {
+//             // Update existing entry
+// 			printf("im batman\n");
+//             new_value = ft_strdup(str);
+// 			//printf("%s\n", new_value);
+//             if (!new_value)
+//             {
+//                 // Cleanup if strdup fails
+//                 while (new_env[i])
+//                 {
+//                     free(new_env[i]);
+//                     i++;
+//                 }
+//                 free(new_env);
+//                 free(key);
+//                 return (0);
+//             }
+// 			printf("im superman\n");
+//             free(new_env[i]);  // Now safe to free as this is our copy
+// 			printf("im catwoman\n");
+//             new_env[i] = new_value;
+//             free(key);
+            
+//             // if (*env)
+//             //     free(*env);
+//             *env = new_env;
+//             return (1);
+//         }
+//         i++;
+//     }
+
+//     // Key not found, add new entry
+//     new_env[i] = ft_strdup(str);
+//     if (!new_env[i])
+//     {
+//         // Cleanup if strdup fails
+//         int j = 0;
+//         while (new_env[j])
+//         {
+//             free(new_env[j]);
+//             j++;
+//         }
+//         free(new_env);
+//         free(key);
+//         return (0);
+//     }
+//     new_env[i + 1] = NULL;
+
+//     if (*env)
+//         free(*env);
+//     *env = new_env;
+//     free(key);
+
+//     return (1);
+// }
 
 static int add_export(char *str, char ***env)
 {
-    if (!str || !env || !*env)
-        return (0);
-
-    char *equals = ft_strchr(str, '=');
+    int i = 0;
+    char *new_value;
+    char **new_env;
     char *key;
-    size_t key_len;
+    char *equals;
 
-    // Calculate key length
-    if (equals)
-        key_len = equals - str;
-    else
-        key_len = ft_strlen(str);
+    // For empty export command or just a key without '='
+    equals = ft_strchr(str, '=');
+    if (!equals)
+        return (1);  // Valid but nothing to add to env
 
-    // Create temporary key for comparison
-    key = malloc(key_len + 1);
+    // Get key length
+    key = ft_substr(str, 0, equals - str);
     if (!key)
         return (0);
-    ft_strcpy(key, str);
 
-    // First pass: check if variable exists
-    int i = 0;
+    // Look for existing key
     while ((*env)[i])
     {
-        if (ft_strncmp((*env)[i], key, key_len) == 0 &&
-            ((*env)[i][key_len] == '=' || (*env)[i][key_len] == '\0'))
+        if (ft_strncmp((*env)[i], key, equals - str) == 0 && 
+            (*env)[i][equals - str] == '=')
         {
-            // Found the variable, update it
-            char *new_value = ft_strdup(str);
+            // Update existing entry
+            new_value = ft_strdup(str);
             if (!new_value)
             {
                 free(key);
                 return (0);
             }
-            free((*env)[i]);
+            free((*env)[i]);  // Free only if we successfully created new_value
             (*env)[i] = new_value;
             free(key);
             return (1);
@@ -161,28 +369,32 @@ static int add_export(char *str, char ***env)
         i++;
     }
 
-    // If we get here, variable doesn't exist
-    // Find first NULL slot
-    i = 0;
-    while ((*env)[i])
-        i++;
-
-    // Add new variable at first NULL position
-    if (equals)
-        (*env)[i] = ft_strdup(str);
-    else
-        (*env)[i] = ft_strdup(key);
-
-    if (!(*env)[i])
+    // Create new environment array
+    new_env = malloc(sizeof(char *) * (i + 2));  // Space for new entry and NULL
+    if (!new_env)
     {
         free(key);
         return (0);
     }
 
-    // Ensure next position is NULL
-    (*env)[i + 1] = NULL;
-    
+    // Copy old environment
+    for (int j = 0; j < i; j++)
+        new_env[j] = (*env)[j];
+
+    // Add new entry
+    new_env[i] = ft_strdup(str);
+    if (!new_env[i])
+    {
+        free(key);
+        free(new_env);
+        return (0);
+    }
+    new_env[i + 1] = NULL;
+
+    // Update environment pointer
+    *env = new_env;
     free(key);
+
     return (1);
 }
 
