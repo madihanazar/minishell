@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/23 20:50:09 by mnazar            #+#    #+#             */
-/*   Updated: 2025/01/08 20:20:23 by mnazar           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
@@ -48,15 +37,30 @@ typedef struct s_tree
 	t_node_type		type;
 }	t_tree;
 
-typedef struct s_expand
+// remove
+typedef struct s_list
 {
-    char    *result;
-    int     i;          // index for input string
-    int     j;          // index for result string
-    int     len;        // length for variable names or allocations
-    int     s_quote;    // single quote flag
-    int     d_quote;    // double quote flag
-} t_expand;
+	void			*content;
+	struct s_list	*next;
+}	t_list;
+
+typedef struct s_shell
+{
+    t_list      *env;         
+    t_tree      *tree;
+    //t_context   *context;
+    int         status;
+} t_shell;
+
+// typedef struct s_expand
+// {
+//     char    *result;
+//     int     i;          // index for input string
+//     int     j;          // index for result string
+//     int     len;        // length for variable names or allocations
+//     int     s_quote;    // single quote flag
+//     int     d_quote;    // double quote flag
+// } t_expand;
 
 char	*find_last_pipe(char *str);
 char	*find_last_redir(char *str);
@@ -69,7 +73,6 @@ char *expand_var(char *str, int *i, char **env);
 char *get_env_value(char *name, char **env);
 void free_ast(t_tree *node);
 void free_split(char **result);
-char *check_expand_var(char *value, int j, int len, int i);
 void print_ast(t_tree *node, int depth);
 //string utils
 char	*ft_substr(char const *s, unsigned int start, size_t len);
@@ -82,9 +85,11 @@ int	ft_strncmp(const char *str1, const char *str2, size_t n);
 char *ft_strcpy(char *dest, const char *src);
 void	ft_bzero(void *ptr, size_t n);
 char	*ft_strjoin(char const *s1, char const *s2);
-
+int ft_strcmp(const char *s1, const char *s2);
 char	**ft_split(const char *s, char c);
 void	ft_putstr_fd(char *s, int fd);
+int	ft_isalpha(int c);
+
 
 int execute_pipe(t_tree *node, char **env);
 int execute_redir(t_tree *node, char **env);
@@ -103,7 +108,7 @@ int builtin_cd(t_tree *node, char **args, char **env);
 int builtin_pwd(t_tree *node, char **args, char **env);
 int builtin_echo(t_tree *node, char **argv, char **env);
 int builtin_env(t_tree *node, char **args, char **env);
-int builtin_export(t_tree *node, char **args, char **env);
+int builtin_export(t_tree *node, char **args, char ***env);
 
 //signal
 void handle_sigint(int sig);

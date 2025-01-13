@@ -42,8 +42,8 @@ char *expand_var(char *str, int *i, char **env)
 	if (len == 0)
 		return(ft_strdup("$"));
 	var_name = ft_substr(str, *i, len);
-    printf("len %d\n", len);
-    printf("var name is %s\n", var_name);
+    // printf("len %d\n", len);
+    // printf("var name is %s\n", var_name);
 	if (!var_name)
         return (NULL);
 	*i += len;
@@ -52,30 +52,4 @@ char *expand_var(char *str, int *i, char **env)
 	if (value)
 		return (value);
 	return (ft_strdup(""));
-}
-
-char *check_expand_var(char *value, int j, int len, int i)
-{
-    int value_len;
-    int token_size;
-    char *new_token;
-
-    value_len = 0;
-    value_len = ft_strlen(value);
-    token_size = len + 1;
-    if (j + value_len + (len - i) >= token_size)
-    {
-		token_size = j + value_len + (len - i) + 1;
-        new_token = malloc(sizeof(char) * token_size);
-        if (!new_token)
-        {
-            //free(token);
-            //free(value);
-            return (NULL);
-        }
-        // ft_strcpy(new_token, token);
-        // free(token);  // Free the old token
-        // token = new_token;  // Update token to point to the new memory
-	}
-    return (new_token);
 }

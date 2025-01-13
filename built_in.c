@@ -168,20 +168,6 @@ int builtin_env(t_tree *node, char **args, char **env)
 	return (0);
 }
 
-int builtin_export(t_tree *node, char **args, char **env)
-{
-	if (!args[1])
-	{
-		int i = 0;
-		while (env[i])
-		{
-			printf("declare -x ");
-			printf("%s\n", env[i]);
-			i++;
-		}
-	}
-	return (0);
-}
 int execute_builtin(t_tree *node, char **args, char **env)
 {
    if (!ft_strncmp(node->cmd, "cd", 2))
@@ -191,7 +177,7 @@ int execute_builtin(t_tree *node, char **args, char **env)
     else if (!ft_strncmp(node->cmd, "pwd", 3))
          return builtin_pwd(node, args, env);
     else if (!ft_strncmp(node->cmd, "export", 6))
-        return builtin_export(node, args, env);
+        return builtin_export(node, args, &env);
     // else if (!ft_strcmp(node->cmd, "unset"))
     //     return builtin_unset(node, env);
     else if (!ft_strncmp(node->cmd, "env",3))

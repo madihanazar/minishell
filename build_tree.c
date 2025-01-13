@@ -1,66 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   build_tree.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/23 20:31:33 by mnazar            #+#    #+#             */
-/*   Updated: 2025/01/07 19:47:43 by mnazar           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
-
-char	*find_last_pipe(char *str)
-{
-	char	*begin;
-	int 	single_quote;
-	int		double_quote;
-
-	begin = NULL;
-	single_quote = 0;
-	double_quote = 0;
-	while (*str)
-	{
-		if (*str == '"')
-			double_quote = !double_quote;  // 1
-		else if (*str == '\'')
-			single_quote = !single_quote;
-		if (*str == '|' && !double_quote && !single_quote)
-			begin = str;
-		str++;
-	}
-	return (begin);
-}
-
-char	*find_last_redir(char *str)
-{
-	char	*last_redir;
-	int		single_quote;
-	int 	double_quote;
-
-	last_redir = NULL;
-	single_quote = 0;
-	double_quote = 0;
-	while (*str)
-	{
-		if (*str == '"')
-			double_quote = !double_quote;
-		else if (*str == '\'')
-			single_quote = !single_quote;
-		if ((*str == '<' || *str == '>') && !double_quote && !single_quote)
-		{
-			last_redir = str;
-			if (*(str + 1) == *str)
-				str++;
-		}
-		str++;
-	}
-	return (last_redir);
-}
-
-
 
 static int get_token_len(char *str, char split_char)
 {
@@ -98,7 +36,9 @@ static char *extract_token(char *str, int len, char **env)
     token_size = len + 1;  // Initial size is the length of the input string
     token = malloc(sizeof(char) * token_size);  
     if (!token)
+    {
         return (NULL);
+    }
 	ft_bzero(token, token_size);
     i = 0;
     j = 0;
@@ -172,17 +112,14 @@ char **split_cmd(char *str, char split_char, char **env)
 	while (str[i])
 	{
     	if (str[i] == '"' && !single_quote)
-        {
 			double_quote = !double_quote;
-			
-		}
-    	else if (str[i] == '\'' && !double_quote)
+		else if (str[i] == '\'' && !double_quote)
         	single_quote = !single_quote;
     	if (str[i] == split_char && !double_quote && !single_quote)
         	count++;
     	i++;
 	}
-	 result = malloc(sizeof(char *) * (count + 2));
+	 result = malloc(sizeof(char *) * (count + 2));  // null terminator
 	 if (!result)
 	 	return (NULL);
 	i = 0;
@@ -220,7 +157,7 @@ t_tree *build_ast(char *str, char **env)
     t_tree *node = NULL;
     char *redir_pos = NULL;
     int len;
-    char *right_str;
+    char *right_str = NULL;
 
     if (str == NULL || *str == '\0')
         return (NULL);
@@ -249,15 +186,11 @@ t_tree *build_ast(char *str, char **env)
             node = create_node(">", REDIR_OUT);
         else if (*redir_pos == '<')
             node = create_node("<", REDIR_IN);
-
         if (!node)
             return (NULL);
         node->left = build_ast(ft_substr(str, 0, redir_pos - str), env);
-        char *right_start = redir_pos + len;
-        while (*right_start && (*right_start == ' ' || *right_start == '\t'))
-            right_start++;
-
-        node->right = build_ast(ft_strdup(right_start), env);
+        right_str = redir_pos + len;
+        node->right = build_ast(ft_strdup(right_str), env);
         return (node);
     }
 
