@@ -91,25 +91,37 @@ void	ft_putstr_fd(char *s, int fd);
 int	ft_isalpha(int c);
 
 
-int execute_pipe(t_tree *node, char **env);
-int execute_redir(t_tree *node, char **env);
+int execute_pipe(t_tree *node, char ***env);
+int execute_redir(t_tree *node, char ***env);
 int is_builtin(char *cmd);
-int execute_builtin(t_tree *node, char **args, char **env);
+int execute_builtin(t_tree *node, char **args, char ***env);
 char *join_path(char *path, char *args);
 char	*extract_path(char *envp[], char *args);
-int execute_command(t_tree *node, char **env);
-int execute_node(t_tree *node, char **env);
+int execute_command(t_tree *node, char ***env);
+int execute_node(t_tree *node, char ***env);
 char **build_args(t_tree *node);
 void test_command(char **env, char *test_name, char *cmd);
-int execute_heredoc(t_tree *node, char **env);
-
+int execute_heredoc(t_tree *node, char ***env);
+int process_heredocs(t_tree *node, char ***env);
+int has_heredoc(t_tree *node);
 //built in
 int builtin_cd(t_tree *node, char **args, char **env);
 int builtin_pwd(t_tree *node, char **args, char **env);
 int builtin_echo(t_tree *node, char **argv, char **env);
 int builtin_env(t_tree *node, char **args, char **env);
 int builtin_export(t_tree *node, char **args, char ***env);
+int add_export(char *str, char ***env);
+int check_export(char *str);
+int builtin_unset(t_tree *node, char **args, char ***env);
+char **list_to_env(t_list *list);
+t_list *env_to_list(char **env);
 
+//list
+t_list	*ft_lstnew(void *content);
+int	ft_lstsize(t_list *lst);
+void	ft_lstclear(t_list **lst, void (*del)(void *));
+void	ft_lstadd_back(t_list **lst, t_list *new);
+void	ft_lstdelone(t_list *lst, void (*del)(void *));
 //signal
 void handle_sigint(int sig);
 
