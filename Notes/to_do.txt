@@ -1,0 +1,41 @@
+Today's tasks:
+1. Create folder structure
+2. Start norminette work
+3. Upload to a new branch
+
+Future priority:
+1. Ensure valgrind and norminette up until this point is working.
+2. Ensure the AST works properly before moving ahead.
+
+Things to do:
+1. echo $? // must echo exit code
+2. Anas broke everything by writing the command cat find every .c file in the folder
+	and pipe it into the executable. He says that is wrong. It is NOT supposed to 
+	reboot the PC (which it did FYI).
+3. Potential issue with forking.
+4. Check leaks and norminette.
+5. In the find_last_redir() function, there are certain unhandled combinations like 
+	<> and ><. Figure them out.
+6. In the find_last_redir() function, what happens if it is a NULL character after the > or <
+7. In the split_cmd() function, why do we malloc count + 2? - To include the last word 
+	and then a NULL terminator.
+8. In the split_cmd() function, it we increment count multiple times in case we have
+	multiple ' ' characters together. Example: Hello       there.
+9. In build tree, what happens if the split_cmd function call returns NULL?
+10. In the extract_token() function, if we come across an env variable, what happens if the malloc fails for the value variable?
+	(Line 63)
+11. In the get_env_value() function, what happens if the strdup function call fails?
+12. In the extract_token() function, doesn't new_token need to have the value we expanded? (Line 77)
+13. In the create_node() function, the node->cmd uses strdup, but there is no malloc failure handled here.
+
+The free tree function would look something like this:
+void	free_ast(t_tree *root)
+{
+	if (!root)
+		return ;	
+	free_ast(root->left); // Moving to the left child first
+	free_ast(root->right); // Then traversing down all the right children
+	free(root->cmd); // Once we reach the bottom of the tree, start clearing stuff.
+	free(root);
+	return ;
+}

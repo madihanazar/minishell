@@ -1,21 +1,3 @@
-Program execution:
-
-Things to do:
-1. echo $? // must echo exit code
-2. Anas broke everything by writing the command cat find every .c file in the folder
-	and pipe it into the executable. He says that is wrong. It is NOT supposed to 
-	reboot the PC (which it did FYI).
-3. Potential issue with forking.
-4. Check leaks and norminette.
-5. In the find_last_redir() function, there are certain unhandled combinations like 
-	<> and ><. Figure them out.
-6. In the find_last_redir() function, what happens if it is a NULL character after the > or <
-7. In the split_cmd() function, why do we malloc count + 2? - To include the last word 
-	and then a NULL terminator.
-8. In the split_cmd() function, it we increment count multiple times in case we have
-	multiple ' ' characters together. Example: Hello       there.
-9.
-
 Questions:
 1. How does an AST work?
 2. Why an AST?
@@ -30,6 +12,7 @@ Questions:
 	on the other hand, keeps track of information that is shared by 
 	many programs, changes infrequently, and that is less frequently used.
 
+Program Flow:
 main.c
 	This function details the main execution point of the program,
 	here is where the user input is accepted.
@@ -91,17 +74,33 @@ build_tree.c:
 			variables as a parameter too.
 		b. First, we find the number of tokens we have in our string by counting the number
 			of ' ' characters present in it.
-		c. 
+		c. Then using the above number, we allocate that many spaces + 2 to a double pointer array.
+			(similar to split)
+		d. The we calculate the length of the token (string) so we can allocate that much space for it
+			in the double pointer array.
+		e. We then try to fill up the above space using the extract_token() function. We end up having
+			an array of commands (strings) that will be returned to the build ast function.
+		
+		extract_token():
+		a. This function is responsible for filling up the above double pointer array with strings.
+		b. It follows the same logic as split, with a special case that occurs when a $ is found in the 
+			string.
+		c. If we find a $ in bash, it means we've come across an env variable, and it displays the value
+			of said variable.
+		d. In this function, if we come across a $, we call the expand_var() function. This function is 
+			responsible for finding out what the value is after the $ and then expanding that value.
+		
+	4. Assuming we are now left with an array of strings\tokens from the split_cmd() function, we now
+		(create a tree / add these tokens to a pre-existing tree). The initial node is treated as a command
+		while remaning nodes are treated as arguments. These arguments are always placed as the right children
+		of the tree.
 
+	5. Finally, the build_ast() function returns the root node of the tree.
 
-The free tree function would look something like this:
-void	free_ast(t_tree *root)
-{
-	if (!root)
-		return ;	
-	free_ast(root->left); // Moving to the left child first
-	free_ast(root->right); // Then traversing down all the right children
-	free(root->cmd); // Once we reach the bottom of the tree, start clearing stuff.
-	free(root);
-	return ;
-}
+Once we get back to the main() function, what we have left is to execute the nodes of the tree
+we created. We do this by calling the execute_node() command.
+
+exec.c:
+
+	execute_node():
+	1. 
