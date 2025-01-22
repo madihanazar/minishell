@@ -1,8 +1,1 @@
 redir
-Built arguments:
-arg[0]: 'cat'
-fjfjf
-gello
-hello world
-hello
-fff

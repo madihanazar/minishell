@@ -15,7 +15,10 @@ SRC_FILES = main.c \
            string_utils.c \
            tree_nodes.c  \
 		   pipe_redir.c  \
-		   ft_export.c
+		   ft_export.c  \
+		   list_utils.c \
+		   ft_unset.c \
+		   heredoc.c
 
 
 OBJS = $(SRC_FILES:.c=.o)

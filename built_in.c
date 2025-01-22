@@ -168,20 +168,20 @@ int builtin_env(t_tree *node, char **args, char **env)
 	return (0);
 }
 
-int execute_builtin(t_tree *node, char **args, char **env)
+int execute_builtin(t_tree *node, char **args, char ***env)
 {
    if (!ft_strncmp(node->cmd, "cd", 2))
-        return builtin_cd(node, args, env);
+        return builtin_cd(node, args, *env);
     if (!ft_strncmp(node->cmd, "echo", 4))
-         return builtin_echo(node, args, env);
+         return builtin_echo(node, args, *env);
     else if (!ft_strncmp(node->cmd, "pwd", 3))
-         return builtin_pwd(node, args, env);
+         return builtin_pwd(node, args, *env);
     else if (!ft_strncmp(node->cmd, "export", 6))
-        return builtin_export(node, args, &env);
-    // else if (!ft_strcmp(node->cmd, "unset"))
-    //     return builtin_unset(node, env);
+        return builtin_export(node, args, env);
+    else if (!ft_strcmp(node->cmd, "unset"))
+        return builtin_unset(node, args, env);
     else if (!ft_strncmp(node->cmd, "env",3))
-        return builtin_env(node, args, env);
+        return builtin_env(node, args, *env);
     // else if (!ft_strcmp(node->cmd, "exit"))
     //     return builtin_exit(node);
     return (1);

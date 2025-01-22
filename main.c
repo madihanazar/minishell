@@ -123,14 +123,15 @@ int main(int argc, char **argv, char **env)
     //shell = create_shell(env);
     // signal(SIGINT, handle_sigint);   // Ctrl+C
     // signal(SIGQUIT, SIG_IGN);
+    char **env_copy = env;
     while (1)
     {
         input = readline("minishell>");
         if (!input)
             break;
-        t_tree *ast = create_tree(input, env);
+        t_tree *ast = create_tree(input, env_copy);
         print_ast(ast, 0);
-        status = execute_node(ast, env);
+        status = execute_node(ast, &env_copy);
         free(input);
     }
     printf("im out\n");
