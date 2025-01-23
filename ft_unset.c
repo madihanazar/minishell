@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_unset.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/19 13:26:09 by mnazar            #+#    #+#             */
+/*   Updated: 2025/01/19 13:26:09 by mnazar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static int remove_var(char *str, char ***env)
@@ -61,14 +73,10 @@ int builtin_unset(t_tree *node, char **args, char ***env)
         if (!check_export(args[i]))
         {
             printf("bash: unset: ");
-            printf("`%s`: ", args[i]);
+            printf("`%s': ", args[i]);
             printf("not a valid identifier\n");
         }
-        else if (!remove_var(args[i], env))
-        {
-            printf("im inside add export\n");
-            printf("bash: export: failed to add `%s`\n", args[i]);
-        }
+        remove_var(args[i], env);
         i++;
     }
     return (0);
