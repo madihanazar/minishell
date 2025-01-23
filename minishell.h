@@ -35,6 +35,7 @@ typedef struct s_tree
 	struct s_tree	*right;
 	char			*cmd;
 	t_node_type		type;
+    int             heredoc_fd;
 }	t_tree;
 
 // remove
