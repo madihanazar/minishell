@@ -1,4 +1,4 @@
-Project Overview
+## **Project Overview**
 
 ParaLegal is a legal chatbot designed to provide users with relevant legal information based on their queries. This AI-powered tool is built to simplify access to legal knowledge by answering user questions in a conversational format.
 
@@ -28,10 +28,35 @@ ParaLegal aims to bridge the gap between legal information and accessibility, em
 - **Why?** Gradio is a lightweight and easy-to-use library for creating web-based interfaces. It allows us to quickly build a UI for interacting with the AI system without needing extensive frontend development.
 - **Trade-offs**: Gradio is not as customizable as a full-fledged frontend framework like React or Vue.js. However, it is ideal for rapid prototyping and lightweight applications.
 
+  ### **What Could Be Improved?**
+- **Frontend**: If more time were available, a more sophisticated frontend (e.g., React or Vue.js) could be developed to provide a richer user experience.
+- **Testing**: Additional unit and integration tests could be added to ensure the reliability of the system.
+- **Deployment**: The project could be containerized using Docker for easier deployment and scaling.
+
+
+## **Getting Started**
+
+### **Prerequisites**
+- Python 3.8 or higher
+- pip (Python package installer)
 Installation:
 
 To run the project locally, follow these steps:
 
-Clone the repository:
-git clone https://github.com/yourusername/para_legal_news.git
-cd para_legal_news
+
+### **Installation**
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/para_legal_news.git
+   cd para_legal_news/latest_ai_d_development/src/latest_ai_d_development
+Export the PYTHONPATH to include the project directory:
+
+bash
+Copy
+export PYTHONPATH=$(pwd)
+Run the Gradio UI:
+
+bash
+Copy
+python3 gradio_ui.py
