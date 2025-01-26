@@ -29,7 +29,9 @@ ParaLegal aims to bridge the gap between legal information and accessibility, em
 - **Trade-offs**: Gradio is not as customizable as a full-fledged frontend framework like React or Vue.js. However, it is ideal for rapid prototyping and lightweight applications.
 
   ### **What Could Be Improved?**
+- **Multiple Agents for Broader Coverage**: We could have implemented more agents henceforth covering more legal domains. This would enhance the chatbot's ability to handle a wider range of topics and improve its efficiency and speed in providing accurate responses.
 - **Frontend**: If more time were available, a more sophisticated frontend (e.g., React or Vue.js) could be developed to provide a richer user experience.
+- **Exploring More CrewAI Tools**: We could have explored additional tools provided by CrewAI, such as its built-in caching system, to optimize performance and reduce redundant computations.However, due to time constraints, we focused on core functionality.
 - **Testing**: Additional unit and integration tests could be added to ensure the reliability of the system.
 - **Deployment**: The project could be containerized using Docker for easier deployment and scaling.
 
