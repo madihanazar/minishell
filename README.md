@@ -63,6 +63,6 @@ Run the Gradio UI:
     python3 gradio_ui.py
   ```
 ## Acknowledgments
-Thanks to the CrewAI team for the framework.
-Special thanks to all contributors and users of this project. 
-Members: madihanazar, nikhilshaji17, kambarg, nasqnik, mariame42
+- Thanks to the CrewAI team for the framework.
+- Special thanks to all contributors and users of this project. 
+- Members: madihanazar, nikhilshaji17, kambarg, nasqnik, mariame42
