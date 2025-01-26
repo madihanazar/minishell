@@ -53,11 +53,13 @@ To run the project locally, follow these steps:
    cd para_legal_news/latest_ai_d_development/src/latest_ai_d_development
 
 Make sure to export the `PYTHONPATH` to include the project directory:
-
-```bash
-export PYTHONPATH=$(pwd)
+  
+  ```bash
+  export PYTHONPATH=$(pwd)
+  ```
 
 Run the Gradio UI:
-
-```bash
+  ```bash
     python3 gradio_ui.py
+  ```
+
