@@ -37,8 +37,9 @@ ParaLegal aims to bridge the gap between legal information and accessibility, em
 ## **Getting Started**
 
 ### **Prerequisites**
-- Python 3.8 or higher
+-  Python 3.10 or higher (must be `<3.13`)
 - pip (Python package installer)
+- crewai[tools]>=0.98.0,<1.0.0
 Installation:
 
 To run the project locally, follow these steps:
@@ -50,13 +51,13 @@ To run the project locally, follow these steps:
    ```bash
    git clone https://github.com/yourusername/para_legal_news.git
    cd para_legal_news/latest_ai_d_development/src/latest_ai_d_development
-Export the PYTHONPATH to include the project directory:
 
-bash
-Copy
-export PYTHONPATH=$(pwd)
+Make sure to export the PYTHONPATH to include the project directory:
+
+    ```bash
+    export PYTHONPATH=$(pwd)
+
 Run the Gradio UI:
 
-bash
-Copy
-python3 gradio_ui.py
+    ```bash
+    python3 gradio_ui.py
