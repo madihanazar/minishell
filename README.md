@@ -1,17 +1,17 @@
-## **Project Overview**
+# **Project Overview**
 
 ParaLegal is a legal chatbot designed to provide users with relevant legal information based on their queries. This AI-powered tool is built to simplify access to legal knowledge by answering user questions in a conversational format.
 
 The project leverages Gradio for the user interface, ensuring a seamless and intuitive experience for users who can easily interact with the chatbot in real time. Whether you're a student, professional, or anyone in need of quick legal guidance, ParaLegal offers a smart and easy way to get helpful information on a range of legal topics.
 
-Problem and Solution
-Problem:
+## Problem and Solution
+### Problem:
 Access to legal information can be challenging for many people. They are often complex and difficult to understand without proper legal knowledge. In addition, people may not always have immediate access to a lawyer or legal expert to answer their questions.
 
-Solution:
+### Solution:
 ParaLegal provides a simple and efficient way for users to get quick, relevant legal information. By interacting with the chatbot, users can input legal topics or questions, and receive clear and helpful explanations. The system was designed to provide information on common legal topics in a user-friendly format, empowering users to understand basic legal concepts without the need for a legal professional.
 
-Key features include:
+## Key features include:
 Instant, relevant legal advice based on user input.
 A simple, interactive interface powered by Gradio.
 Updates to improve responses and broaden the knowledge base.
@@ -50,7 +50,7 @@ To run the project locally, follow these steps:
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/para_legal_news.git
-   cd para_legal_news/latest_ai_d_development/src/latest_ai_d_development
+   cd para_legal_news/latest_ai_development/src/latest_ai_development
 
 Make sure to export the `PYTHONPATH` to include the project directory:
   
