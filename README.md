@@ -11,7 +11,7 @@ Access to legal information can be challenging for many people. They are often c
 ### Solution:
 ParaLegal provides a simple and efficient way for users to get quick, relevant legal information. By interacting with the chatbot, users can input legal topics or questions, and receive clear and helpful explanations. The system was designed to provide information on common legal topics in a user-friendly format, empowering users to understand basic legal concepts without the need for a legal professional.
 
-## Key features include:
+## Key features:
 Instant, relevant legal advice based on user input.
 A simple, interactive interface powered by Gradio.
 Updates to improve responses and broaden the knowledge base.
@@ -62,4 +62,7 @@ Run the Gradio UI:
   ```bash
     python3 gradio_ui.py
   ```
-
+## Acknowledgments
+Thanks to the CrewAI team for the framework.
+Special thanks to all contributors and users of this project. 
+Members: madihanazar, nikhilshaji17, kambarg, nasqnik, mariame42
