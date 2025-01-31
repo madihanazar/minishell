@@ -124,6 +124,8 @@ int main(int argc, char **argv, char **env)
     // signal(SIGINT, handle_sigint);   // Ctrl+C
     // signal(SIGQUIT, SIG_IGN);
     char **env_copy = env;
+    t_shell *shell;
+    shell->export_list = NULL;
     while (1)
     {
         input = readline("minishell>");
@@ -131,7 +133,7 @@ int main(int argc, char **argv, char **env)
             break;
         t_tree *ast = create_tree(input, env_copy);
         print_ast(ast, 0);
-        status = execute_node(ast, &env_copy);
+        status = execute_node(ast, &env_copy, shell);
         free(input);
     }
     printf("im out\n");

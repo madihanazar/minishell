@@ -37,8 +37,8 @@ int execute_heredoc(t_tree *node, char ***env)
         close(pipefd[1]);
         exit(0);
     }
-    waitpid(pid1, NULL, 0);
-
+     close(pipefd[1]);
+     waitpid(pid1, &status, 0);
     // Second fork for executing the command
     // pid2 = fork();
     // if (pid2 == 0)
@@ -46,13 +46,14 @@ int execute_heredoc(t_tree *node, char ***env)
     //     close(pipefd[1]);
     //     dup2(pipefd[0], STDIN_FILENO);
     //     close(pipefd[0]);
-    //     exit(execute_node(node->left, env));
+    //     exit(execute_node(node->left, env, ));
     // }
-
+    
+    // node->heredoc_fd = pipefd[0];
     close(pipefd[0]);
-    close(pipefd[1]);
-    // waitpid(pid2, &status, 0);
-    waitpid(pid1, &status, 0);
+    // close(pipefd[1]);
+    // waitpid(pid1, NULL, 0);
+    waitpid(pid2, &status, 0);
     return (WEXITSTATUS(status));
 }
 int has_heredoc(t_tree *node)
@@ -63,20 +64,41 @@ int has_heredoc(t_tree *node)
         return (1);
     return (has_heredoc(node->left) || has_heredoc(node->right));
 }
+// int process_heredocs(t_tree *node, char ***env)
+// {
+//     if (!node)
+//         return (0);
+    
+//     if (node->type == HEREDOC)
+//         return (execute_heredoc(node, env));
+        
+//     int left_status = process_heredocs(node->left, env);
+//     if (left_status != 0)
+//         return (left_status);
+        
+//     return process_heredocs(node->right, env);
+// }
+
 int process_heredocs(t_tree *node, char ***env)
 {
+    int status;
     if (!node)
         return (0);
     
+    if (node->left && node->left->type == HEREDOC)
+        status = process_heredocs(node->left, env);
+        
     if (node->type == HEREDOC)
-        return (execute_heredoc(node, env));
+    {
+        printf("yes im executing\n");
+        execute_heredoc(node, env);
+    }
+    //execute_node(node->left, env);
         
-    int left_status = process_heredocs(node->left, env);
-    if (left_status != 0)
-        return (left_status);
-        
-    return process_heredocs(node->right, env);
+    return (status);
 }
+
+
 // static void run_heredoc(int pipe_fd, char *cmd, char **env)
 // {
 //     char *line;

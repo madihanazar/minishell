@@ -23,32 +23,54 @@ static void bubble_sort(char **arr, int size)
     }
 }
 
-static void print_export(char **env, char **sort_env)
+static void print_export(char **env, char **sort_env, t_list **export_list)
 {
     int len;
     int i;
+    int env_count = 0;
+    int export_count = 0;
     char *equals;
 
-    len = 0;
-    i = 0;
-    while (env[len])
-        len++;
-    sort_env = malloc(sizeof(char *) * (len + 1));
+    while (env[env_count])
+        env_count++;
+
+    t_list *current = *export_list;
+    while (current)
+    {
+        export_count++;
+        current = current->next;
+    }
+    sort_env = malloc(sizeof(char *) * (env_count + export_count + 1));
     if (!sort_env)
-        return ;
+        return;
+    i = 0;
     while (env[i])
     {
         sort_env[i] = ft_strdup(env[i]);
         i++;
     }
-    sort_env[len] = NULL;
-    bubble_sort(sort_env, len);
+    current = *export_list;
+    while (current)
+    {
+        sort_env[i] = ft_strdup(current->content);
+        i++;
+        current = current->next;
+    }
+    sort_env[i] = NULL;
+    bubble_sort(sort_env, env_count + export_count);
     i = 0;
     while (sort_env[i])
     {
         equals = ft_strchr(sort_env[i], '=');
-        *equals = '\0';
-        printf("declare -x %s=\"%s\"\n", sort_env[i], equals + 1);
+        if (equals)
+        {
+            *equals = '\0';
+            printf("declare -x %s=\"%s\"\n", sort_env[i], equals + 1);
+        }
+        else
+        {
+            printf("declare -x %s\n", sort_env[i]);
+        }
         free(sort_env[i]);
         i++;
     }
@@ -143,8 +165,51 @@ char **list_to_env(t_list *list)
     new_env[i] = NULL;
     return (new_env);
 }
+int add_export_1(char *str, char ***env, t_list **export_list)
+{
+    t_list *current;
+    char **env_arr = *env;
+    int str_len = ft_strlen(str);
+    
+    while (*env_arr)
+    {
+        // Check if this env variable matches our string
+        if (!ft_strncmp(*env_arr, str, str_len) && 
+            ((*env_arr)[str_len] == '=' || (*env_arr)[str_len] == '\0'))
+        {
+            return (0);  // Variable exists in env, do nothing
+        }
+        env_arr++;
+    }
+    current = *export_list;
+    while (current)
+    {
+        printf("im outside\n");
+        if (!ft_strncmp(current->content, str, ft_strlen(str)))
+        {
+            printf("im same\n");
+            return (0);
+        }    
+        current = current->next;
+    }
+    printf("im inside\n");
+    t_list *new_node = create_env_node(str);
+    if (!new_node)
+        return (1);
 
-int add_export(char *str, char ***env)
+    if (!*export_list)
+        *export_list = new_node;
+    else
+        ft_lstadd_back(export_list, new_node);
+    current = *export_list;
+    while (current)
+    {
+        printf("%s\n", (char *)current->content);
+        current = current->next;
+    }
+    return (0);
+}
+int add_export(char *str, char ***env, t_list **export_list)
 {
     t_list *env_list;
     t_list *current;
@@ -153,20 +218,49 @@ int add_export(char *str, char ***env)
     char **new_env;
 
     equals = ft_strchr(str, '=');
-    if (!equals)
-        return (1);
-
     key = ft_substr(str, 0, equals - str);
     if (!key)
         return (1);
-
+    current = *export_list;
+    while (current)
+    {
+        if (!ft_strncmp(current->content, key, ft_strlen(key)) && 
+            (((char *)current->content)[ft_strlen(key)] == '\0' || 
+             ((char *)current->content)[ft_strlen(key)] == '='))
+        {
+            // If we're adding a value (equals exists) and found a match in export_list
+            // Remove it from export_list as it will now go to env
+            if (equals)
+            {
+                t_list *temp = *export_list;
+                t_list *prev = NULL;
+                
+                while (temp && ft_strncmp(temp->content, key, ft_strlen(key)) != 0)
+                {
+                    prev = temp;
+                    temp = temp->next;
+                }
+                
+                if (temp)
+                {
+                    if (prev)
+                        prev->next = temp->next;
+                    else
+                        *export_list = temp->next;
+                    free(temp->content);
+                    free(temp);
+                }
+            }
+            break;
+        }
+        current = current->next;
+    }
     env_list = env_to_list(*env);
     if (!env_list && *env && (*env)[0])
     {
         free(key);
         return (1);
-    }
-
+    }   
     current = env_list;
     printf("\n--- Initial List ---\n");
     t_list *temp = env_list;
@@ -262,14 +356,14 @@ int add_export(char *str, char ***env)
 }
 
 
-int builtin_export(t_tree *node, char **args, char ***env)
+int builtin_export(t_tree *node, char **args, char ***env, t_list **export_list)
 {
     char **sort_env;
     int i;
     
     i = 1;
     if (!args[1])
-        print_export(*env, sort_env);
+        print_export(*env, sort_env, export_list);
     else
     {
         while (args[i])
@@ -280,10 +374,20 @@ int builtin_export(t_tree *node, char **args, char ***env)
                 printf("`%s`: ", args[i]);
                 printf("not a valid identifier\n");
             }
-            else if (!add_export(args[i], env))
+            if (ft_strchr(args[i], '='))
             {
-                printf("im inside add export\n");
-                printf("bash: export: failed to add `%s`\n", args[i]);
+                if (add_export(args[i], env, export_list))
+                {
+                    printf("bash: export: failed to add `%s`\n", args[i]);
+                }
+            }
+            else
+            {
+                if (add_export_1(args[i], env, export_list))
+                {
+                    printf("im isndie func\n");
+                    printf("bash: export: failed to add `%s`\n", args[i]);
+                }
             }
             i++;
         }
