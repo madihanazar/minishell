@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int execute_pipe(t_tree *node, char ***env)
+int execute_pipe(t_tree *node, char ***env, t_shell *shell)
 {
     pid_t pid1;
     pid_t pid2;
@@ -25,7 +25,7 @@ int execute_pipe(t_tree *node, char ***env)
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
-        exit(execute_node(node->left, env));
+        exit(execute_node(node->left, env, shell));
     }
     pid2 = fork();
     if (pid2 == 0)
@@ -33,7 +33,7 @@ int execute_pipe(t_tree *node, char ***env)
         close(pipefd[1]);
         dup2(pipefd[0], STDIN_FILENO);
         close(pipefd[0]);
-        exit(execute_node(node->right, env));
+        exit(execute_node(node->right, env, shell));
     }
     (close(pipefd[0]), close(pipefd[1]));
     waitpid(pid1, &status1, 0);
@@ -43,7 +43,7 @@ int execute_pipe(t_tree *node, char ***env)
     return (WEXITSTATUS(status2));
 }
 
-int execute_redir(t_tree *node, char ***env)
+int execute_redir(t_tree *node, char ***env, t_shell *shell)
 {
     pid_t pid;
     int fd;
@@ -65,7 +65,7 @@ int execute_redir(t_tree *node, char ***env)
         else
             dup2(fd, STDOUT_FILENO);
         close(fd);
-        exit(execute_node(node->left, env));
+        exit(execute_node(node->left, env, shell));
         // exit(0);
     }
     close(fd);
@@ -73,7 +73,7 @@ int execute_redir(t_tree *node, char ***env)
     return (WEXITSTATUS(status));
 }
 
-int execute_cmd(t_tree *node, char ***env)
+int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 {
     char **args;
     char *cmd_path;
@@ -88,7 +88,7 @@ int execute_cmd(t_tree *node, char ***env)
     else
         cmd_path = extract_path(*env, args[0]);
     if (is_builtin(args[0]))
-        return (execute_builtin(node, args, env));
+        return (execute_builtin(node, args, env, shell));
     pid = fork();
     if (pid == 0)
     {
@@ -146,18 +146,18 @@ char **build_args(t_tree *node)
 
     return args;
 }
-int execute_node(t_tree *node, char ***env)
+int execute_node(t_tree *node, char ***env, t_shell *shell)
 {
     if (!node)
         return (0);
     if (node->type == PIPE)
-        return (execute_pipe(node, env));
+        return (execute_pipe(node, env, shell));
     else if (node->type == REDIR_IN || node->type == REDIR_OUT || node->type == APPEND)
-        return (execute_redir(node, env));
+        return (execute_redir(node, env, shell));
     else if (node->type == HEREDOC)
         return (process_heredocs(node, env));
     else if (node->type == NODE_COMMAND)
-        return (execute_cmd(node, env));
+        return (execute_cmd(node, env, shell));
     return (0);
 }
 

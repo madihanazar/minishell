@@ -40,14 +40,14 @@ int execute_heredoc(t_tree *node, char ***env)
      close(pipefd[1]);
      waitpid(pid1, &status, 0);
     // Second fork for executing the command
-    pid2 = fork();
-    if (pid2 == 0)
-    {
-        close(pipefd[1]);
-        dup2(pipefd[0], STDIN_FILENO);
-        close(pipefd[0]);
-        exit(execute_node(node->left, env));
-    }
+    // pid2 = fork();
+    // if (pid2 == 0)
+    // {
+    //     close(pipefd[1]);
+    //     dup2(pipefd[0], STDIN_FILENO);
+    //     close(pipefd[0]);
+    //     exit(execute_node(node->left, env, ));
+    // }
     
     // node->heredoc_fd = pipefd[0];
     close(pipefd[0]);

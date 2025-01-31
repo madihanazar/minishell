@@ -51,6 +51,7 @@ typedef struct s_shell
     t_tree      *tree;
     //t_context   *context;
     int         status;
+    t_list     *export_list;
 } t_shell;
 
 // typedef struct s_expand
@@ -92,26 +93,28 @@ void	ft_putstr_fd(char *s, int fd);
 int	ft_isalpha(int c);
 
 
-int execute_pipe(t_tree *node, char ***env);
-int execute_redir(t_tree *node, char ***env);
+int execute_pipe(t_tree *node, char ***env, t_shell *shell);
+int execute_redir(t_tree *node, char ***env, t_shell *shell);
 int is_builtin(char *cmd);
-int execute_builtin(t_tree *node, char **args, char ***env);
+int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell);
 char *join_path(char *path, char *args);
 char	*extract_path(char *envp[], char *args);
 int execute_command(t_tree *node, char ***env);
-int execute_node(t_tree *node, char ***env);
+int execute_node(t_tree *node, char ***env, t_shell *shell);
 char **build_args(t_tree *node);
 void test_command(char **env, char *test_name, char *cmd);
 int execute_heredoc(t_tree *node, char ***env);
 int process_heredocs(t_tree *node, char ***env);
 int has_heredoc(t_tree *node);
+
 //built in
 int builtin_cd(t_tree *node, char **args, char **env);
 int builtin_pwd(t_tree *node, char **args, char **env);
 int builtin_echo(t_tree *node, char **argv, char **env);
 int builtin_env(t_tree *node, char **args, char **env);
-int builtin_export(t_tree *node, char **args, char ***env);
-int add_export(char *str, char ***env);
+int builtin_export(t_tree *node, char **args, char ***env, t_list **export_list);
+int add_export(char *str, char ***env, t_list **export_list);
+int add_export_1(char *str, char ***env, t_list **export_list);
 int check_export(char *str);
 int builtin_unset(t_tree *node, char **args, char ***env);
 char **list_to_env(t_list *list);
