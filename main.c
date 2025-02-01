@@ -118,20 +118,22 @@ int main(int argc, char **argv, char **env)
     //t_shell *shell;
     char *input;
     int status;
+    t_shell *shell;
+    char **env_copy;
+    t_tree *ast;
     (void)argc;
     (void)argv;
     //shell = create_shell(env);
     // signal(SIGINT, handle_sigint);   // Ctrl+C
     // signal(SIGQUIT, SIG_IGN);
-    char **env_copy = env;
-    t_shell *shell;
+    env_copy = env;
     shell->export_list = NULL;
     while (1)
     {
         input = readline("minishell>");
         if (!input)
             break;
-        t_tree *ast = create_tree(input, env_copy);
+        ast = create_tree(input, env_copy);
         print_ast(ast, 0);
         status = execute_node(ast, &env_copy, shell);
         free(input);
