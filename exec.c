@@ -148,17 +148,17 @@ char **build_args(t_tree *node)
 }
 int execute_node(t_tree *node, char ***env, t_shell *shell)
 {
-    if (!node)
-        return (0);
-    if (node->type == PIPE)
-        return (execute_pipe(node, env, shell));
-    else if (node->type == REDIR_IN || node->type == REDIR_OUT || node->type == APPEND)
-        return (execute_redir(node, env, shell));
-    else if (node->type == HEREDOC)
-        return (process_heredocs(node, env));
-    else if (node->type == NODE_COMMAND)
-        return (execute_cmd(node, env, shell));
-    return (0);
+	if (!node)
+		return (0);
+	if (node->type == PIPE)
+		return (execute_pipe(node, env, shell));
+	else if (node->type == REDIR_IN || node->type == REDIR_OUT || node->type == APPEND)
+		return (execute_redir(node, env, shell));
+	else if (node->type == HEREDOC)
+		return (process_heredocs(node, env));
+	else if (node->type == NODE_COMMAND)
+		return (execute_cmd(node, env, shell));
+	return (0);
 }
 
 char *join_path(char *path, char *args)
@@ -201,3 +201,4 @@ char *extract_path(char *envp[], char *args)
     }
     return (free_split(paths), NULL);
 }
+

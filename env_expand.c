@@ -42,8 +42,6 @@ char *expand_var(char *str, int *i, char **env)
 	if (len == 0)
 		return(ft_strdup("$"));
 	var_name = ft_substr(str, *i, len);
-    // printf("len %d\n", len);
-    // printf("var name is %s\n", var_name);
 	if (!var_name)
         return (NULL);
 	*i += len;

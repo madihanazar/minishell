@@ -12,10 +12,13 @@
 
 #include "minishell.h"
 
-int ft_strlen(const char *str)
+int	ft_strlen(const char *str)
 {
-	int i;
+	int	i;
+
 	i = 0;
+	if (str == NULL)
+		return (i);
 	while (str[i] != '\0')
 		i++;
 	return (i);
@@ -54,16 +57,15 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (sub);
 }
 
-char *ft_strtrim(char const *s1, char const *set)
+char	*ft_strtrim(char const *s1, char const *set)
 {
-   
 	size_t	i;
 
+	i = ft_strlen(s1);
 	if (!s1 || !set)
 		return (NULL);
 	while (*s1 && ft_strchr(set, *s1))
 		s1++;
-	i = ft_strlen(s1);
 	while (i && ft_strchr(set, s1[i]))
 		i--;
 	return (ft_substr(s1, 0, i + 1));
@@ -86,27 +88,25 @@ char *ft_strchr(const char *str, int c)
     return (NULL);
 }
 
-char *ft_strdup(char *s)
+char	*ft_strdup(char *s)
 {
-    char* ans;
-    size_t i;
-    i = 0;
-
-    while (s[i] != '\0')
-    {
-        i++;
-    }
-    ans = (char *)malloc(i + 1 * sizeof(char));
-    if (ans == NULL)
-        return (NULL);
-    i = 0;
-    while (s[i] != '\0')
-    {
-        ans[i] = s[i];
-        i++;
-    }
-    ans[i] = '\0';
-    return (ans);
+	char	*ans;
+	size_t	i;
+	
+	i = 0;
+	while (s[i] != '\0')
+		i++;
+	ans = (char *)malloc(i + 1 * sizeof(char));
+	if (ans == NULL)
+		return (NULL);
+	i = 0;
+	while (s[i] != '\0')
+	{
+		ans[i] = s[i];
+		i++;
+	}
+	ans[i] = '\0';
+	return (ans);
 }
 
 int	ft_isalnum(int c)
@@ -156,7 +156,6 @@ char *ft_strcpy(char *dest, const char *src)
         i++;
     }
     dest[i] = '\0'; // Null-terminate the destination string
-	
     return dest;
 }
 

@@ -22,6 +22,8 @@ t_tree	*create_node(char *str, t_node_type type)
 	node->left = NULL;
 	node->right = NULL;
 	node->cmd = ft_strdup(str);
+	if (node->cmd == NULL)
+		return (free(node), NULL);
 	node->type = type;
 	return (node);
 }

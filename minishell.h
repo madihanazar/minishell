@@ -9,7 +9,8 @@
 # include <sys/wait.h>
 # include <string.h>
 # include "readline/readline.h"
-#include <termios.h>
+# include "readline/history.h"
+# include <termios.h>
 
 extern int g_sig;
 
@@ -92,7 +93,6 @@ char	**ft_split(const char *s, char c);
 void	ft_putstr_fd(char *s, int fd);
 int	ft_isalpha(int c);
 
-
 int execute_pipe(t_tree *node, char ***env, t_shell *shell);
 int execute_redir(t_tree *node, char ***env, t_shell *shell);
 int is_builtin(char *cmd);
@@ -106,6 +106,10 @@ void test_command(char **env, char *test_name, char *cmd);
 int execute_heredoc(t_tree *node, char ***env);
 int process_heredocs(t_tree *node, char ***env);
 int has_heredoc(t_tree *node);
+t_tree *handle_redirection(char *str, char **env);
+t_tree *handle_command(char *str, char **env);
+int count_tokens(char *str, char split_char);
+int fill_tokens(char **result, char *str, char split_char, char **env);
 
 //built in
 int builtin_cd(t_tree *node, char **args, char **env);
