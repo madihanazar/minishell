@@ -18,7 +18,7 @@ SRC_FILES = main.c \
 		   ft_export.c  \
 		   list_utils.c \
 		   ft_unset.c \
-		   heredoc.c
+		   heredoc.c 
 
 
 OBJS = $(SRC_FILES:.c=.o)

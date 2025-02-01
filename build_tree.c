@@ -22,75 +22,146 @@ static int	get_token_len(char *str, char split_char)
 	return (len);
 }
 
-
-
-static char	*extract_token(char *str, int len, char **env)
+static void	handle_quotes(int *i, int *quote_flag)
 {
-	char *token;
-	int i;
-	int j;
-	int single_quote;
-	int double_quote;
-	char *value;
-	int value_len;
-
-	i = 0;
-	j = 0;
-	single_quote = 0;
-	double_quote = 0;
-	value = NULL;
-	token = malloc(sizeof(char) * len + 1);  
-	if (!token)
-		return (NULL);
-	ft_bzero(token, len + 1);
-	while (i < len)
-	{
-		if (str[i] == '"' && !single_quote)
-		{
-			double_quote = !double_quote;
-			i++;   
-			continue;    // to move on and not the quotes in the argument 
-			// echo "hi" will now give hi and not "hi"
-		}
-		else if (str[i] == '\'' && !double_quote)
-		{
-			single_quote = !single_quote;
-			i++;
-			continue;
-		}
-		else if (str[i] == '$' && !single_quote)
-		{
-			// ft_strcpy(&token[j], expand_var(str, &i, env));
-			value = expand_var(str, &i, env);
-			if (value)
-			{
-				value_len = ft_strlen(value);
-				if (j + value_len + (len - i) >= len + 1)
-				{
-					char *new_token = malloc(sizeof(char) * (j + value_len + (len - i) + 1));
-					if (!new_token)
-					{
-						free(token);
-						free(value);
-						return (NULL);
-					}
-					ft_strcpy(new_token, token);
-					free(token);  // Free the old token
-					token = new_token;  // Update token to point to the new memory
-				}
-				ft_strcpy(&token[j], value);
-				j += value_len;
-				free(value);  // Free the expanded value
-				continue;
-			}
-			else
-				return (NULL); // In case value expansion fails
-		}
-		token[j++] = str[i++];
-	}
-	token[j] = '\0';  // Null-terminate the token
-	return (token);
+	*quote_flag = !(*quote_flag);
+	(*i)++;
 }
+
+static int	handle_expansion(char *str, t_exp *exp, char **env)
+{
+	char	*val;
+	int		val_len;
+	char	*new_tok;
+
+	val = expand_var(str, &exp->i, env);
+	if (!val)
+		return (free(exp->token), 0);
+	val_len = ft_strlen(val);
+	if (exp->j + val_len + (exp->len - exp->i) >= exp->len + 1)
+	{
+		new_tok = malloc(exp->j + val_len + (exp->len - exp->i) + 1);
+		if (!new_tok)
+		{
+			free(val);
+			free(exp->token);
+			return (0);
+		}
+		ft_strcpy(new_tok, exp->token);
+		free(exp->token);
+		exp->token = new_tok;
+	}
+	ft_strcpy(exp->token + exp->j, val);
+	exp->j += val_len;
+	free(val);
+	return (1);
+}
+
+static char	*init_extract(int len, char **token)
+{
+	*token = malloc(sizeof(char) * (len + 1));
+	if (!*token)
+		return (NULL);
+	ft_bzero(*token, len + 1);
+	return (*token);
+}
+
+char	*extract_token(char *str, int len, char **env)
+{
+	t_exp	exp;
+
+	exp.i = 0;
+	exp.j = 0;
+	exp.sq = 0;
+	exp.dq = 0;
+	exp.len = len;
+	if (!init_extract(len, &exp.token))
+		return (NULL);
+	while (exp.i < len)
+	{
+		if (str[exp.i] == '"' && !exp.sq)
+			handle_quotes(&exp.i, &exp.dq);
+		else if (str[exp.i] == '\'' && !exp.dq)
+			handle_quotes(&exp.i, &exp.sq);
+		else if (str[exp.i] == '$' && !exp.sq)
+		{
+			if (!handle_expansion(str, &exp, env))
+				return (NULL);
+		}
+		else
+			exp.token[exp.j++] = str[exp.i++];
+	}
+	exp.token[exp.j] = '\0';
+	return (exp.token);
+}
+
+// static char	*extract_token(char *str, int len, char **env)
+// {
+// 	char *token;
+// 	int i;
+// 	int j;
+// 	int single_quote;
+// 	int double_quote;
+// 	char *value;
+// 	int value_len;
+
+// 	i = 0;
+// 	j = 0;
+// 	single_quote = 0;
+// 	double_quote = 0;
+// 	value = NULL;
+// 	token = malloc(sizeof(char) * len + 1);  
+// 	if (!token)
+// 		return (NULL);
+// 	ft_bzero(token, len + 1);
+// 	while (i < len)
+// 	{
+// 		if (str[i] == '"' && !single_quote)
+// 		{
+// 			double_quote = !double_quote;
+// 			i++;   
+// 			continue;    // to move on and not the quotes in the argument 
+// 			// echo "hi" will now give hi and not "hi"
+// 		}
+// 		else if (str[i] == '\'' && !double_quote)
+// 		{
+// 			single_quote = !single_quote;
+// 			i++;
+// 			continue;
+// 		}
+// 		else if (str[i] == '$' && !single_quote)
+// 		{
+// 			// ft_strcpy(&token[j], expand_var(str, &i, env));
+// 			value = expand_var(str, &i, env);
+// 			if (value)
+// 			{
+// 				value_len = ft_strlen(value);
+// 				if (j + value_len + (len - i) >= len + 1)
+// 				{
+// 					char *new_token = malloc(sizeof(char) * (j + value_len + (len - i) + 1));
+// 					if (!new_token)
+// 					{
+// 						free(token);
+// 						free(value);
+// 						return (NULL);
+// 					}
+// 					ft_strcpy(new_token, token);
+// 					free(token);  // Free the old token
+// 					token = new_token;  // Update token to point to the new memory
+// 				}
+// 				ft_strcpy(&token[j], value);
+// 				j += value_len;
+// 				free(value);  // Free the expanded value
+// 				continue;
+// 			}
+// 			else
+//             	return (free(token), NULL); // In case value expansion fails
+//         }
+// 		token[j++] = str[i++];
+// 	}
+// 	token[j] = '\0';  // Null-terminate the token
+// 	return (token);
+// }
 
 char **split_cmd(char *str, char split_char, char **env)
 {

@@ -55,6 +55,17 @@ typedef struct s_shell
     t_list     *export_list;
 } t_shell;
 
+typedef struct s_exp
+{
+    int  i;       // Index for iterating through the input string
+    int  j;       // Index for storing characters in the token
+    int  sq;      // Single quote flag (1 if inside single quotes, 0 otherwise)
+    int  dq;      // Double quote flag (1 if inside double quotes, 0 otherwise)
+    int  len;     // Length of the input string or token
+    char *token;  // Pointer to the extracted token
+} t_exp;
+
+
 // typedef struct s_expand
 // {
 //     char    *result;
