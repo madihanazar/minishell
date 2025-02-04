@@ -121,6 +121,11 @@ t_tree *handle_redirection(char *str, char **env);
 t_tree *handle_command(char *str, char **env);
 int count_tokens(char *str, char split_char);
 int fill_tokens(char **result, char *str, char split_char, char **env);
+int	get_token_len(char *str, char split_char);
+char	*extract_token(char *str, int len, char **env);
+char	*init_extract(int len, char **token);
+void	handle_quotes(int *i, int *quote_flag);
+int		handle_expansion(char *str, t_exp *exp, char **env);
 
 //built in
 int builtin_cd(t_tree *node, char **args, char **env);

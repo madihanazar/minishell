@@ -7,8 +7,7 @@ char *get_env_value(char *name, char **env)
     char *value;
     
     if (!name || !env)
-        return (NULL);
-        
+        return (NULL); 
     len = ft_strlen(name);
     i = 0;
     while (env[i])
@@ -20,9 +19,9 @@ char *get_env_value(char *name, char **env)
         }
         i++;
     }
-    
     return (NULL);
 }
+
 char *expand_var(char *str, int *i, char **env)
 {
 	int len;

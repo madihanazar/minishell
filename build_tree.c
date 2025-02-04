@@ -1,167 +1,104 @@
 #include "minishell.h"
 
-static int	get_token_len(char *str, char split_char)
+t_tree	*create_tree(char *str, char **env)
 {
-	int	len;
-	int	double_quote;
-	int	single_quote;
+	char	*trimmed;
+	t_tree	*root;
 
-	len = 0;
-	double_quote = 0;
-	single_quote = 0;
-	while (str[len])
-	{
-		if (str[len] == '"' && !single_quote)
-			double_quote = !double_quote;
-		else if (str[len] == '\'' && !double_quote)
-			single_quote = !single_quote;
-		else if (str[len] == split_char && !double_quote && !single_quote)
-			break;
-		len++;
-	}
-	return (len);
-}
-
-static void	handle_quotes(int *i, int *quote_flag)
-{
-	*quote_flag = !(*quote_flag);
-	(*i)++;
-}
-
-static int	handle_expansion(char *str, t_exp *exp, char **env)
-{
-	char	*val;
-	int		val_len;
-	char	*new_tok;
-
-	val = expand_var(str, &exp->i, env);
-	if (!val)
-		return (free(exp->token), 0);
-	val_len = ft_strlen(val);
-	if (exp->j + val_len + (exp->len - exp->i) >= exp->len + 1)
-	{
-		new_tok = malloc(exp->j + val_len + (exp->len - exp->i) + 1);
-		if (!new_tok)
-		{
-			free(val);
-			free(exp->token);
-			return (0);
-		}
-		ft_strcpy(new_tok, exp->token);
-		free(exp->token);
-		exp->token = new_tok;
-	}
-	ft_strcpy(exp->token + exp->j, val);
-	exp->j += val_len;
-	free(val);
-	return (1);
-}
-
-static char	*init_extract(int len, char **token)
-{
-	*token = malloc(sizeof(char) * (len + 1));
-	if (!*token)
+	trimmed = NULL;
+	root = NULL;
+	trimmed = ft_strtrim(str, " ");
+	if (trimmed == NULL)
 		return (NULL);
-	ft_bzero(*token, len + 1);
-	return (*token);
+	root = build_ast(trimmed, env);
+	free(trimmed); // Trimmed string is freed appropriately.
+	return (root);
 }
 
-char	*extract_token(char *str, int len, char **env)
+t_tree *build_ast(char *str, char **env)
 {
-	t_exp	exp;
+	char	*pipe_pos;
+	t_tree	*node;
 
-	exp.i = 0;
-	exp.j = 0;
-	exp.sq = 0;
-	exp.dq = 0;
-	exp.len = len;
-	if (!init_extract(len, &exp.token))
+	if (str == NULL || *str == '\0')
 		return (NULL);
-	while (exp.i < len)
+	pipe_pos = find_last_pipe(str);
+	if (pipe_pos)
 	{
-		if (str[exp.i] == '"' && !exp.sq)
-			handle_quotes(&exp.i, &exp.dq);
-		else if (str[exp.i] == '\'' && !exp.dq)
-			handle_quotes(&exp.i, &exp.sq);
-		else if (str[exp.i] == '$' && !exp.sq)
-		{
-			if (!handle_expansion(str, &exp, env))
-				return (NULL);
-		}
-		else
-			exp.token[exp.j++] = str[exp.i++];
+		node = create_node("|", PIPE);
+		if (!node)
+			return (NULL);
+		char *left_str = ft_substr(str, 0, pipe_pos - str);
+		char *right_str = ft_strdup(pipe_pos + 1);
+		node->left = build_ast(left_str, env);
+		free(left_str);
+		node->right = build_ast(right_str, env);
+		free(right_str);
+		return (node);
 	}
-	exp.token[exp.j] = '\0';
-	return (exp.token);
+	node = handle_redirection(str, env);
+	if (node)
+		return (node);
+	return (handle_command(str, env));
 }
 
-// static char	*extract_token(char *str, int len, char **env)
-// {
-// 	char *token;
-// 	int i;
-// 	int j;
-// 	int single_quote;
-// 	int double_quote;
-// 	char *value;
-// 	int value_len;
+t_tree *handle_redirection(char *str, char **env)
+{
+	char	*redir_pos;
+	t_tree	*node;
+	int		len;
 
-// 	i = 0;
-// 	j = 0;
-// 	single_quote = 0;
-// 	double_quote = 0;
-// 	value = NULL;
-// 	token = malloc(sizeof(char) * len + 1);  
-// 	if (!token)
-// 		return (NULL);
-// 	ft_bzero(token, len + 1);
-// 	while (i < len)
-// 	{
-// 		if (str[i] == '"' && !single_quote)
-// 		{
-// 			double_quote = !double_quote;
-// 			i++;   
-// 			continue;    // to move on and not the quotes in the argument 
-// 			// echo "hi" will now give hi and not "hi"
-// 		}
-// 		else if (str[i] == '\'' && !double_quote)
-// 		{
-// 			single_quote = !single_quote;
-// 			i++;
-// 			continue;
-// 		}
-// 		else if (str[i] == '$' && !single_quote)
-// 		{
-// 			// ft_strcpy(&token[j], expand_var(str, &i, env));
-// 			value = expand_var(str, &i, env);
-// 			if (value)
-// 			{
-// 				value_len = ft_strlen(value);
-// 				if (j + value_len + (len - i) >= len + 1)
-// 				{
-// 					char *new_token = malloc(sizeof(char) * (j + value_len + (len - i) + 1));
-// 					if (!new_token)
-// 					{
-// 						free(token);
-// 						free(value);
-// 						return (NULL);
-// 					}
-// 					ft_strcpy(new_token, token);
-// 					free(token);  // Free the old token
-// 					token = new_token;  // Update token to point to the new memory
-// 				}
-// 				ft_strcpy(&token[j], value);
-// 				j += value_len;
-// 				free(value);  // Free the expanded value
-// 				continue;
-// 			}
-// 			else
-//             	return (free(token), NULL); // In case value expansion fails
-//         }
-// 		token[j++] = str[i++];
-// 	}
-// 	token[j] = '\0';  // Null-terminate the token
-// 	return (token);
-// }
+	redir_pos = find_last_redir(str);
+	if (!redir_pos)
+		return (NULL);
+	len = 1;
+	if (*(redir_pos + 1) == *redir_pos)
+		len = 2;
+	if (*redir_pos == '>' && *(redir_pos + 1) == '>')
+		node = create_node(">>", APPEND);
+	else if (*redir_pos == '<' && *(redir_pos + 1) == '<')
+		node = create_node("<<", HEREDOC);
+	else if (*redir_pos == '>')
+		node = create_node(">", REDIR_OUT);
+	else if (*redir_pos == '<')
+		node = create_node("<", REDIR_IN);
+	if (!node)
+		return (NULL);
+	char *left_str = ft_substr(str, 0, redir_pos - str);
+	char *right_str = ft_strdup(redir_pos + 1);
+	node->left = build_ast(left_str, env);
+	free(left_str);
+	node->right = build_ast(right_str, env);
+	free(right_str);
+	return (node);
+}
+
+t_tree *handle_command(char *str, char **env)
+{
+	char	**cmd_tokens;
+	t_tree	*node;
+	t_tree	*current;
+	int		i;
+
+	i = 1;
+	cmd_tokens = split_cmd(str, ' ', env);
+	if (!cmd_tokens || !cmd_tokens[0])
+		return (NULL);
+	node = create_node(cmd_tokens[0], NODE_COMMAND);
+	if (!node)
+		return (free_split(cmd_tokens), NULL);
+	current = node;
+	while (cmd_tokens[i])
+	{
+		current->right = create_node(cmd_tokens[i], NODE_ARG);
+		if (!current->right)
+			break ;
+		current = current->right;
+		i++;
+	}
+	free_split(cmd_tokens);
+	return (node);
+}
 
 char **split_cmd(char *str, char split_char, char **env)
 {
@@ -169,15 +106,15 @@ char **split_cmd(char *str, char split_char, char **env)
     char **result;
     
     if (!str)
-        return NULL;
+        return (NULL);
     token_count = count_tokens(str, split_char);
     result = malloc((token_count + 1) * sizeof(char *));
     if (!result)
-        return NULL;
+        return (NULL);
     if (fill_tokens(result, str, split_char, env) == -1)
     {
         free_result(result, token_count + 1);
-        return NULL;
+        return (NULL);
     }
     return result;
 }
@@ -227,96 +164,99 @@ int fill_tokens(char **result, char *str, char split_char, char **env)
     return (0);
 }
 
-t_tree *build_ast(char *str, char **env)
+int	get_token_len(char *str, char split_char)
 {
-	char	*pipe_pos;
-	t_tree	*node;
+	int	len;
+	int	double_quote;
+	int	single_quote;
 
-	if (str == NULL || *str == '\0')
-		return (NULL);
-	pipe_pos = find_last_pipe(str);
-	if (pipe_pos)
+	len = 0;
+	double_quote = 0;
+	single_quote = 0;
+	while (str[len])
 	{
-		node = create_node("|", PIPE);
-		if (!node)
-			return (NULL);
-		node->left = build_ast(ft_substr(str, 0, pipe_pos - str), env);
-		node->right = build_ast(ft_strdup(pipe_pos + 1), env);
-		return (node);
+		if (str[len] == '"' && !single_quote)
+			double_quote = !double_quote;
+		else if (str[len] == '\'' && !double_quote)
+			single_quote = !single_quote;
+		else if (str[len] == split_char && !double_quote && !single_quote)
+			break;
+		len++;
 	}
-	node = handle_redirection(str, env);
-	if (node)
-		return (node);
-	return (handle_command(str, env));
+	return (len);
 }
 
-t_tree *handle_redirection(char *str, char **env)
+char	*extract_token(char *str, int len, char **env)
 {
-	char	*redir_pos;
-	t_tree	*node;
-	int		len;
+	t_exp	exp;
 
-	redir_pos = find_last_redir(str);
-	if (!redir_pos)
+	exp.i = 0;
+	exp.j = 0;
+	exp.sq = 0;
+	exp.dq = 0;
+	exp.len = len;
+	if (!init_extract(len, &exp.token))
 		return (NULL);
-	len = 1;
-	if (*(redir_pos + 1) == *redir_pos)
-		len = 2;
-	if (*redir_pos == '>' && *(redir_pos + 1) == '>')
-		node = create_node(">>", APPEND);
-	else if (*redir_pos == '<' && *(redir_pos + 1) == '<')
-		node = create_node("<<", HEREDOC);
-	else if (*redir_pos == '>')
-		node = create_node(">", REDIR_OUT);
-	else if (*redir_pos == '<')
-		node = create_node("<", REDIR_IN);
-	if (!node)
-		return (NULL);
-	node->left = build_ast(ft_substr(str, 0, redir_pos - str), env);
-	node->right = build_ast(ft_strdup(redir_pos + len), env);
-	return (node);
-}
-
-t_tree *handle_command(char *str, char **env)
-{
-	char	**cmd_tokens;
-	t_tree	*node;
-	t_tree	*current;
-	int		i;
-
-	i = 1;
-	cmd_tokens = split_cmd(str, ' ', env);
-	if (!cmd_tokens || !cmd_tokens[0])
-		return (NULL);
-	node = create_node(cmd_tokens[0], NODE_COMMAND);
-	if (!node)
-		return (free_split(cmd_tokens), NULL);
-	current = node;
-	while (cmd_tokens[i])
+	while (exp.i < len)
 	{
-		current->right = create_node(cmd_tokens[i], NODE_ARG);
-		if (!current->right)
-			break ;
-		current = current->right;
-		i++;
+		if (str[exp.i] == '"' && !exp.sq)
+			handle_quotes(&exp.i, &exp.dq);
+		else if (str[exp.i] == '\'' && !exp.dq)
+			handle_quotes(&exp.i, &exp.sq);
+		else if (str[exp.i] == '$' && !exp.sq)
+		{
+			if (!handle_expansion(str, &exp, env))
+				return (NULL);
+		}
+		else
+			exp.token[exp.j++] = str[exp.i++];
 	}
-	free_split(cmd_tokens);
-	return (node);
+	exp.token[exp.j] = '\0';
+	return (exp.token);
 }
 
-t_tree	*create_tree(char *str, char **env)
+char	*init_extract(int len, char **token)
 {
-	char	*trimmed;
-	t_tree	*root;
-
-	trimmed = NULL;
-	root = NULL;
-	trimmed = ft_strtrim(str, " ");
-	if (trimmed == NULL)
+	*token = malloc(sizeof(char) * (len + 1));
+	if (!*token)
 		return (NULL);
-	root = build_ast(trimmed, env);
-	free(trimmed);
-	return (root);
+	ft_bzero(*token, len + 1);
+	return (*token);
+}
+
+void	handle_quotes(int *i, int *quote_flag)
+{
+	*quote_flag = !(*quote_flag);
+	(*i)++;
+}
+
+int	handle_expansion(char *str, t_exp *exp, char **env)
+{
+	char	*val;
+	int		val_len;
+	char	*new_tok;
+
+	val = expand_var(str, &exp->i, env);
+	if (!val)
+		return (free(exp->token), 0);
+	val_len = ft_strlen(val);
+	if (exp->j + val_len + (exp->len - exp->i) >= exp->len + 1)
+	{
+		new_tok = malloc(exp->j + val_len + (exp->len - exp->i) + 1);
+		if (!new_tok)
+		{
+			free(val);
+			free(exp->token);
+			return (0);
+		}
+		ft_strcpy(new_tok, exp->token);
+		free(exp->token);
+		exp->token = new_tok;
+	}
+	ft_strcpy(exp->token + exp->j, val);
+	exp->j += val_len;
+	free(val);
+	return (1);
 }
 
 void print_ast(t_tree *node, int depth)

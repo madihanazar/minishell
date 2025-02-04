@@ -48,8 +48,8 @@ int	main(int argc, char **argv, char **env)
 	shell = create_shell();
 	if (shell == NULL)
 		return (1);
-	// signal(SIGINT, handle_sigint);   // Ctrl+C
 	// signal(SIGQUIT, SIG_IGN);
+	// signal_wrapper(SIGINT, ast, input, shell);   // Ctrl+C
 	env_copy = env;
 	while (1)
 	{
@@ -57,12 +57,14 @@ int	main(int argc, char **argv, char **env)
 		if (!input)
 			return (free_shell(shell), 1);
 		add_history(input);
-		ast = create_tree(input, env_copy);
+		ast = create_tree(input, env_copy); 
 		if (ast == NULL)
-			return (free(input), free_shell(shell), 1);
+			return (free(input), free_shell(shell), 1); // If tree creation fails, there are no memory leaks (from our side).
 		// print_ast(ast, 0);
 		status = execute_node(ast, &env_copy, shell);
-		free(input);
+		// free(input);
+		// free_ast(ast); //Create signal handler for cleaning up these three.
+		// free_shell(shell);
 	}
 	return (status);
 }
