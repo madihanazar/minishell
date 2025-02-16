@@ -227,7 +227,7 @@ int fill_tokens(char **result, char *str, char split_char, char **env)
     return (0);
 }
 
-t_tree *build_ast(char *str, char **env)
+t_tree *build_ast(char *str, char **env, t_shell *shell)
 {
 	char	*pipe_pos;
 	t_tree	*node;
@@ -240,17 +240,17 @@ t_tree *build_ast(char *str, char **env)
 		node = create_node("|", PIPE);
 		if (!node)
 			return (NULL);
-		node->left = build_ast(ft_substr(str, 0, pipe_pos - str), env);
-		node->right = build_ast(ft_strdup(pipe_pos + 1), env);
+		node->left = build_ast(ft_substr(str, 0, pipe_pos - str), env, shell);
+		node->right = build_ast(ft_strdup(pipe_pos + 1), env, shell);
 		return (node);
 	}
-	node = handle_redirection(str, env);
+	node = handle_redirection(str, env, shell);
 	if (node)
 		return (node);
 	return (handle_command(str, env));
 }
 
-t_tree *handle_redirection(char *str, char **env)
+t_tree *handle_redirection(char *str, char **env, t_shell *shell)
 {
 	char	*redir_pos;
 	t_tree	*node;
@@ -265,15 +265,19 @@ t_tree *handle_redirection(char *str, char **env)
 	if (*redir_pos == '>' && *(redir_pos + 1) == '>')
 		node = create_node(">>", APPEND);
 	else if (*redir_pos == '<' && *(redir_pos + 1) == '<')
+	{
 		node = create_node("<<", HEREDOC);
+		if (node)
+			add_heredoc_to_list(&shell->heredoc_list, node);
+	}
 	else if (*redir_pos == '>')
 		node = create_node(">", REDIR_OUT);
 	else if (*redir_pos == '<')
 		node = create_node("<", REDIR_IN);
 	if (!node)
 		return (NULL);
-	node->left = build_ast(ft_substr(str, 0, redir_pos - str), env);
-	node->right = build_ast(ft_strdup(redir_pos + len), env);
+	node->left = build_ast(ft_substr(str, 0, redir_pos - str), env, shell);
+	node->right = build_ast(ft_strdup(redir_pos + len), env, shell);
 	return (node);
 }
 
@@ -303,8 +307,23 @@ t_tree *handle_command(char *str, char **env)
 	free_split(cmd_tokens);
 	return (node);
 }
+static t_heredoc *reverse_list(t_shell *shell)
+{
+	t_heredoc *current = shell->heredoc_list;
+	t_heredoc *prev = NULL;
+	t_heredoc *next = NULL;
 
-t_tree	*create_tree(char *str, char **env)
+	while (current)
+	{
+		next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+	}
+	shell->heredoc_list = prev;
+    return shell->heredoc_list;
+}
+t_tree	*create_tree(char *str, char **env, t_shell *shell)
 {
 	char	*trimmed;
 	t_tree	*root;
@@ -314,7 +333,14 @@ t_tree	*create_tree(char *str, char **env)
 	trimmed = ft_strtrim(str, " ");
 	if (trimmed == NULL)
 		return (NULL);
-	root = build_ast(trimmed, env);
+	root = build_ast(trimmed, env, shell);
+	shell->heredoc_list = reverse_list(shell);
+	t_heredoc *curr = shell->heredoc_list;
+	while (curr)
+	{
+		printf("heredoc %s\n", curr->node->right->cmd);
+		curr = curr->next;
+	}
 	free(trimmed);
 	return (root);
 }
@@ -342,12 +368,12 @@ void print_ast(t_tree *node, int depth)
     }
 }
 
-static void test_ast(char *command, char **env) {
-    printf("\nTesting command: %s\n", command);
-    t_tree *root = create_tree(command, env);
-    printf("AST structure:\n");
-    print_ast(root, 0);
-    printf("------------------------\n");
-    // Add function to free the tree
-    free_ast(root);
-}
+// static void test_ast(char *command, char **env) {
+//     printf("\nTesting command: %s\n", command);
+//     t_tree *root = create_tree(command, env);
+//     printf("AST structure:\n");
+//     print_ast(root, 0);
+//     printf("------------------------\n");
+//     // Add function to free the tree
+//     free_ast(root);
+// }

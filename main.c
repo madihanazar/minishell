@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42abudhabi.ae>  +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/01/31 17:11:11 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/02/09 16:50:31 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,13 @@ int	main(int argc, char **argv, char **env)
 		if (!input)
 			return (free_shell(shell), 1);
 		add_history(input);
-		ast = create_tree(input, env_copy);
+		ast = create_tree(input, env_copy, shell);
 		if (ast == NULL)
 			return (free(input), free_shell(shell), 1);
-		// print_ast(ast, 0);
+		print_ast(ast, 0);
+		//extract_heredocs(tree, &tree->heredocs);
 		status = execute_node(ast, &env_copy, shell);
+		clear_heredoc_list(&shell->heredoc_list);
 		free(input);
 	}
 	return (status);

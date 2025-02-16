@@ -1,1 +1,3 @@
-redir
+hi
+bye
+i am endigngnnggn
