@@ -62,6 +62,7 @@ typedef struct s_shell
     int         status;
     t_heredoc *heredoc_list;
     t_list     *export_list;
+	int heredoc_processed;
 } t_shell;
 
 typedef struct s_exp
@@ -119,7 +120,7 @@ int is_builtin(char *cmd);
 int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell);
 char *join_path(char *path, char *args);
 char	*extract_path(char *envp[], char *args);
-int execute_command(t_tree *node, char ***env);
+int execute_cmd(t_tree *node, char ***env, t_shell *shell);
 int execute_node(t_tree *node, char ***env, t_shell *shell);
 char **build_args(t_tree *node);
 void test_command(char **env, char *test_name, char *cmd);
@@ -131,7 +132,7 @@ t_tree *handle_command(char *str, char **env);
 int count_tokens(char *str, char split_char);
 int fill_tokens(char **result, char *str, char split_char, char **env);
 void run_heredoc(int pipe_fd, char *delimiter);
-int process_multiple_heredocs(t_tree *node, char ***env, t_shell *shell, int flag);
+//int process_multiple_heredocs(t_tree *node, char ***env, t_shell *shell, int flag);
 // remove
 int process_single_heredoc(t_tree *node, int flag);
 //built in
@@ -158,6 +159,7 @@ void handle_sigint(int sig);
 
 //heredoc
 void add_heredoc_to_list(t_heredoc **list, t_tree *node);
-int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int flag);
+int process_heredocs_redir(t_heredoc *heredoc_list, char ***env, t_shell *shell);
+int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int execute_flag);
 void clear_heredoc_list(t_heredoc **heredoc_list);
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/02/09 16:50:31 by marvin           ###   ########.fr       */
+/*   Updated: 2025/02/18 20:05:31 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ static t_shell	*create_shell(void)
 	if (!shell)
 		return (NULL);
 	shell->export_list = NULL;
+	shell->heredoc_processed = 0;
 	return (shell);
 }
 
@@ -63,6 +64,7 @@ int	main(int argc, char **argv, char **env)
 		print_ast(ast, 0);
 		//extract_heredocs(tree, &tree->heredocs);
 		status = execute_node(ast, &env_copy, shell);
+		shell->heredoc_processed = 0; //reset the flag
 		clear_heredoc_list(&shell->heredoc_list);
 		free(input);
 	}

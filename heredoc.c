@@ -1,4 +1,5 @@
 #include "minishell.h"
+int process_multiple_heredocs(t_list *heredoc_list, char ***env, t_shell *shell, int is_last);
 
 void clear_heredoc_list(t_heredoc **heredoc_list) {
     t_heredoc *current = *heredoc_list;
@@ -15,13 +16,100 @@ void clear_heredoc_list(t_heredoc **heredoc_list) {
 static void display_heredoc_content(int fd) {
     char buffer[1024];
     ssize_t bytes_read;
-
+	printf("inside the func\n");
     while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+		printf("im readig you\n");
         buffer[bytes_read] = '\0'; // Null-terminate the buffer
         write(STDOUT_FILENO, buffer, bytes_read); // Write to standard output
     }
 }
+// not needed
+// int process_multiple_heredocs(t_list *heredoc_list, char ***env, t_shell *shell, int is_last)
+// {
+//     t_list *current = heredoc_list;
+//     int last_heredoc_fd = -1;
 
+//     while (current)
+//     {
+//         // Process each heredoc and store its file descriptor
+//         int heredoc_fd = process_heredocs(current->content, env, shell, 0);
+//         if (heredoc_fd < 0)
+//             return -1; // Error processing heredoc
+
+//         // If this is the last heredoc, store its file descriptor
+//         if (is_last && !current->next)
+//             last_heredoc_fd = heredoc_fd;
+
+//         current = current->next;
+//     }
+
+//     return last_heredoc_fd; // Return the file descriptor of the last heredoc
+// }
+
+int process_heredocs_redir(t_heredoc *heredoc_list, char ***env, t_shell *shell) {
+    t_heredoc *current;
+    char *line;
+    int fd[2];
+    pid_t pid;
+    int status;
+
+    if (!heredoc_list)
+        return 0;
+
+    // Find the last heredoc in the list
+    current = heredoc_list;
+    while (current->next)
+        current = current->next;
+	printf("last heredoc %s\n", current->node->right->cmd);
+    // Create pipe only for the last heredoc
+    if (pipe(fd) == -1)
+        return (perror("pipe error"), 1);
+
+    pid = fork();
+    if (pid == -1) {
+        close(fd[0]);
+        close(fd[1]);
+        return (perror("fork error"), 1);
+    }
+
+    if (pid == 0) {
+        close(fd[0]); // Close read end in child
+		//display_heredoc_content(fd[0]);
+        // Process all heredocs but only write the last one's content
+        t_heredoc *temp = heredoc_list;
+        while (temp) {
+            while (1) {
+                line = readline("> ");
+                if (!line) // EOF (Ctrl+D)
+                    break;
+                if (ft_strcmp(line, temp->node->right->cmd) == 0) {
+                    free(line);
+                    break;
+                }
+                // Only write to pipe if this is the last heredoc
+                if (temp == current) {
+                    write(fd[1], line, ft_strlen(line));
+                    write(fd[1], "\n", 1);
+                }
+                free(line);
+            }
+            temp = temp->next;
+        }
+        close(fd[1]);
+        exit(0);
+    }
+	close(fd[1]); // Close write end in parent
+	waitpid(pid, &status, 0);
+    if (WIFSIGNALED(status)) {
+        close(fd[0]);
+        return 1;
+    }
+	// Store fd in the last heredoc node
+    current->node->heredoc_fd = fd[0];
+	return 0;
+}
+
+//MY ORIGINAL HEREDOCS = 16 FEB
 int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int execute_flag) {
     t_heredoc *current;
     char *line;
@@ -37,6 +125,11 @@ int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int e
     //     return (perror("pipe error"), 1);
 
     current = heredoc_list;
+	// while (current)
+	// {
+	// 	printf("%s\n", current->node->right->cmd);
+	// 	current = current->next;
+	// }
     while (current) {
         if (pipe(fd) == -1)
             return (perror("pipe error"), 1);
@@ -81,18 +174,20 @@ int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int e
 
     // Display the combined heredoc content
     // display_heredoc_content(fd[0]);
-    printf("done usingheredpc\n");
+    //printf("done usingheredpc\n");
     if (execute_flag) {
         t_tree *cmd_node = heredoc_list->node;
         while (cmd_node && cmd_node->type != NODE_COMMAND)
             cmd_node = cmd_node->left;
 
         if (cmd_node && cmd_node->type == NODE_COMMAND) {
-            cmd_node->heredoc_fd = fd[0]; // Pass the combined heredoc fd to the command
-            printf("cmd node %s\n", cmd_node->cmd);
-            int result = execute_node(cmd_node, env, shell);
+            cmd_node->heredoc_fd = fd[0]; // Pass the last heredoc fd to the command
+            // printf("cmd node %s\n", cmd_node->cmd);
+			// printf("cmd node fd %d\n", cmd_node->heredoc_fd);
+            int result = execute_cmd(cmd_node, env, shell);
             close(cmd_node->heredoc_fd); // Close the heredoc fd after execution
             return result;
+			return (0);
         }
     }
 
@@ -499,65 +594,65 @@ int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int e
 //     return execute_node(node->left, env, shell);
 // }
 
-int process_multiple_heredocs(t_tree *node, char ***env, t_shell *shell, int flag)
-{
-    t_tree *current = node;
-    t_tree *head = node;
+// int process_multiple_heredocs(t_tree *node, char ***env, t_shell *shell, int flag)
+// {
+//     t_tree *current = node;
+//     t_tree *head = node;
 
-    while (current->left && current->left->type == HEREDOC)
-        current = current->left;
-    printf("%s", current->right->cmd);
-    while (current && current->type == HEREDOC)
-    {
-        int pipefd[2];
-        pid_t pid;
-        int status;
-        char *delimiter = current->right->cmd;
+//     while (current->left && current->left->type == HEREDOC)
+//         current = current->left;
+//     printf("%s", current->right->cmd);
+//     while (current && current->type == HEREDOC)
+//     {
+//         int pipefd[2];
+//         pid_t pid;
+//         int status;
+//         char *delimiter = current->right->cmd;
 
-        if (pipe(pipefd) == -1)
-            return (perror("minishell: pipe"), 1);
+//         if (pipe(pipefd) == -1)
+//             return (perror("minishell: pipe"), 1);
 
-        pid = fork();
-        if (pid == 0)
-        {
-            close(pipefd[0]);
-            char *line;
+//         pid = fork();
+//         if (pid == 0)
+//         {
+//             close(pipefd[0]);
+//             char *line;
 
-            while (1)
-            {
-                line = readline("> ");
-                if (!line)
-                {
-                    ft_putstr_fd("minishell: warning: here-document delimited by end-of-file\n", 2);
-                    break;
-                }
-                if (ft_strcmp(line, delimiter) == 0)
-                {
-                    free(line);
-                    break;
-                }
-                write(pipefd[1], line, strlen(line));
-                write(pipefd[1], "\n", 1);
-                free(line);
-            }
-            close(pipefd[1]);
-            exit(0);
-        }
+//             while (1)
+//             {
+//                 line = readline("> ");
+//                 if (!line)
+//                 {
+//                     ft_putstr_fd("minishell: warning: here-document delimited by end-of-file\n", 2);
+//                     break;
+//                 }
+//                 if (ft_strcmp(line, delimiter) == 0)
+//                 {
+//                     free(line);
+//                     break;
+//                 }
+//                 write(pipefd[1], line, strlen(line));
+//                 write(pipefd[1], "\n", 1);
+//                 free(line);
+//             }
+//             close(pipefd[1]);
+//             exit(0);
+//         }
 
-        close(pipefd[1]);
-        if (!flag)
-            current->heredoc_fd = pipefd[0];
-        else
-            current->left->heredoc_fd = pipefd[0];
-        waitpid(pid, &status, 0);
+//         close(pipefd[1]);
+//         if (!flag)
+//             current->heredoc_fd = pipefd[0];
+//         else
+//             current->left->heredoc_fd = pipefd[0];
+//         waitpid(pid, &status, 0);
 
-        current = current->right;
-    }
-    // After processing all heredocs, execute the command if flag is set
-    if (flag)
-        return execute_node(head->left, env, shell);
-    return 0;
-}
+//         current = current->right;
+//     }
+//     // After processing all heredocs, execute the command if flag is set
+//     if (flag)
+//         return execute_node(head->left, env, shell);
+//     return 0;
+// }
 
 // int process_heredocs(t_tree *node, char ***env, t_shell *shell)
 // {

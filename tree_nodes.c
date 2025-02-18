@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 21:02:27 by mnazar            #+#    #+#             */
-/*   Updated: 2024/12/23 21:07:22 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/02/18 20:00:08 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ t_tree	*create_node(char *str, t_node_type type)
 		return (NULL);
 	node->left = NULL;
 	node->right = NULL;
+	node->heredoc_fd = -1;
 	node->cmd = ft_strdup(str);
 	if (node->cmd == NULL)
 		return (free(node), NULL);

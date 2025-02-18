@@ -39,15 +39,25 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     int fd;
     int status;
     t_tree *cmd_node;
+    t_heredoc *last_heredoc = NULL;
 
-    // Handle heredoc if present
-    if (node->left && node->left->type == HEREDOC)
-    {
-        status = process_heredocs(shell->heredoc_list, env, shell, 0);
+    // Find the last heredoc in the list
+    if (shell->heredoc_list) {
+        last_heredoc = shell->heredoc_list;
+        while (last_heredoc->next)
+            last_heredoc = last_heredoc->next;
+    }
+
+    // Process heredocs if present
+    if (last_heredoc && !shell->heredoc_processed) {
+		printf("i dont enter\n");
+		//shell->heredoc_processed = 1;
+        status = process_heredocs_redir(shell->heredoc_list, env, shell);
         if (status != 0)
             return status;
     }
-
+	//printf("bfore seg fault\n");
+	//printf("herdoc fd %d\n", last_heredoc->node->heredoc_fd);
     // Open the file for redirection
     if (node->type == REDIR_IN)
         fd = open(node->right->cmd, O_RDONLY);
@@ -62,39 +72,296 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     pid = fork();
     if (pid == 0)
     {
-        // Redirect input from heredoc if present
-        if (node->left && node->left->type == HEREDOC)
+        // if (node->type == REDIR_IN && last_heredoc)
+		// {
+		// 	dup2(last_heredoc->node->heredoc_fd, STDIN_FILENO);
+        //     close(last_heredoc->node->heredoc_fd);
+		// 	// dup2(fd, STDIN_FILENO);
+        //     // close(last_heredoc->node->heredoc_fd);
+		// 	//close(fd);
+		// }
+		// else
+		// {
+		// 	if (last_heredoc) {
+		// 		dup2(last_heredoc->node->heredoc_fd, STDIN_FILENO);
+		// 		close(last_heredoc->node->heredoc_fd);
+		// 	}
+		// 	else if (node->type == REDIR_IN)
+        //     	dup2(fd, STDIN_FILENO);
+        // 	else
+        //     	dup2(fd, STDOUT_FILENO);
+        // 	close(fd);
+		// }
+
+        // Set up output redirection
+		// if (node->type == REDIR_IN)
+        //     dup2(fd, STDIN_FILENO);
+        // else
+        //     dup2(fd, STDOUT_FILENO);
+        // close(fd);
+
+        // Find and execute command
+		if (node->type == REDIR_IN && !shell->heredoc_processed) 
+		{
+        	dup2(fd, STDIN_FILENO);  // File redirection takes precedence
+        	close(fd);
+		}
+		else if (node->type == REDIR_IN && shell->heredoc_processed)
         {
-            dup2(node->left->heredoc_fd, STDIN_FILENO);
-            close(node->left->heredoc_fd);
-        }
-
-        // Redirect output to the file
-        if (node->type == REDIR_IN)
-            dup2(fd, STDIN_FILENO);
-        else
-            dup2(fd, STDOUT_FILENO);
-
-        close(fd);
-
-        // Execute the command
-        cmd_node = node->left;
+			dup2(last_heredoc->node->heredoc_fd, STDIN_FILENO);
+            close(last_heredoc->node->heredoc_fd);
+            close(fd);
+		}
+		else if ((node->type == REDIR_OUT || node->type == APPEND)
+		 		&& last_heredoc && last_heredoc->node->heredoc_fd > -1)
+        {
+			dup2(last_heredoc->node->heredoc_fd, STDIN_FILENO);
+            close(last_heredoc->node->heredoc_fd);
+			dup2(fd, STDOUT_FILENO);
+            close(fd);
+		}
+    	else 
+		{
+        	dup2(fd, STDOUT_FILENO);  // For output redirections
+        	close(fd);
+    	}
+        cmd_node = node;
         while (cmd_node && cmd_node->type != NODE_COMMAND)
             cmd_node = cmd_node->left;
 
         if (cmd_node && cmd_node->type == NODE_COMMAND)
             exit(execute_node(cmd_node, env, shell));
         else
-            exit(1); // No command to execute
+            exit(1);
     }
 
+    // Parent cleanup
     close(fd);
-    if (node->left && node->left->type == HEREDOC)
-        close(node->left->heredoc_fd);
+    if (last_heredoc)
+        close(last_heredoc->node->heredoc_fd);
 
     waitpid(pid, &status, 0);
     return WEXITSTATUS(status);
 }
+//this code should work
+// int execute_redir(t_tree *node, char ***env, t_shell *shell)
+// {
+//     pid_t pid;
+//     int fd;
+//     int status;
+//     t_tree *cmd_node;
+//     t_tree *curr = node;
+
+//     // Find the last heredoc (rightmost heredoc in the tree)
+//     t_tree *last_heredoc = NULL;
+//     while (curr)
+//     {
+//         if (curr->type == HEREDOC)
+//             last_heredoc = curr;
+//         curr = curr->left;
+//     }
+
+//     // Process the last heredoc if it exists
+//     int last_heredoc_fd = -1;
+//     if (last_heredoc)
+//     {
+//         last_heredoc_fd = process_heredocs(shell->heredoc_list, env, shell, 1);
+//         if (last_heredoc_fd < 0)
+//             return 1; // Error processing heredoc
+//     }
+
+//     // Open the file for redirection
+//     if (node->type == REDIR_IN)
+//         fd = open(node->right->cmd, O_RDONLY);
+//     else if (node->type == REDIR_OUT)
+//         fd = open(node->right->cmd, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+//     else if (node->type == APPEND)
+//         fd = open(node->right->cmd, O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+//     if (fd < 0)
+//         return (perror("Error"), 1);
+
+//     pid = fork();
+//     if (pid == 0)
+//     {
+//         // Redirect input from the last heredoc if present
+//         if (last_heredoc_fd != -1)
+//         {
+//             dup2(last_heredoc_fd, STDIN_FILENO);
+//             close(last_heredoc_fd);
+//         }
+
+//         // Redirect output to the file
+//         if (node->type == REDIR_IN)
+//             dup2(fd, STDIN_FILENO);
+//         else
+//             dup2(fd, STDOUT_FILENO);
+
+//         close(fd);
+
+//         // Execute the command
+//         cmd_node = node->left;
+//         while (cmd_node && cmd_node->type != NODE_COMMAND)
+//             cmd_node = cmd_node->left;
+
+//         if (cmd_node && cmd_node->type == NODE_COMMAND)
+//             exit(execute_node(cmd_node, env, shell));
+//         else
+//             exit(1); // No command to execute
+//     }
+//     close(fd);
+//     if (last_heredoc_fd != -1)
+//         close(last_heredoc_fd);
+
+//     waitpid(pid, &status, 0);
+//     return WEXITSTATUS(status);
+// }
+// this redir partially works
+// int execute_redir(t_tree *node, char ***env, t_shell *shell)
+// {
+//     pid_t pid;
+//     int fd;
+//     int status;
+//     t_tree *cmd_node;
+//     t_tree *curr = node;
+
+//     // Find the last heredoc (rightmost heredoc in the tree)
+//     t_tree *last_heredoc = NULL;
+//     while (curr)
+//     {
+//         if (curr->type == HEREDOC)
+//             last_heredoc = curr;
+//         curr = curr->left;
+//     }
+// 	printf("last heredoc %s\n", last_heredoc->left->cmd);
+
+//     // Process the last heredoc if it exists
+//     if (last_heredoc)
+//     {
+//         status = process_heredocs(shell->heredoc_list, env, shell, 1);
+//         if (status != 0)
+//             return status;
+//     }
+
+//     // Open the file for redirection
+//     if (node->type == REDIR_IN)
+//         fd = open(node->right->cmd, O_RDONLY);
+//     else if (node->type == REDIR_OUT)
+//         fd = open(node->right->cmd, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+//     else if (node->type == APPEND)
+//         fd = open(node->right->cmd, O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+//     if (fd < 0)
+//         return (perror("Error"), 1);
+
+//     pid = fork();
+//     if (pid == 0)
+//     {
+//         // Redirect input from the last heredoc if present
+//         if (last_heredoc)
+//         {
+//             dup2(last_heredoc->heredoc_fd, STDIN_FILENO);
+//             close(last_heredoc->heredoc_fd);
+//         }
+
+//         // Redirect output to the file
+//         if (node->type == REDIR_IN)
+//             dup2(fd, STDIN_FILENO);
+//         else
+//             dup2(fd, STDOUT_FILENO);
+
+//         close(fd);
+
+//         // Execute the command
+//         cmd_node = node->left;
+//         while (cmd_node && cmd_node->type != NODE_COMMAND)
+//             cmd_node = cmd_node->left;
+
+//         if (cmd_node && cmd_node->type == NODE_COMMAND)
+//             exit(execute_node(cmd_node, env, shell));
+//         else
+//             exit(1); // No command to execute
+//     }
+//     close(fd);
+//     if (last_heredoc)
+//         close(last_heredoc->heredoc_fd);
+
+//     waitpid(pid, &status, 0);
+//     return WEXITSTATUS(status);
+// }
+//MY CURRENT REDR
+// int execute_redir(t_tree *node, char ***env, t_shell *shell)
+// {
+//     pid_t pid;
+//     int fd;
+//     int status;
+//     t_tree *cmd_node;
+// 	t_tree *curr = node;
+
+//     // Handle heredoc if present
+//     if (node->left && node->left->type == HEREDOC)
+//     {
+//         status = process_heredocs(shell->heredoc_list, env, shell, 1);
+// 		printf("status %d\n", status);
+//         if (status != 0)
+//             return status;
+//     }
+
+//     // Open the file for redirection
+//     if (node->type == REDIR_IN)
+//         fd = open(node->right->cmd, O_RDONLY);
+//     else if (node->type == REDIR_OUT)
+//         fd = open(node->right->cmd, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+//     else if (node->type == APPEND)
+//         fd = open(node->right->cmd, O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+//     if (fd < 0)
+//         return (perror("Error"), 1);
+
+//     pid = fork();
+//     if (pid == 0)
+//     {
+//         // Redirect input from heredoc if present
+//         // if (node->left && node->left->type == HEREDOC)
+//         // {
+//         //     printf("heredoc fd: %d\n", node->left->heredoc_fd);
+// 		// 	dup2(node->left->heredoc_fd, STDIN_FILENO);
+//         //     close(node->left->heredoc_fd);
+//         // }
+// 		while (curr->left)
+//         {
+// 			curr = curr->left;
+//         }
+// 		printf("inside redir\n");
+//         printf("heredoc fd: %d\n", curr->heredoc_fd);
+// 		//dup2(curr->heredoc_fd, STDIN_FILENO);
+//         //close(curr->heredoc_fd);
+//         // Redirect output to the file
+//         if (node->type == REDIR_IN)
+//             dup2(fd, STDIN_FILENO);
+//         else
+//             dup2(fd, STDOUT_FILENO);
+
+//         close(fd);
+
+//         // Execute the command
+//         cmd_node = node->left;
+//         while (cmd_node && cmd_node->type != NODE_COMMAND)
+//             cmd_node = cmd_node->left;
+// 		//printf("cmd node str %s\n", cmd_node->cmd);
+//         if (cmd_node && cmd_node->type == NODE_COMMAND)
+//             exit(execute_node(cmd_node, env, shell));
+//         else
+//             exit(1); // No command to execute
+//     }
+//     close(fd);
+//     if (node->left && node->left->type == HEREDOC)
+//         close(node->left->heredoc_fd);
+
+//     waitpid(pid, &status, 0);
+//     return WEXITSTATUS(status);
+// }
+
 // int execute_redir(t_tree *node, char ***env, t_shell *shell)
 // {
 //     pid_t pid;
@@ -273,16 +540,38 @@ char **build_args(t_tree *node)
 
     return args;
 }
+
+int only_heredocs(t_tree *node)
+{
+	if (!node)
+		return (1);
+	if (node->type != HEREDOC && node->type != NODE_COMMAND)
+		return (0);
+	return (only_heredocs(node->left));
+}
+
+// int execute_first(t_tree *node, char ***env, t_shell *shell)
+// {
+// 	if (only_heredocs(node) && shell->heredoc_list)
+// 		return process_heredocs(shell->heredoc_list, env, shell, 1);
+		
+// }
 int execute_node(t_tree *node, char ***env, t_shell *shell)
 {
     if (!node)
         return (0);
-    if (node->type == HEREDOC)
+	if (node->type == HEREDOC && !shell->heredoc_processed)
     {
-        // if (node->left && node->left->type == HEREDOC)
-        //     return process_multiple_heredocs(node, env, shell, 1);
-        // add_heredoc_to_list(&shell->heredoc_list, node);
-        return (process_heredocs(shell->heredoc_list, env, shell, 1));
+        shell->heredoc_processed = 1;  
+		int heredoc_status = process_heredocs_redir(shell->heredoc_list, env, shell);
+        if (heredoc_status != 0)
+            return heredoc_status;
+            
+        // If there's a left subtree, continue processing it
+		printf("im executing left\n");
+        if (node->left)
+            return execute_node(node->left, env, shell);
+        return 0;
     }
     if (node->type == PIPE)
         return (execute_pipe(node, env, shell));
@@ -290,6 +579,13 @@ int execute_node(t_tree *node, char ***env, t_shell *shell)
         return (execute_redir(node, env, shell));
     else if (node->type == NODE_COMMAND)
         return (execute_cmd(node, env, shell));
+	else if (only_heredocs(node) && shell->heredoc_list && !shell->heredoc_processed)
+	{
+		shell->heredoc_processed = 1;
+		return process_heredocs(shell->heredoc_list, env, shell, 1);
+	}
+	// else if (node->type == HEREDOC)
+	// 	return (process_heredocs(shell->heredoc_list, env, shell, 1));
     return (0);
 }
 
