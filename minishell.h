@@ -12,7 +12,8 @@
 # include "readline/history.h"
 # include <termios.h>
 
-extern int g_sig;
+// extern int g_sig;
+extern int	g_status;
 
 typedef struct s_cmd {
     char    *cmd_name;   
@@ -36,7 +37,7 @@ typedef struct s_tree
 	struct s_tree	*right;
 	char			*cmd;
 	t_node_type		type;
-    int             heredoc_fd;
+	int             heredoc_fd;
 }	t_tree;
 
 // remove
@@ -48,7 +49,7 @@ typedef struct s_list
 
 typedef struct s_shell
 {
-    t_list      *env;         
+    t_list      *env;
     t_tree      *tree;
     //t_context   *context;
     int         status;
@@ -64,7 +65,6 @@ typedef struct s_exp
     int  len;     // Length of the input string or token
     char *token;  // Pointer to the extracted token
 } t_exp;
-
 
 // typedef struct s_expand
 // {
@@ -88,6 +88,11 @@ char *get_env_value(char *name, char **env);
 void free_ast(t_tree *node);
 void free_split(char **result);
 void print_ast(t_tree *node, int depth);
+void	free_shell(t_shell *shell);
+void	free_env(char **env_copy);
+// void	rl_replace_line(char *, int);
+void rl_replace_line(const char *text, int pos);
+
 //string utils
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char *ft_strdup(char *s);
@@ -111,6 +116,7 @@ int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell);
 char *join_path(char *path, char *args);
 char	*extract_path(char *envp[], char *args);
 int execute_command(t_tree *node, char ***env);
+int execute_cmd(t_tree *node, char ***env, t_shell *shell);
 int execute_node(t_tree *node, char ***env, t_shell *shell);
 char **build_args(t_tree *node);
 void test_command(char **env, char *test_name, char *cmd);

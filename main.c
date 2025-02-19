@@ -12,7 +12,19 @@
 
 #include "minishell.h"
 
-int	g_sig = 0;
+int	g_status = 0;
+
+void handle_sigint(int sig)
+{
+    g_status = sig;
+	if (sig == SIGINT)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
 
 static t_shell	*create_shell(void)
 {
@@ -25,7 +37,7 @@ static t_shell	*create_shell(void)
 	return (shell);
 }
 
-static void	free_shell(t_shell *shell)
+void	free_shell(t_shell *shell)
 {
 	if (shell)
 	{
@@ -35,36 +47,84 @@ static void	free_shell(t_shell *shell)
 	}
 }
 
+char	**create_env_copy(char **env)
+{
+	int		i;
+	int		total;
+	char	**env_copy;
+	char	*test_str;
+
+	i = 0;
+	total = 0;
+	test_str = NULL;
+	while (env[total])
+		total += 1;
+	env_copy = (char **)malloc(sizeof(char *) * (total + 1));
+	if (env_copy == NULL)
+		return (NULL);
+	i = 0;
+	while (env[i])
+	{
+		test_str = ft_strdup(env[i]);
+		if (test_str == NULL)
+			return (free_result(env_copy, total), NULL);
+		env_copy[i] = test_str;
+		i += 1;
+	}
+	env_copy[i] = NULL;
+	return (env_copy);
+}
+
+void	free_env(char **env_copy)
+{
+	int		i;
+
+	i = 0;
+	while (env_copy[i])
+	{
+		free(env_copy[i]);
+		i += 1;
+	}
+	free(env_copy);
+	return ;
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	char	*input;
 	t_shell	*shell;
 	t_tree	*ast;
 	char	**env_copy;
-	int		status;
 
 	(void)argc;
 	(void)argv;
+	input = NULL;
+	ast = NULL;
+	signal(SIGINT, handle_sigint);
+	signal(SIGQUIT, SIG_IGN);
 	shell = create_shell();
 	if (shell == NULL)
 		return (1);
-	// signal(SIGQUIT, SIG_IGN);
-	// signal_wrapper(SIGINT, ast, input, shell);   // Ctrl+C
-	env_copy = env;
+	env_copy = create_env_copy(env);
+	if (env_copy == NULL)
+	{
+		free_shell(shell);
+		return (2);
+	}
 	while (1)
 	{
 		input = readline("minishell>");
 		if (!input)
-			return (free_shell(shell), 1);
+			return (free_shell(shell), free_env(env_copy), g_status);
 		add_history(input);
 		ast = create_tree(input, env_copy); 
 		if (ast == NULL)
 			return (free(input), free_shell(shell), 1); // If tree creation fails, there are no memory leaks (from our side).
-		// print_ast(ast, 0);
-		status = execute_node(ast, &env_copy, shell);
-		// free(input);
-		// free_ast(ast); //Create signal handler for cleaning up these three.
-		// free_shell(shell);
+		g_status = execute_node(ast, &env_copy, shell);
+		free(input);
+		free_ast(ast);
+		input = NULL;
+		ast = NULL;
 	}
-	return (status);
+	return (g_status);
 }

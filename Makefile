@@ -1,10 +1,10 @@
 NAME = minishell
 CC = cc
-//CFLAGS = -Wall -Wextra -Werror
+#CFLAGS = -Wall -Wextra -Werror 
 RM = rm -rf
 
 
-READLINE_FLAGS = -lreadline
+READLINE_FLAGS = -L/opt/vagrant/embedded/lib -lreadline
 
 
 SRC_FILES = main.c \

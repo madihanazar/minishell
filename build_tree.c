@@ -155,6 +155,7 @@ int fill_tokens(char **result, char *str, char split_char, char **env)
             break;
         token_len = get_token_len(str + i, split_char);
         result[j] = extract_token(str + i, token_len, env);
+		// printf("Fill tokens output %s\n", result[j]);
         if (!result[j])
             return (-1);
         i += token_len;
@@ -212,6 +213,7 @@ char	*extract_token(char *str, int len, char **env)
 			exp.token[exp.j++] = str[exp.i++];
 	}
 	exp.token[exp.j] = '\0';
+	// printf("handle expansion output: %s\n", exp.token);
 	return (exp.token);
 }
 
@@ -254,6 +256,7 @@ int	handle_expansion(char *str, t_exp *exp, char **env)
 		exp->token = new_tok;
 	}
 	ft_strcpy(exp->token + exp->j, val);
+	// printf("In handle expansion: %s\n", exp->token);
 	exp->j += val_len;
 	free(val);
 	return (1);

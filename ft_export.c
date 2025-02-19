@@ -392,5 +392,6 @@ int builtin_export(t_tree *node, char **args, char ***env, t_list **export_list)
             i++;
         }
     }
+	free_split(args);
     return (0);
 }

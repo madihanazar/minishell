@@ -1,4 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   built_in.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nkunnath <nkunnath@student.42abudhabi.ae>  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/16 15:41:58 by nkunnath          #+#    #+#             */
+/*   Updated: 2025/02/16 15:42:01 by nkunnath         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
+
+int is_builtin(char *cmd)
+{
+	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) ||
+			!ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) ||
+			!ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) ||
+			!ft_strncmp(cmd, "exit", 5));
+}
 
 // Add this at the start of your function to debug
 static void print_env_var(char **env, const char *var_name)
@@ -15,7 +35,6 @@ static void print_env_var(char **env, const char *var_name)
     }
     printf("Debug: %s not found\n", var_name);
 }
-
 
 static void	ft_putchar_fd(char c, int fd)
 {
@@ -43,20 +62,14 @@ static void	ft_putnbr_fd(int n, int fd)
 	else
 		ft_putchar_fd(n + 48, fd);
 }
-int is_builtin(char *cmd)
-{
-    return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) ||
-            !ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) ||
-            !ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) ||
-            !ft_strncmp(cmd, "exit", 5));
-}
+
 int builtin_cd(t_tree *node, char **args, char **env)
 {
-    char *home;
-    char *new_path;
-	char *old_path;
-	char *current_path;
-	int i;
+	char	*home;
+	char	*new_path;
+	char	*old_path;
+	char	*current_path;
+	int		i;
 
 	i = 0;
 	old_path = getcwd(NULL, 0);
@@ -88,19 +101,22 @@ int builtin_cd(t_tree *node, char **args, char **env)
 	while (env[i])
 	{
 		if (!ft_strncmp(env[i], "PWD=", 4))
+		{
+			free(env[i]);
 			env[i] = ft_strjoin("PWD=", current_path);
+		}
 		else if (!ft_strncmp(env[i], "OLDPWD=", 7))
-			env[i] = ft_strjoin("OLDPWD=", old_path);
+		{
+			free(env[i]);
+			env[i] = ft_strjoin("OLDPWD=", old_path); 
+		}
 		i++;
 	}
-	print_env_var(env, "HOME=");
-	print_env_var(env, "PWD=");
-	print_env_var(env, "OLDPWD=");
 	free(old_path);
 	free(current_path);
+	free_split(args);
     return (0);
 }
-
 
 int builtin_echo(t_tree *node, char **argv, char **env)
 {
@@ -111,7 +127,8 @@ int builtin_echo(t_tree *node, char **argv, char **env)
     newline = 1;
     //ft_putchar_fd(argv[1][1], 2);
     
-    while (argv[i] && argv[i][0] == '-' && argv[i][1] == 'n' && (argv[i][2] == '\0' || argv[i][2] == 'n'))
+    while (argv[i] && argv[i][0] == '-' && argv[i][1] == 'n' 
+			&& (argv[i][2] == '\0' || argv[i][2] == 'n'))
     {
         int j = 2;
         int count = 0;
@@ -128,18 +145,17 @@ int builtin_echo(t_tree *node, char **argv, char **env)
     while (argv[i])
     {
 		ft_putstr_fd(argv[i], 2);
-        if (argv[i + 1])
-            ft_putstr_fd(" ", 2);
-        i++;
+		if (argv[i + 1])
+			ft_putstr_fd(" ", 2);
+		i++;
     }
     if (newline)
     {
         //ft_putstr_fd("im a newline\n", 2);
         ft_putstr_fd("\n", 2);
-    }    
-    
+    }
+	free_split(argv);
     return (0);
-
 }
 
 int builtin_pwd(t_tree *node, char **args, char **env)
@@ -151,6 +167,7 @@ int builtin_pwd(t_tree *node, char **args, char **env)
     ft_putstr_fd(cwd, 2);
     ft_putstr_fd("\n", 1);
     free(cwd);
+	free_split(args);
     return (0);
 }
 
@@ -164,26 +181,37 @@ int builtin_env(t_tree *node, char **args, char **env)
 		printf("%s\n", env[i]);
 		i++;
 	}
-	
+	free_split(args);
 	return (0);
+}
+
+int	builtin_exit(t_tree *node, char **args, char **env, t_shell *shell)
+{
+	free_split(args);
+	free_ast(node);
+	free_env(env);
+	free_shell(shell);
+	exit(g_status); // 0 has to be replaced by the global status variable
 }
 
 int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell)
 {
-   t_list *export_list = NULL;
-   if (!ft_strncmp(node->cmd, "cd", 2))
-        return builtin_cd(node, args, *env);
-    if (!ft_strncmp(node->cmd, "echo", 4))
-         return builtin_echo(node, args, *env);
-    else if (!ft_strncmp(node->cmd, "pwd", 3))
-         return builtin_pwd(node, args, *env);
-    else if (!ft_strncmp(node->cmd, "export", 6))
-        return builtin_export(node, args, env,  &shell->export_list);
-    else if (!ft_strcmp(node->cmd, "unset"))
-        return builtin_unset(node, args, env);
-    else if (!ft_strncmp(node->cmd, "env",3))
-        return builtin_env(node, args, *env);
-    // else if (!ft_strcmp(node->cmd, "exit"))
-    //     return builtin_exit(node);
+   t_list *export_list;
+
+	export_list = NULL;
+	if (!ft_strncmp(node->cmd, "cd", 2))
+		return builtin_cd(node, args, *env);
+	if (!ft_strncmp(node->cmd, "echo", 4))
+		return (builtin_echo(node, args, *env));
+	else if (!ft_strncmp(node->cmd, "pwd", 3))
+		return builtin_pwd(node, args, *env);
+	else if (!ft_strncmp(node->cmd, "export", 6))
+		return builtin_export(node, args, env,  &shell->export_list);
+	else if (!ft_strcmp(node->cmd, "unset"))
+		return builtin_unset(node, args, env);
+	else if (!ft_strncmp(node->cmd, "env",3))
+		return builtin_env(node, args, *env);
+	else if (!ft_strcmp(node->cmd, "exit"))
+		builtin_exit(node, args, *env, shell);
     return (1);
 }
