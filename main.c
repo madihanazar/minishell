@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/02/18 20:05:31 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/02/19 20:40:20 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,8 @@ int	main(int argc, char **argv, char **env)
 			return (free(input), free_shell(shell), 1);
 		print_ast(ast, 0);
 		//extract_heredocs(tree, &tree->heredocs);
-		status = execute_node(ast, &env_copy, shell);
+		// status = execute_node(ast, &env_copy, shell);
+		status = first_traversal(ast, &env_copy, shell);
 		shell->heredoc_processed = 0; //reset the flag
 		clear_heredoc_list(&shell->heredoc_list);
 		free(input);

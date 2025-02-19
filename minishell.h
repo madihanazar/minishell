@@ -63,6 +63,7 @@ typedef struct s_shell
     t_heredoc *heredoc_list;
     t_list     *export_list;
 	int heredoc_processed;
+	int has_heredoc;
 } t_shell;
 
 typedef struct s_exp
@@ -162,4 +163,6 @@ void add_heredoc_to_list(t_heredoc **list, t_tree *node);
 int process_heredocs_redir(t_heredoc *heredoc_list, char ***env, t_shell *shell);
 int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int execute_flag);
 void clear_heredoc_list(t_heredoc **heredoc_list);
+int execute_redir_heredoc(t_tree *node, char ***env, t_shell *shell);
+int first_traversal(t_tree *node, char ***env, t_shell *shell);
 #endif
