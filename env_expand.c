@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static void	make_string(char *f_string, unsigned int num, int index, int n)
+void	make_string(char *f_string, unsigned int num, int index, int n)
 {
 	char	digit;
 
@@ -27,7 +27,7 @@ static void	make_string(char *f_string, unsigned int num, int index, int n)
 	}
 }
 
-static int	find_num_of_digits(int n)
+int	find_num_of_digits(int n)
 {
 	int				number_of_digits;
 	unsigned int	number;
@@ -54,7 +54,7 @@ static int	find_num_of_digits(int n)
 	return (number_of_digits);
 }
 
-static char	*ft_itoa(int n)
+char	*ft_itoa(int n)
 {
 	int				number_of_digits;
 	unsigned int	number_two;
@@ -111,7 +111,7 @@ char *expand_var(char *str, int *i, char **env)
 	{
 		// to do
 		value = ft_itoa(g_status);
-		// printf("env expand output: %s\n", value);
+		// printf("expand output: %s\n", value);
 		return (value);
 	}
 	while (str[*i + len] && (str[*i + len] == '_' || ft_isalnum(str[*i + len])))

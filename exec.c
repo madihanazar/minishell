@@ -2,17 +2,19 @@
 
 int execute_node(t_tree *node, char ***env, t_shell *shell)
 {
+	signal(SIGINT, handle_sigint);
+	signal(SIGQUIT, SIG_IGN);
 	if (!node)
-		return (0);
-	if (node->type == PIPE)
-		return (execute_pipe(node, env, shell));
+		g_status = 1;
+	else if (node->type == PIPE)
+		g_status = execute_pipe(node, env, shell);
 	else if (node->type == REDIR_IN || node->type == REDIR_OUT || node->type == APPEND)
-		return (execute_redir(node, env, shell));
+		g_status = execute_redir(node, env, shell);
 	else if (node->type == HEREDOC)
-		return (process_heredocs(node, env));
+		g_status = process_heredocs(node, env);
 	else if (node->type == NODE_COMMAND)
-		return (execute_cmd(node, env, shell));
-	return (0);
+		g_status = execute_cmd(node, env, shell);
+	return (g_status);
 }
 
 int execute_pipe(t_tree *node, char ***env, t_shell *shell)
@@ -97,7 +99,7 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 
     args = build_args(node);
     if (!args)
-        return (perror("Error"), 1);
+        return (perror("An error has occured\n"), 1);
     if (is_builtin(args[0]))
         return (execute_builtin(node, args, env, shell));
     if (ft_strchr(node->cmd, '/'))
@@ -107,16 +109,39 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 	pid = fork();
     if (pid == 0)
     {
-        // if (node->heredoc_fd > 0)
-        // {
-        //     dup2(node->heredoc_fd, STDIN_FILENO);
-        //     close(node->heredoc_fd);
-        // }
-		// if (!ft_strcmp(cmd_path, "./minishell"))
-		// {
-			// Add code for incrementing
-			// SHLVL
-		// }
+        if (node->heredoc_fd > 0)
+        {
+            dup2(node->heredoc_fd, STDIN_FILENO);
+            close(node->heredoc_fd);
+        }
+		if (!ft_strcmp(cmd_path, "./minishell"))
+		{
+			char *SHLVL_str = get_env_value("SHLVL", *env);
+			if (SHLVL_str == NULL)
+			{
+				ft_putstr_fd("An error has occured\n", 2);
+				g_status = 1;
+				builtin_exit(node, args, *env, shell);
+			}
+			int SHLVL_int = atoi(SHLVL_str);
+			int j = 0;
+			free(SHLVL_str);
+			SHLVL_str = NULL;
+			SHLVL_int = SHLVL_int + 1;
+			SHLVL_str = ft_itoa(SHLVL_int);
+			while ((*env)[j])
+			{
+				if (ft_strncmp((*env)[j], "SHLVL", 5) == 0)
+				{
+					char *final_str = ft_substr((*env)[j], 0, 6);
+					free((*env)[j]);
+					final_str = ft_strjoin(final_str, SHLVL_str);
+					(*env)[j] = final_str;
+					break ;
+				}
+				j += 1;
+			}
+		}
         if (execve(cmd_path, args, *env) == -1)
         {
             ft_putstr_fd("minishell: ", 2);

@@ -178,7 +178,8 @@ int builtin_env(t_tree *node, char **args, char **env)
 	i = 0;
 	while (env[i])
 	{
-		printf("%s\n", env[i]);
+		write(1, env[i], ft_strlen(env[i]));
+		write(1, "\n", 1);
 		i++;
 	}
 	free_split(args);
@@ -191,14 +192,11 @@ int	builtin_exit(t_tree *node, char **args, char **env, t_shell *shell)
 	free_ast(node);
 	free_env(env);
 	free_shell(shell);
-	exit(g_status); // 0 has to be replaced by the global status variable
+	exit(g_status);
 }
 
 int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell)
 {
-   t_list *export_list;
-
-	export_list = NULL;
 	if (!ft_strncmp(node->cmd, "cd", 2))
 		return builtin_cd(node, args, *env);
 	if (!ft_strncmp(node->cmd, "echo", 4))
@@ -213,5 +211,9 @@ int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell)
 		return builtin_env(node, args, *env);
 	else if (!ft_strcmp(node->cmd, "exit"))
 		builtin_exit(node, args, *env, shell);
-    return (1);
+	else
+	{
+		ft_putstr_fd("An error has occured\n", 2);
+		return (1);
+	}
 }

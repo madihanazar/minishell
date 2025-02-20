@@ -104,12 +104,16 @@ int	main(int argc, char **argv, char **env)
 	signal(SIGQUIT, SIG_IGN);
 	shell = create_shell();
 	if (shell == NULL)
+	{
+		ft_putstr_fd("An error has occured\n", 2);
 		return (1);
+	}
 	env_copy = create_env_copy(env);
 	if (env_copy == NULL)
 	{
 		free_shell(shell);
-		return (2);
+		ft_putstr_fd("An error has occured\n", 2);
+		return (1);
 	}
 	while (1)
 	{
@@ -119,7 +123,7 @@ int	main(int argc, char **argv, char **env)
 		add_history(input);
 		ast = create_tree(input, env_copy); 
 		if (ast == NULL)
-			return (free(input), free_shell(shell), 1); // If tree creation fails, there are no memory leaks (from our side).
+			return (free(input), free_shell(shell), 2); // If tree creation fails, there are no memory leaks (from our side).
 		g_status = execute_node(ast, &env_copy, shell);
 		free(input);
 		free_ast(ast);

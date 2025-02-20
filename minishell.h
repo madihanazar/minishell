@@ -108,6 +108,9 @@ int ft_strcmp(const char *s1, const char *s2);
 char	**ft_split(const char *s, char c);
 void	ft_putstr_fd(char *s, int fd);
 int	ft_isalpha(int c);
+char	*ft_itoa(int n);
+int	find_num_of_digits(int n);
+void	make_string(char *f_string, unsigned int num, int index, int n);
 
 int execute_pipe(t_tree *node, char ***env, t_shell *shell);
 int execute_redir(t_tree *node, char ***env, t_shell *shell);
@@ -139,6 +142,7 @@ int builtin_pwd(t_tree *node, char **args, char **env);
 int builtin_echo(t_tree *node, char **argv, char **env);
 int builtin_env(t_tree *node, char **args, char **env);
 int builtin_export(t_tree *node, char **args, char ***env, t_list **export_list);
+int	builtin_exit(t_tree *node, char **args, char **env, t_shell *shell);
 int add_export(char *str, char ***env, t_list **export_list);
 int add_export_1(char *str, char ***env, t_list **export_list);
 int check_export(char *str);

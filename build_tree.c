@@ -208,6 +208,8 @@ char	*extract_token(char *str, int len, char **env)
 		{
 			if (!handle_expansion(str, &exp, env))
 				return (NULL);
+			else
+				break ;
 		}
 		else
 			exp.token[exp.j++] = str[exp.i++];

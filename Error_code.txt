@@ -1,0 +1,14 @@
+main.c:
+
+If shell creation fails: 1
+If env copy creation fails: 1
+If CTRL-D is pressed when input line is empty: Global_Status
+If AST creation fails: 2
+
+In exec.c:
+In the execute_node() function:
+	In the execute_cmd() function:
+		If the argument list fails to form: 1
+		If any node creation fails, everything is cleared appropriately, and the return status is: 2
+
+In tree creation, what happens if one of the children fail to create?
