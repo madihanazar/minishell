@@ -64,6 +64,7 @@ typedef struct s_shell
     t_list     *export_list;
 	int heredoc_processed;
 	int has_heredoc;
+    int has_heredoc_only;
 } t_shell;
 
 typedef struct s_exp

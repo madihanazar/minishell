@@ -115,6 +115,22 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     // Find the last redirections starting from the root
     find_last_redirections(node, &last_input, &last_output);
     
+    // Create ALL output files before forking by traversing the tree
+    t_tree *current = node;
+    while (current)
+    {
+        if (current->type == REDIR_OUT || current->type == APPEND)
+        {
+            int flags = (current->type == APPEND) ? 
+                       (O_WRONLY | O_CREAT | O_APPEND) : 
+                       (O_WRONLY | O_CREAT | O_TRUNC);
+            stdout_fd = open(current->right->cmd, flags, 0644);
+            if (stdout_fd >= 0)
+                close(stdout_fd);  // Close it now, we'll reopen in child
+        }
+        current = current->left;
+    }
+    
     pid_t pid = fork();
     if (pid < 0)
         return (perror("Fork failed"), 1);
@@ -122,30 +138,45 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     if (pid == 0)
     {
         // Child process
+        int input_failed = 0;
+        
         // Handle input redirection first
         if (last_input)
         {
             stdin_fd = open(last_input->right->cmd, O_RDONLY);
             if (stdin_fd < 0)
-                exit(1);
-            dup2(stdin_fd, STDIN_FILENO);
-            close(stdin_fd);
+            {
+                perror(last_input->right->cmd);
+                input_failed = 1;
+            }
+            else
+            {
+                dup2(stdin_fd, STDIN_FILENO);
+                close(stdin_fd);
+            }
         }
         
-        // Handle output redirection
-        if (last_output)
+        // Handle output redirection only if input didn't fail
+        if (last_output && !input_failed)
         {
             int flags = (last_output->type == APPEND) ? 
                        (O_WRONLY | O_CREAT | O_APPEND) : 
                        (O_WRONLY | O_CREAT | O_TRUNC);
             stdout_fd = open(last_output->right->cmd, flags, 0644);
             if (stdout_fd < 0)
+            {
+                perror(last_output->right->cmd);
                 exit(1);
+            }
             dup2(stdout_fd, STDOUT_FILENO);
             close(stdout_fd);
         }
         
-        // Execute the leftmost command (which is the actual command like 'cat')
+        // If input failed, exit without executing command
+        if (input_failed)
+            exit(1);
+            
+        // Execute the leftmost command
         t_tree *cmd = node;
         while (cmd && cmd->left)
             cmd = cmd->left;
@@ -687,22 +718,35 @@ int has_heredoc(t_tree *root)
 	return (left_has_heredoc || right_has_heredoc);
 }
 
-// int execute_first(t_tree *node, char ***env, t_shell *shell)
-// {
-// 	if (only_heredocs(node) && shell->heredoc_list)
-// 		return process_heredocs(shell->heredoc_list, env, shell, 1);
-		
-// }
+int has_heredoc_only(t_tree *root)
+{
+    if (!root)
+        return 1; // An empty subtree is considered "all heredoc" by default.
+
+    if (root->type == NODE_COMMAND && !root->left && !root->right)
+        return 1;
+
+    if (root->type != HEREDOC)
+        return 0; // If any node is NOT HEREDOC, return 0.
+
+    // Recursively check both left and right subtrees.
+    return has_heredoc_only(root->left);
+}
 
 int first_traversal(t_tree *node, char ***env, t_shell *shell)
 {
 	shell->has_heredoc = has_heredoc(node);
-	return (execute_node(node, env, shell));
+    shell->has_heredoc_only = has_heredoc_only(node);
+    printf("flag value %d\n", shell->has_heredoc_only);
+    return execute_node(node, env, shell);
 }
+	
 int execute_node(t_tree *node, char ***env, t_shell *shell)
 {
     if (!node)
         return (0);
+    if (node->type == HEREDOC && shell->has_heredoc_only)
+        return (printf("only here\n"),process_heredocs(shell->heredoc_list, env, shell, 1));
 	if (node->type == HEREDOC && !shell->heredoc_processed)
     {
         shell->heredoc_processed = 1;  
@@ -724,11 +768,11 @@ int execute_node(t_tree *node, char ***env, t_shell *shell)
 	} 
     else if (node->type == NODE_COMMAND)
         return (execute_cmd(node, env, shell));
-	else if (shell->has_heredoc && shell->heredoc_list && !shell->heredoc_processed)
-	{
-		shell->heredoc_processed = 1;
-		return process_heredocs(shell->heredoc_list, env, shell, 1);
-	}
+	// else if (shell->has_heredoc && shell->heredoc_list && !shell->heredoc_processed)
+	// {
+	// 	shell->heredoc_processed = 1;
+	// 	return process_heredocs(shell->heredoc_list, env, shell, 1);
+	// }
 	// else if (node->type == HEREDOC)
 	// 	return (process_heredocs(shell->heredoc_list, env, shell, 1));
     return (0);

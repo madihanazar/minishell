@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/02/19 20:40:20 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/02/20 21:55:32 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ int	main(int argc, char **argv, char **env)
 		// status = execute_node(ast, &env_copy, shell);
 		status = first_traversal(ast, &env_copy, shell);
 		shell->heredoc_processed = 0; //reset the flag
+		shell->has_heredoc = 0;
+		shell->has_heredoc_only = 0;
 		clear_heredoc_list(&shell->heredoc_list);
 		free(input);
 	}
