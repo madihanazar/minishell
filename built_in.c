@@ -122,11 +122,9 @@ int builtin_echo(t_tree *node, char **argv, char **env)
 {
     int i;
     int newline;
-    //ft_putstr_fd("im in\n", 2);
+
     i = 1;
     newline = 1;
-    //ft_putchar_fd(argv[1][1], 2);
-    
     while (argv[i] && argv[i][0] == '-' && argv[i][1] == 'n' 
 			&& (argv[i][2] == '\0' || argv[i][2] == 'n'))
     {
@@ -144,16 +142,13 @@ int builtin_echo(t_tree *node, char **argv, char **env)
     }
     while (argv[i])
     {
-		ft_putstr_fd(argv[i], 2);
+		ft_putstr_fd(argv[i], 1);
 		if (argv[i + 1])
-			ft_putstr_fd(" ", 2);
+			ft_putstr_fd(" ", 1);
 		i++;
     }
     if (newline)
-    {
-        //ft_putstr_fd("im a newline\n", 2);
-        ft_putstr_fd("\n", 2);
-    }
+        ft_putstr_fd("\n", 1);
 	free_split(argv);
     return (0);
 }
@@ -164,7 +159,7 @@ int builtin_pwd(t_tree *node, char **args, char **env)
     cwd = getcwd(NULL, 0);
     if (!cwd)
         return (ft_putstr_fd("An error has occured", 2), 1);
-    ft_putstr_fd(cwd, 2);
+    ft_putstr_fd(cwd, 1);
     ft_putstr_fd("\n", 1);
     free(cwd);
 	free_split(args);
@@ -199,7 +194,7 @@ int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell)
 {
 	if (!ft_strncmp(node->cmd, "cd", 2))
 		return builtin_cd(node, args, *env);
-	if (!ft_strncmp(node->cmd, "echo", 4))
+	else if (!ft_strncmp(node->cmd, "echo", 4))
 		return (builtin_echo(node, args, *env));
 	else if (!ft_strncmp(node->cmd, "pwd", 3))
 		return builtin_pwd(node, args, *env);

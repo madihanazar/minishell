@@ -2,8 +2,6 @@
 
 int execute_node(t_tree *node, char ***env, t_shell *shell)
 {
-	signal(SIGINT, handle_sigint);
-	signal(SIGQUIT, SIG_IGN);
 	if (!node)
 		g_status = 1;
 	else if (node->type == PIPE)
@@ -55,9 +53,7 @@ int execute_pipe(t_tree *node, char ***env, t_shell *shell)
     (close(pipefd[0]), close(pipefd[1]));
     waitpid(pid1, &status1, 0);
     waitpid(pid2, &status2, 0);
-    if (WEXITSTATUS(status1) == 127)
-        return (127);
-    return (WEXITSTATUS(status2));
+    return (check_status(status2));
 }
 
 int execute_redir(t_tree *node, char ***env, t_shell *shell)
@@ -77,6 +73,8 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     pid = fork();
     if (pid == 0)
     {
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
         if (node->type == REDIR_IN)
             dup2(fd, STDIN_FILENO);
         else
@@ -87,7 +85,7 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     }
     close(fd);
     waitpid(pid, &status, 0);
-    return (WEXITSTATUS(status));
+    return (check_status(status));
 }
 
 int execute_cmd(t_tree *node, char ***env, t_shell *shell)
@@ -101,20 +99,25 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
     if (!args)
         return (perror("An error has occured\n"), 1);
     if (is_builtin(args[0]))
-        return (execute_builtin(node, args, env, shell));
+	{
+		signal(SIGPIPE, SIG_IGN);
+        return (signal(SIGPIPE, SIG_DFL), execute_builtin(node, args, env, shell));
+	}
     if (ft_strchr(node->cmd, '/'))
 		cmd_path = ft_strdup(node->cmd);
     else
 		cmd_path = extract_path(*env, args[0]);
 	pid = fork();
-    if (pid == 0)
-    {
-        if (node->heredoc_fd > 0)
-        {
-            dup2(node->heredoc_fd, STDIN_FILENO);
-            close(node->heredoc_fd);
-        }
-		if (!ft_strcmp(cmd_path, "./minishell"))
+	if (pid == 0)
+	{
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
+		if (node->heredoc_fd > 0)
+		{
+			dup2(node->heredoc_fd, STDIN_FILENO);
+			close(node->heredoc_fd);
+		}
+		if (cmd_path && (!ft_strcmp(cmd_path, "./minishell")))
 		{
 			char *SHLVL_str = get_env_value("SHLVL", *env);
 			if (SHLVL_str == NULL)
@@ -142,20 +145,21 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 				j += 1;
 			}
 		}
-        if (execve(cmd_path, args, *env) == -1)
-        {
-            ft_putstr_fd("minishell: ", 2);
-            ft_putstr_fd(args[0], 2);
-            ft_putstr_fd(": command not found\n", 2);
-            free_split(args);
-            free(cmd_path);
-            return (127);
-        }
+		if (execve(cmd_path, args, *env) == -1)
+		{
+			ft_putstr_fd("minishell: ", 2);
+			ft_putstr_fd(args[0], 2);
+			ft_putstr_fd(": command not found\n", 2);
+			free_split(args);
+			free(cmd_path);
+			g_status = 127;
+			exit(g_status);
+		}
     }
     waitpid(pid, &status, 0);
     free_split(args);
     free(cmd_path);
-    return WEXITSTATUS(status);
+	return (check_status(status));
 }
 
 char **build_args(t_tree *node)
