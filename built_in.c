@@ -192,6 +192,7 @@ int	builtin_exit(t_tree *node, char **args, char **env, t_shell *shell)
 
 int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell)
 {
+	signal(SIGPIPE, SIG_IGN);
 	if (!ft_strncmp(node->cmd, "cd", 2))
 		return builtin_cd(node, args, *env);
 	else if (!ft_strncmp(node->cmd, "echo", 4))
@@ -206,9 +207,7 @@ int execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell)
 		return builtin_env(node, args, *env);
 	else if (!ft_strcmp(node->cmd, "exit"))
 		builtin_exit(node, args, *env, shell);
-	else
-	{
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
-	}
+	signal(SIGPIPE, SIG_DFL);
+	ft_putstr_fd("An error has occured\n", 2);
+	return (1);
 }

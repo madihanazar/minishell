@@ -81,6 +81,8 @@ t_tree *handle_command(char *str, char **env)
 	int		i;
 
 	i = 1;
+	cmd_tokens = NULL;
+	node = NULL;
 	cmd_tokens = split_cmd(str, ' ', env);
 	if (!cmd_tokens || !cmd_tokens[0])
 		return (NULL);

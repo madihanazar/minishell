@@ -99,10 +99,7 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
     if (!args)
         return (perror("An error has occured\n"), 1);
     if (is_builtin(args[0]))
-	{
-		signal(SIGPIPE, SIG_IGN);
-        return (signal(SIGPIPE, SIG_DFL), execute_builtin(node, args, env, shell));
-	}
+		return (execute_builtin(node, args, env, shell));
     if (ft_strchr(node->cmd, '/'))
 		cmd_path = ft_strdup(node->cmd);
     else
@@ -132,14 +129,36 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 			SHLVL_str = NULL;
 			SHLVL_int = SHLVL_int + 1;
 			SHLVL_str = ft_itoa(SHLVL_int);
+			if (SHLVL_str == NULL)
+			{
+				ft_putstr_fd("An error has occured\n", 2);
+				g_status = 1;
+				builtin_exit(node, args, *env, shell);
+			}
 			while ((*env)[j])
 			{
 				if (ft_strncmp((*env)[j], "SHLVL", 5) == 0)
 				{
 					char *final_str = ft_substr((*env)[j], 0, 6);
+					if (final_str == NULL)
+					{
+						free(SHLVL_str);
+						ft_putstr_fd("An error has occured\n", 2);
+						g_status = 1;
+						builtin_exit(node, args, *env, shell);
+					}
+					char *finalest_str = ft_strjoin(final_str, SHLVL_str);
+					if (finalest_str == NULL)
+					{
+						free(final_str);
+						free(SHLVL_str);
+						ft_putstr_fd("An error has occured\n", 2);
+						g_status = 1;
+						builtin_exit(node, args, *env, shell);
+					}
 					free((*env)[j]);
-					final_str = ft_strjoin(final_str, SHLVL_str);
-					(*env)[j] = final_str;
+					(*env)[j] = finalest_str;
+					free(SHLVL_str);
 					break ;
 				}
 				j += 1;
@@ -150,15 +169,19 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 			ft_putstr_fd("minishell: ", 2);
 			ft_putstr_fd(args[0], 2);
 			ft_putstr_fd(": command not found\n", 2);
-			free_split(args);
+			// free_split(args);
 			free(cmd_path);
+			// free_shell(shell);
+			// free_env(*env);
+			// free_ast(node);
 			g_status = 127;
-			exit(g_status);
+			// exit(g_status);
+			builtin_exit(node, args, *env, shell);
 		}
     }
-    waitpid(pid, &status, 0);
-    free_split(args);
-    free(cmd_path);
+	waitpid(pid, &status, 0);
+	free_split(args);
+	free(cmd_path);
 	return (check_status(status));
 }
 

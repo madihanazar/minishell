@@ -16,11 +16,13 @@ t_tree	*create_node(char *str, t_node_type type)
 {
 	t_tree	*node;
 
+	node = NULL;
 	node = malloc(sizeof(t_tree));
 	if (!node)
 		return (NULL);
 	node->left = NULL;
 	node->right = NULL;
+	node->heredoc_fd = 0;
 	node->cmd = ft_strdup(str);
 	if (node->cmd == NULL)
 		return (free(node), NULL);
