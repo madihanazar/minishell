@@ -66,6 +66,7 @@ typedef struct s_shell
 	int heredoc_processed;
 	int has_heredoc;
     int has_heredoc_only;
+	int has_pipe;
 } t_shell;
 
 typedef struct s_exp

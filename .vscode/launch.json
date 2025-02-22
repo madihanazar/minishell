@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/madih/Downloads/minishell",
-      "program": "c:/Users/madih/Downloads/minishell/build/Debug/outDebug",
+      "cwd": "./Users/mnazar/Desktop/minishell",
+      "program": "./Users/mnazar/Desktop/minishell",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
