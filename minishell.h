@@ -39,6 +39,7 @@ typedef struct s_tree
 	t_node_type		type;
     // t_heredoc *heredocs; 
     int             heredoc_fd;
+    int heredoc_done;
 }	t_tree;
 
 // remove
@@ -136,7 +137,7 @@ int fill_tokens(char **result, char *str, char split_char, char **env);
 void run_heredoc(int pipe_fd, char *delimiter);
 //int process_multiple_heredocs(t_tree *node, char ***env, t_shell *shell, int flag);
 // remove
-int process_single_heredoc(t_tree *node, int flag);
+
 //built in
 int builtin_cd(t_tree *node, char **args, char **env);
 int builtin_pwd(t_tree *node, char **args, char **env);
@@ -166,4 +167,5 @@ int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int e
 void clear_heredoc_list(t_heredoc **heredoc_list);
 int execute_redir_heredoc(t_tree *node, char ***env, t_shell *shell);
 int first_traversal(t_tree *node, char ***env, t_shell *shell);
+int process_single_heredocs(t_tree *node, char ***env, t_shell *shell);
 #endif

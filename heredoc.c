@@ -1,4 +1,41 @@
 #include "minishell.h"
+
+int process_single_heredocs(t_tree *node, char ***env, t_shell *shell)
+{
+    int pipefd[2];
+    char *line;
+    char *delimiter;
+    printf("im inside the heredoc\n");
+    delimiter = node->right->cmd;
+    if (pipe(pipefd) == -1)
+        return (perror("minishell: pipe"), 1);
+
+    while (1)
+    {
+        line = readline("> ");
+        if (!line)
+        {
+            ft_putstr_fd("minishell: warning: here-document delimited by end-of-file\n", 2);
+            break;
+        }
+        if (ft_strcmp(line, delimiter) == 0)
+        {
+            free(line);
+            break;
+        }
+        write(pipefd[1], line, strlen(line));
+        write(pipefd[1], "\n", 1);
+        free(line);
+    }
+    close(pipefd[1]); // Close write end after reading all input
+
+    // Assign the read end to the left node's heredoc_fd
+    node->left->heredoc_fd = pipefd[0];
+
+    // Execute the left node (command) with heredoc redirection
+    //return (execute_node(node->left, env, shell));
+    return (0);
+}
 int process_multiple_heredocs(t_list *heredoc_list, char ***env, t_shell *shell, int is_last);
 
 void clear_heredoc_list(t_heredoc **heredoc_list) {
@@ -654,41 +691,6 @@ int process_heredocs(t_heredoc *heredoc_list, char ***env, t_shell *shell, int e
 //     return 0;
 // }
 
-// int process_heredocs(t_tree *node, char ***env, t_shell *shell)
-// {
-//     int pipefd[2];
-//     char *line;
-//     char *delimiter;
-//     printf("im inside the heredoc\n");
-//     delimiter = node->right->cmd;
-//     if (pipe(pipefd) == -1)
-//         return (perror("minishell: pipe"), 1);
-
-//     while (1)
-//     {
-//         line = readline("> ");
-//         if (!line)
-//         {
-//             ft_putstr_fd("minishell: warning: here-document delimited by end-of-file\n", 2);
-//             break;
-//         }
-//         if (ft_strcmp(line, delimiter) == 0)
-//         {
-//             free(line);
-//             break;
-//         }
-//         write(pipefd[1], line, strlen(line));
-//         write(pipefd[1], "\n", 1);
-//         free(line);
-//     }
-//     close(pipefd[1]); // Close write end after reading all input
-
-//     // Assign the read end to the left node's heredoc_fd
-//     node->left->heredoc_fd = pipefd[0];
-
-//     // Execute the left node (command) with heredoc redirection
-//     return (execute_node(node->left, env, shell));
-// }
 
 // void run_heredoc(int pipe_fd, char *delimiter)
 // {

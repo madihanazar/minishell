@@ -127,15 +127,15 @@ int builtin_echo(t_tree *node, char **argv, char **env)
     }
     while (argv[i])
     {
-		ft_putstr_fd(argv[i], 2);
+		ft_putstr_fd(argv[i], 1);
         if (argv[i + 1])
-            ft_putstr_fd(" ", 2);
+            ft_putstr_fd(" ", 1);
         i++;
     }
     if (newline)
     {
         //ft_putstr_fd("im a newline\n", 2);
-        ft_putstr_fd("\n", 2);
+        ft_putstr_fd("\n", 1);
     }    
     
     return (0);
@@ -148,7 +148,7 @@ int builtin_pwd(t_tree *node, char **args, char **env)
     cwd = getcwd(NULL, 0);
     if (!cwd)
         return (ft_putstr_fd("An error has occured", 2), 1);
-    ft_putstr_fd(cwd, 2);
+    ft_putstr_fd(cwd, 1);
     ft_putstr_fd("\n", 1);
     free(cwd);
     return (0);
