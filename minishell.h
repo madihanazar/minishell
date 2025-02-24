@@ -151,6 +151,8 @@ int check_export(char *str);
 int builtin_unset(t_tree *node, char **args, char ***env);
 char **list_to_env(t_list *list);
 t_list *env_to_list(char **env);
+int	env_init(t_list **env_list);
+void	free_env_list(t_list **node);
 
 //list
 t_list	*ft_lstnew(void *content);

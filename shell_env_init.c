@@ -50,6 +50,57 @@ char	**create_env_copy(char **env)
 	return (env_copy);
 }
 
+t_list	*find_node(t_list **env_list, char *str, int len)
+{
+	t_list	*node;
+
+	node = *env_list;
+	while (node)
+	{
+		if (ft_strncmp(node->content, str, len) == 0)
+			return (node);
+		node = node->next;
+	}
+	return (NULL);
+}
+
+int	env_init(t_list **env_list)
+{
+	int		SHLVL;
+	char	*SHLVL_str;
+	char	*SHLVL_int;
+	t_list	*SHLVL_node;
+	t_list	*OLDPWD_node;
+	t_list	*node;
+
+	SHLVL = 1;
+	SHLVL_str = NULL;
+	SHLVL_node = find_node(env_list, "SHLVL", 5);
+	if (SHLVL_node == NULL)
+	{
+		SHLVL_int = ft_itoa(SHLVL);
+		SHLVL_str = ft_strjoin("SHLVL=", SHLVL_int);
+		if (SHLVL_str == NULL)
+			return (0);
+		node = ft_lstnew(SHLVL_str);
+		if (!node)
+			return (free(SHLVL_str), 0);
+		ft_lstadd_back(env_list, node);
+	}
+	else
+	{
+		SHLVL_int = ft_itoa(SHLVL);
+		SHLVL_str = SHLVL_node->content;
+		SHLVL = atoi(SHLVL_str + 6);
+		if (SHLVL < 0)
+			SHLVL = 0;
+		SHLVL_str = ft_strjoin("SHLVL=", SHLVL_int);
+		SHLVL_node->content = SHLVL_str;
+	}
+	free(SHLVL_int);
+	return (1);
+}
+
 void	free_env(char **env_copy)
 {
 	int		i;
@@ -62,4 +113,19 @@ void	free_env(char **env_copy)
 	}
 	free(env_copy);
 	return ;
+}
+
+void	free_env_list(t_list **node)
+{
+	t_list	*start;
+	t_list	*temp;
+
+	start = *node;
+	while (start)
+	{
+		temp = start;
+		start = start->next;
+		free(temp->content);
+		free(temp);
+	}
 }

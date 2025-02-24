@@ -95,10 +95,10 @@ static t_list *create_env_node(char *content)
     t_list *new;
     char *content_copy;
 
-    content_copy = ft_strdup(content);
+	content_copy = ft_strdup(content);
     if (!content_copy)
         return (NULL);
-    new = ft_lstnew(content_copy);
+	new = ft_lstnew(content_copy);
     if (!new)
     {
         free(content_copy);
@@ -115,11 +115,9 @@ t_list *env_to_list(char **env)
 
     if (!env || !env[0])
         return (NULL);
-    
     head = create_env_node(env[0]);
     if (!head)
         return (NULL);
-    
     i = 1;
     while (env[i])
     {

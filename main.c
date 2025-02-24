@@ -31,6 +31,7 @@ int	main(int argc, char **argv, char **env)
 	char	*input;
 	t_shell	*shell;
 	t_tree	*ast;
+	t_list	*env_list;
 	char	**env_copy;
 
 	(void)argc;
@@ -39,37 +40,64 @@ int	main(int argc, char **argv, char **env)
 	ast = NULL;
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
+	// create the shell - Done
 	shell = create_shell();
 	if (shell == NULL)
 	{
 		ft_putstr_fd("An error has occured\n", 2);
 		return (1);
 	}
-	env_copy = create_env_copy(env);
-	if (env_copy == NULL)
+	// create the env linked list - Done
+	env_list = env_to_list(env);
+	if (env_list == NULL)
 	{
 		free_shell(shell);
 		ft_putstr_fd("An error has occured\n", 2);
 		return (1);
 	}
-	// create the shell - Done
-	// create the env linked list - To do
-	// initialize the env linked list
-	// attach it to the shell
-	while (1)
+	// initialize the env linked list - Done
+	if (!env_init(&env_list))
 	{
-		input = readline("minishell>");
-		if (!input)
-			return (free_shell(shell), free_env(env_copy), g_status);
-		add_history(input);
-		ast = create_tree(input, env_copy); 
-		if (ast == NULL)
-			return (free(input), free_shell(shell), 2); // If tree creation fails, there are no memory leaks (from our side).
-		g_status = execute_node(ast, &env_copy, shell);
-		free(input);
-		free_ast(ast);
-		input = NULL;
-		ast = NULL;
+		free_shell(shell);
+		free_env_list(&env_list);
+		ft_putstr_fd("An error has occured\n", 2);
+		return (1);
 	}
-	return (g_status);
+	t_list *node = env_list;
+	while (node)
+	{
+		printf("%s\n", (char *)node->content);
+		node = node->next;
+	}
+	free_shell(shell);
+	free_env_list(&env_list);
+	// env_copy = create_env_copy(env);
+	// if (env_copy == NULL)
+	// {
+	// 	free_shell(shell);
+	// 	ft_putstr_fd("An error has occured\n", 2);
+	// 	return (1);
+	// }
+	
+	// attach it to the shell
+	// shell->env = env_list;
+
+	// while (1)
+	// {
+	// 	input = readline("minishell>");
+	// 	if (!input)
+	// 		return (free_shell(shell), free_env(env_copy), g_status);
+	// 	add_history(input);
+	// 	ast = create_tree(input, env_copy); 
+	// 	if (ast == NULL)
+	// 		return (free(input), free_shell(shell), 2); // If tree creation fails, there are no memory leaks (from our side).
+	// 	g_status = execute_node(ast, &env_copy, shell);
+	// 	free(input);
+	// 	free_ast(ast);
+	// 	input = NULL;
+	// 	ast = NULL;
+	// }
+	// return (g_status);
+	return (0);
 }
+
