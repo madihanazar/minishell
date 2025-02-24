@@ -20,7 +20,8 @@ SRC_FILES = main.c \
 		   list_utils.c \
 		   ft_unset.c \
 		   heredoc.c \
-		   status_handling.c
+		   status_handling.c \
+		   shell_env_init.c
 
 
 OBJS = $(SRC_FILES:.c=.o)

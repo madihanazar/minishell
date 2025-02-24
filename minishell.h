@@ -92,6 +92,8 @@ void	free_shell(t_shell *shell);
 void	free_env(char **env_copy);
 // void	rl_replace_line(char *, int);
 void rl_replace_line(const char *text, int pos);
+t_shell	*create_shell(void);
+char	**create_env_copy(char **env);
 
 //string utils
 char	*ft_substr(char const *s, unsigned int start, size_t len);
@@ -157,6 +159,7 @@ void	ft_lstclear(t_list **lst, void (*del)(void *));
 void	ft_lstadd_back(t_list **lst, t_list *new);
 void	ft_lstdelone(t_list *lst, void (*del)(void *));
 //signal
+
 void handle_sigint(int sig);
 int	check_status(int status);
 
