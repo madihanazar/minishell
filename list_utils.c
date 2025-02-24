@@ -3,11 +3,21 @@
 t_list	*ft_lstnew(void *content)
 {
 	t_list	*newnode;
+	char	*temp;
 
 	newnode = (t_list *)malloc(sizeof(t_list));
+	temp = ft_strdup(content);
 	if (!newnode)
 		return (NULL);
-	newnode->content = content;
+	else if (temp == NULL)
+	{
+		free(newnode);
+		// free(content);
+		return (NULL);
+	}
+	newnode->content = temp;
+	if (!newnode->content)
+		return (NULL);
 	newnode->next = NULL;
 	return (newnode);
 }

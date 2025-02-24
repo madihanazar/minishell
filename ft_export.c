@@ -93,17 +93,12 @@ int check_export(char *str)
 static t_list *create_env_node(char *content)
 {
     t_list *new;
-    char *content_copy;
 
-	content_copy = ft_strdup(content);
-    if (!content_copy)
+    if (!content)
         return (NULL);
-	new = ft_lstnew(content_copy);
+	new = ft_lstnew((void *)content);
     if (!new)
-    {
-        free(content_copy);
         return (NULL);
-    }
     return (new);
 }
 

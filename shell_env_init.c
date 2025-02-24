@@ -83,17 +83,24 @@ int	env_init(t_list **env_list)
 		if (SHLVL_str == NULL)
 			return (0);
 		node = ft_lstnew(SHLVL_str);
+		free(SHLVL_str);
 		if (!node)
-			return (free(SHLVL_str), 0);
+			return (0);
 		ft_lstadd_back(env_list, node);
 	}
 	else
 	{
-		SHLVL_int = ft_itoa(SHLVL);
 		SHLVL_str = SHLVL_node->content;
 		SHLVL = atoi(SHLVL_str + 6);
 		if (SHLVL < 0)
+		{
 			SHLVL = 0;
+			SHLVL_int = ft_itoa(SHLVL);
+		}
+		else
+			SHLVL_int = ft_itoa(SHLVL + 1);
+		free(SHLVL_str);
+		SHLVL_str = NULL;
 		SHLVL_str = ft_strjoin("SHLVL=", SHLVL_int);
 		SHLVL_node->content = SHLVL_str;
 	}
@@ -126,6 +133,8 @@ void	free_env_list(t_list **node)
 		temp = start;
 		start = start->next;
 		free(temp->content);
+		temp->content = NULL;
 		free(temp);
+		temp = NULL;
 	}
 }

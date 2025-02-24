@@ -71,16 +71,9 @@ int	main(int argc, char **argv, char **env)
 	}
 	free_shell(shell);
 	free_env_list(&env_list);
-	// env_copy = create_env_copy(env);
-	// if (env_copy == NULL)
-	// {
-	// 	free_shell(shell);
-	// 	ft_putstr_fd("An error has occured\n", 2);
-	// 	return (1);
-	// }
-	
+
 	// attach it to the shell
-	// shell->env = env_list;
+	shell->env = env_list;
 
 	// while (1)
 	// {
