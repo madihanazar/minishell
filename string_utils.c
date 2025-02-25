@@ -144,11 +144,10 @@ int	ft_strncmp(const char *str1, const char *str2, size_t n)
 
 char *ft_strcpy(char *dest, const char *src)
 {
-    size_t i;
+    size_t	i;
 
     if (!dest || !src)
         return (NULL);
-
     i = 0;
     while (src[i])
     {

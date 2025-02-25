@@ -123,7 +123,7 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 				g_status = 1;
 				builtin_exit(node, args, *env, shell);
 			}
-			int SHLVL_int = atoi(SHLVL_str);
+			int SHLVL_int = ft_atoi(SHLVL_str);
 			int j = 0;
 			free(SHLVL_str);
 			SHLVL_str = NULL;

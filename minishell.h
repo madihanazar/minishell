@@ -49,10 +49,10 @@ typedef struct s_list
 
 typedef struct s_shell
 {
-    t_list      *env;
-    t_tree      *tree;
+    t_list      *env_list;
+    // t_tree      *tree;
     //t_context   *context;
-    int         status;
+    // int         status;
     t_list     *export_list;
 } t_shell;
 
@@ -139,30 +139,35 @@ void	handle_quotes(int *i, int *quote_flag);
 int		handle_expansion(char *str, t_exp *exp, char **env);
 
 //built in
-int builtin_cd(t_tree *node, char **args, char **env);
-int builtin_pwd(t_tree *node, char **args, char **env);
-int builtin_echo(t_tree *node, char **argv, char **env);
-int builtin_env(t_tree *node, char **args, char **env);
-int builtin_export(t_tree *node, char **args, char ***env, t_list **export_list);
-int	builtin_exit(t_tree *node, char **args, char **env, t_shell *shell);
-int add_export(char *str, char ***env, t_list **export_list);
-int add_export_1(char *str, char ***env, t_list **export_list);
-int check_export(char *str);
-int builtin_unset(t_tree *node, char **args, char ***env);
-char **list_to_env(t_list *list);
-t_list *env_to_list(char **env);
-int	env_init(t_list **env_list);
+int		builtin_cd(t_tree *node, char **args, char **env);
+int		builtin_pwd(t_tree *node, char **args, char **env);
+int		builtin_echo(t_tree *node, char **argv, char **env);
+int		builtin_env(t_tree *node, char **args, char **env);
+int		builtin_export(t_tree *node, char **args, char ***env, t_list **export_list);
+int		builtin_exit(t_tree *node, char **args, char **env, t_shell *shell);
+int		add_export(char *str, char ***env, t_list **export_list);
+int		add_export_1(char *str, char ***env, t_list **export_list);
+int		check_export(char *str);
+int		builtin_unset(t_tree *node, char **args, char ***env);
+char	**list_to_env(t_list *list);
+t_list	*env_to_list(char **env);
+int		env_init(t_list **env_list);
 void	free_env_list(t_list **node);
+t_list	*create_env_node(void *content);
+char	*find_shlvl_str(t_list	*shlvl_node);
+int		assign_shlvl_val(int shlvl_val);
+t_list	*find_node(t_list **env_list, char *str, int len);
+int		ft_atoi(const char *str);
 
 //list
 t_list	*ft_lstnew(void *content);
-int	ft_lstsize(t_list *lst);
+int		ft_lstsize(t_list *lst);
 void	ft_lstclear(t_list **lst, void (*del)(void *));
 void	ft_lstadd_back(t_list **lst, t_list *new);
 void	ft_lstdelone(t_list *lst, void (*del)(void *));
-//signal
 
-void handle_sigint(int sig);
-int	check_status(int status);
+//signal
+void	handle_sigint(int sig);
+int		check_status(int status);
 
 #endif

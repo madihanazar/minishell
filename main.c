@@ -26,54 +26,54 @@ void handle_sigint(int sig)
 	}
 }
 
-int	main(int argc, char **argv, char **env)
-{
-	char	*input;
-	t_shell	*shell;
-	t_tree	*ast;
-	t_list	*env_list;
-	char	**env_copy;
+// int	main(int argc, char **argv, char **env)
+// {
+// 	char	*input;
+// 	t_shell	*shell;
+// 	t_tree	*ast;
+// 	t_list	*env_list;
+// 	char	**env_copy;
 
-	(void)argc;
-	(void)argv;
-	input = NULL;
-	ast = NULL;
-	signal(SIGINT, handle_sigint);
-	signal(SIGQUIT, SIG_IGN);
-	// create the shell - Done
-	shell = create_shell();
-	if (shell == NULL)
-	{
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
-	}
+// 	(void)argc;
+// 	(void)argv;
+// 	input = NULL;
+// 	ast = NULL;
+// 	signal(SIGINT, handle_sigint);
+// 	signal(SIGQUIT, SIG_IGN);
+// 	// create the shell - Done
+// 	shell = create_shell();
+// 	if (shell == NULL)
+// 	{
+// 		ft_putstr_fd("An error has occured\n", 2);
+// 		return (1);
+// 	}
 	// create the env linked list - Done
-	env_list = env_to_list(env);
-	if (env_list == NULL)
-	{
-		free_shell(shell);
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
-	}
+	// env_list = env_to_list(env);
+	// if (env_list == NULL)
+	// {
+	// 	free_shell(shell);
+	// 	ft_putstr_fd("An error has occured\n", 2);
+	// 	return (1);
+	// }
 	// initialize the env linked list - Done
-	if (!env_init(&env_list))
-	{
-		free_shell(shell);
-		free_env_list(&env_list);
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
-	}
-	t_list *node = env_list;
-	while (node)
-	{
-		printf("%s\n", (char *)node->content);
-		node = node->next;
-	}
-	free_shell(shell);
-	free_env_list(&env_list);
+	// if (!env_init(&env_list))
+	// {
+	// 	free_shell(shell);
+	// 	free_env_list(&env_list);
+	// 	ft_putstr_fd("An error has occured\n", 2);
+	// 	return (1);
+	// }
+	// t_list *node = env_list;
+	// while (node)
+	// {
+	// 	printf("%s\n", (char *)node->content);
+	// 	node = node->next;
+	// }
+	// free_shell(shell);
+	// free_env_list(&env_list);
 
 	// attach it to the shell
-	shell->env = env_list;
+	// shell->env = env_list;
 
 	// while (1)
 	// {
@@ -91,6 +91,61 @@ int	main(int argc, char **argv, char **env)
 	// 	ast = NULL;
 	// }
 	// return (g_status);
-	return (0);
+// 	return (0);
+// }
+
+int	main_loop(t_shell *shell)
+{
+	char	*input;
+	t_tree	*ast;
+
+	if (env_init(&(shell->env_list)))
+	{
+		ft_putstr_fd("An error has occured\n", 2);
+		return (g_status = 1, g_status);
+	}
+	// while (1)
+	// {
+	// 	input = readline("minishell>");
+	// 	if (!input)
+	// 		return (g_status);
+	// 	add_history(input);
+	// 	ast = create_tree(input, env_copy);
+	// 	if (ast == NULL)
+	// 		return (free(input), free_shell(shell), 2); // If tree creation fails, there are no memory leaks (from our side).
+	// 	g_status = execute_node(ast, &env_copy, shell);
+	// 	free(input);
+	// 	free_ast(ast);
+	// 	input = NULL;
+	// 	ast = NULL;
+	// }
+	return (g_status);
 }
 
+int	main(int argc, char **argv, char **env)
+{
+	t_shell	*shell;
+	t_list	*env_list;
+
+	(void)argc;
+	(void)argv;
+	signal(SIGINT, handle_sigint);
+	signal(SIGQUIT, SIG_IGN);
+	shell = create_shell();
+	if (shell == NULL)
+	{
+		ft_putstr_fd("An error has occured\n", 2);
+		return (g_status = 1, g_status);
+	}
+	env_list = env_to_list(env);
+	if (env_list == NULL)
+	{
+		free_shell(shell);
+		ft_putstr_fd("An error has occured\n", 2);
+		return (g_status = 1, g_status);
+	}
+	shell->env_list = env_list;
+	g_status = main_loop(shell);
+	free_shell(shell);
+	return (g_status);
+}

@@ -6,18 +6,12 @@ t_list	*ft_lstnew(void *content)
 	char	*temp;
 
 	newnode = (t_list *)malloc(sizeof(t_list));
-	temp = ft_strdup(content);
 	if (!newnode)
 		return (NULL);
-	else if (temp == NULL)
-	{
-		free(newnode);
-		// free(content);
-		return (NULL);
-	}
+	temp = ft_strdup(content);
+	if (!temp)
+		return (free(newnode), NULL);
 	newnode->content = temp;
-	if (!newnode->content)
-		return (NULL);
 	newnode->next = NULL;
 	return (newnode);
 }

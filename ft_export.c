@@ -90,44 +90,6 @@ int check_export(char *str)
 	return (1);
 }
 
-static t_list *create_env_node(char *content)
-{
-    t_list *new;
-
-    if (!content)
-        return (NULL);
-	new = ft_lstnew((void *)content);
-    if (!new)
-        return (NULL);
-    return (new);
-}
-
-t_list *env_to_list(char **env)
-{
-    t_list *head;
-    t_list *new_node;
-    int i;
-
-    if (!env || !env[0])
-        return (NULL);
-    head = create_env_node(env[0]);
-    if (!head)
-        return (NULL);
-    i = 1;
-    while (env[i])
-    {
-        new_node = create_env_node(env[i]);
-        if (!new_node)
-        {
-            ft_lstclear(&head, free);
-            return (NULL);
-        }
-        ft_lstadd_back(&head, new_node);
-        i++;
-    }
-    return (head);
-}
-
 char **list_to_env(t_list *list)
 {
     char **new_env;
