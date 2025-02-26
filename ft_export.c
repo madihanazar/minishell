@@ -90,36 +90,6 @@ int check_export(char *str)
 	return (1);
 }
 
-char **list_to_env(t_list *list)
-{
-    char **new_env;
-    t_list *current;
-    int count;
-    int i;
-
-    count = ft_lstsize(list);
-    new_env = malloc(sizeof(char *) * (count + 1));
-    if (!new_env)
-        return (NULL);
-
-    current = list;
-    i = 0;
-    while (current)
-    {
-        new_env[i] = ft_strdup(current->content);
-        if (!new_env[i])
-        {
-            while (--i >= 0)
-                free(new_env[i]);
-            free(new_env);
-            return (NULL);
-        }
-        current = current->next;
-        i++;
-    }
-    new_env[i] = NULL;
-    return (new_env);
-}
 int add_export_1(char *str, char ***env, t_list **export_list)
 {
     t_list *current;

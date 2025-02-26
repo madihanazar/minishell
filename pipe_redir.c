@@ -3,7 +3,7 @@
 char	*find_last_pipe(char *str)
 {
 	char	*begin;
-	int 	single_quote;
+	int		single_quote;
 	int		double_quote;
 
 	begin = NULL;
@@ -12,7 +12,7 @@ char	*find_last_pipe(char *str)
 	while (*str)
 	{
 		if (*str == '"')
-			double_quote = !double_quote; 
+			double_quote = !double_quote;
 		else if (*str == '\'')
 			single_quote = !single_quote;
 		if (*str == '|' && !double_quote && !single_quote)
@@ -26,7 +26,7 @@ char	*find_last_redir(char *str)
 {
 	char	*last_redir;
 	int		single_quote;
-	int 	double_quote;
+	int		double_quote;
 
 	last_redir = NULL;
 	single_quote = 0;

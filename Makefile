@@ -8,20 +8,35 @@ RM = rm -rf
 READLINE_FLAGS = -L/opt/vagrant/embedded/lib -lreadline
 
 
+# SRC_FILES = main.c \
+#            build_tree.c \
+#            built_in.c \
+#            env_expand.c \
+#            exec.c \
+#            string_utils.c \
+#            tree_nodes.c  \
+# 		   pipe_redir.c  \
+# 		   ft_export.c  \
+# 		   list_utils.c \
+# 		   ft_unset.c \
+# 		   heredoc.c \
+# 		   status_handling.c \
+# 		   shell_env_init.c
+
 SRC_FILES = main.c \
            build_tree.c \
-           built_in.c \
            env_expand.c \
-           exec.c \
            string_utils.c \
            tree_nodes.c  \
-		   pipe_redir.c  \
-		   ft_export.c  \
 		   list_utils.c \
-		   ft_unset.c \
-		   heredoc.c \
 		   status_handling.c \
+		   pipe_redir.c  \
 		   shell_env_init.c
+        #    built_in.c \
+        #    exec.c \
+		#    ft_export.c  \
+		#    ft_unset.c \
+		#    heredoc.c \
 
 
 OBJS = $(SRC_FILES:.c=.o)

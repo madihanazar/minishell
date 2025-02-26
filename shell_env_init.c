@@ -9,6 +9,7 @@ t_shell	*create_shell(void)
 		return (NULL);
 	shell->export_list = NULL;
 	shell->env_list = NULL;
+	shell->tree = NULL;
 	return (shell);
 }
 
@@ -20,6 +21,8 @@ void	free_shell(t_shell *shell)
 			ft_lstclear(&(shell->export_list), free);
 		if (shell->env_list)
 			free_env_list(&(shell->env_list));
+		if (shell->tree)
+			free_ast(shell->tree);
 		free(shell);
 	}
 }
@@ -97,55 +100,12 @@ int	assign_shlvl_val(int shlvl_val)
 {
 	if (shlvl_val < 0)
 		return (0);
-	else 
+	else
 		shlvl_val += 1;
 	if (shlvl_val < 0)
 		return (0);
 	return (shlvl_val);
 }
-
-// int	env_init(t_list **env_list)
-// {
-// 	int		SHLVL;
-// 	char	*SHLVL_str;
-// 	char	*SHLVL_int;
-// 	t_list	*SHLVL_node;
-// 	t_list	*node;
-
-// 	SHLVL = 1;
-// 	SHLVL_str = NULL;
-// 	SHLVL_node = find_node(env_list, "SHLVL", 5);
-// 	if (SHLVL_node == NULL)
-// 	{
-// 		SHLVL_int = ft_itoa(SHLVL);
-// 		SHLVL_str = ft_strjoin("SHLVL=", SHLVL_int);
-// 		if (SHLVL_str == NULL)
-// 			return (0);
-// 		node = ft_lstnew(SHLVL_str);
-// 		free(SHLVL_str);
-// 		if (!node)
-// 			return (0);
-// 		ft_lstadd_back(env_list, node);
-// 	}
-// 	else
-// 	{
-// 		SHLVL_str = SHLVL_node->content;
-// 		SHLVL = atoi(SHLVL_str + 6);
-// 		if (SHLVL < 0)
-// 		{
-// 			SHLVL = 0;
-// 			SHLVL_int = ft_itoa(SHLVL);
-// 		}
-// 		else
-// 			SHLVL_int = ft_itoa(SHLVL + 1);
-// 		free(SHLVL_str);
-// 		SHLVL_str = NULL;
-// 		SHLVL_str = ft_strjoin("SHLVL=", SHLVL_int);
-// 		SHLVL_node->content = SHLVL_str;
-// 	}
-// 	free(SHLVL_int);
-// 	return (1);
-// }
 
 char	**create_env_copy(char **env)
 {
@@ -243,4 +203,33 @@ t_list	*env_to_list(char **env)
 		i++;
 	}
 	return (head);
+}
+
+char	**list_to_env(t_list *list)
+{
+	int		i;
+	int		count;
+	t_list	*current;
+	char	**new_env;
+
+	count = ft_lstsize(list);
+	new_env = malloc(sizeof(char *) * (count + 1));
+	if (!new_env)
+		return (NULL);
+	current = list;
+	i = 0;
+	while (current)
+	{
+		new_env[i] = ft_strdup(current->content);
+		if (!new_env[i])
+		{
+			while (--i >= 0)
+				free(new_env[i]);
+			return (free(new_env), NULL);
+		}
+		current = current->next;
+		i++;
+	}
+	new_env[i] = NULL;
+	return (new_env);
 }

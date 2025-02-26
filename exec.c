@@ -116,7 +116,7 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 		}
 		if (cmd_path && (!ft_strcmp(cmd_path, "./minishell")))
 		{
-			char *SHLVL_str = get_env_value("SHLVL", *env);
+			char *SHLVL_str = get_env_value_helper("SHLVL", *env);
 			if (SHLVL_str == NULL)
 			{
 				ft_putstr_fd("An error has occured\n", 2);

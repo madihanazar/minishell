@@ -104,56 +104,71 @@ char	*ft_itoa(int n)
 	return (final_string);
 }
 
-char *get_env_value(char *name, char **env)
+char	*get_env_value_helper(char *name, t_shell *shell)
 {
-    int i;
-    int len;
-    char *value;
-    
-    if (!name || !env)
-        return (NULL); 
-    len = ft_strlen(name);
-    i = 0;
-    while (env[i])
-    {
-        if (ft_strncmp(env[i], name, len) == 0 && env[i][len] == '=')
-        {
-            value = ft_strdup(env[i] + len + 1);  // Create a copy of the value
-            return (value);
-        }
-        i++;
-    }
-    return (NULL);
+	int		i;
+	int		len;
+	char	*value;
+	char	**env_array;
+
+	i = 0;
+	env_array = list_to_env(shell->env_list);
+	if (!name || !env_array)
+		return (NULL); 
+	len = ft_strlen(name);
+	while (env_array[i])
+	{
+		if (ft_strncmp(env_array[i], name, len) == 0 && env_array[i][len] == '=')
+		{
+			value = ft_strdup(env_array[i] + len + 1); // Automatically, NULL is taken care of
+			free_env(env_array);
+			return (value);
+		}
+		i++;
+	}
+	free_env(env_array);
+	return (NULL);
 }
 
-char *expand_var(char *str, int *i, char **env)
+char	*get_env_value(char *str, int **i, int len, t_shell *shell)
 {
-	int len;
-	char *var_name;
-	char *value;
+	char	*value;
+	char	*var_name;
 
 	var_name = NULL;
 	value = NULL;
+	if (len == 0)
+	{
+		value = ft_strdup("$"); // Automatically, NULL is taken care of
+		return (value);
+	}
+	var_name = ft_substr(str, **i, len);
+	if (!var_name)
+        return (NULL);
+	**i += len;
+	value = get_env_value_helper(var_name, shell);
+	free(var_name);
+	if (value)
+		return (value);
+	value = ft_strdup(""); // Automatically, NULL is taken care of
+	return (value);
+}
+
+char	*expand_var(char *str, int *i, t_shell *shell)
+{
+	int		len;
+	char	*value;
+
 	len = 0;
+	value = NULL;
 	(*i)++;
 	if (str[*i] == '?')
 	{
-		// to do
 		value = ft_itoa(g_status);
-		// printf("expand output: %s\n", value);
 		return (value);
 	}
 	while (str[*i + len] && (str[*i + len] == '_' || ft_isalnum(str[*i + len])))
 		len++;
-	if (len == 0)
-		return(ft_strdup("$"));
-	var_name = ft_substr(str, *i, len);
-	if (!var_name)
-        return (NULL);
-	*i += len;
-	value = get_env_value(var_name, env);
-	free(var_name);
-	if (value)
-		return (value);
-	return (ft_strdup(""));
+	value = get_env_value(str, &i, len, shell);
+	return (value);
 }
