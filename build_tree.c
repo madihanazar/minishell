@@ -2,74 +2,76 @@
 
 t_tree	*create_tree(char *str, t_shell *shell)
 {
-	char	*trimmed;
+	int		flag;
 	t_tree	*root;
+	char	*trimmed;
 
-	trimmed = NULL;
+	flag = 0;
 	root = NULL;
+	trimmed = NULL;
 	trimmed = ft_strtrim(str, " ");
 	if (trimmed == NULL)
 		return (NULL);
-	root = build_ast(trimmed, shell);
+	root = build_ast(trimmed, shell, &flag);
 	free(trimmed);
 	return (root);
 }
 
-t_tree	*build_ast(char *str, t_shell *shell)
+t_tree	*build_ast(char *str, t_shell *shell, int *flag)
 {
 	t_tree	*node;
 
-	node = handle_pipe(str, shell);
-	if (node)
-		return (node);	
-	node = handle_redirection(str, shell);
+	if (*flag)
+		return (NULL);
+	node = handle_pipe(str, shell, flag);
+	if (*flag)
+		return (NULL);
 	if (node)
 		return (node);
-	return (handle_command(str, shell));
+	node = handle_redirection(str, shell, flag);
+	if (*flag)
+		return (NULL);
+	if (node)
+		return (node);
+	node = handle_command(str, shell, flag);
+	if (*flag)
+		return (NULL);
+	return (node);
 }
 
-t_tree	*handle_pipe(char *str, t_shell *shell)
+t_tree	*handle_pipe(char *str, t_shell *shell, int *flag)
 {
 	t_tree	*node;
 	char	*pipe_pos;
 	char	*left_str;
 	char	*right_str;
 
-	if (str == NULL || *str == '\0')
-		return (NULL);
+	node = NULL;
 	pipe_pos = find_last_pipe(str);
 	if (pipe_pos)
 	{
 		node = create_node("|", PIPE);
 		if (!node)
-			return (NULL);
+			return (free_handle_pipe_redir(flag, NULL, NULL));
 		left_str = ft_substr(str, 0, pipe_pos - str);
 		if (!left_str)
-			// free node and return NULL
+			return (free_handle_pipe_redir(flag, node, NULL));
 		right_str = ft_strdup(pipe_pos + 1);
 		if (!right_str)
-			// free node, free left_str and return NULL
-		node->left = build_ast(left_str, shell);
-		free(left_str);
-		node->right = build_ast(right_str, shell);
-		free(right_str);
-		return (node);
+			return (free_handle_pipe_redir(flag, node, left_str));
+		node->left = build_ast(left_str, shell, flag);
+		node->right = build_ast(right_str, shell, flag);
+		free_strings(left_str, right_str);
+		if (*flag)
+			return (free_handle_pipe_redir(flag, node, NULL));
 	}
-	return (NULL);
+	return (node);
 }
 
-t_tree	*handle_redirection(char *str, t_shell *shell)
+t_tree	*create_redir_node(char *redir_pos)
 {
-	char	*redir_pos;
 	t_tree	*node;
-	int		len;
 
-	redir_pos = find_last_redir(str);
-	if (!redir_pos)
-		return (NULL);
-	len = 1;
-	if (*(redir_pos + 1) == *redir_pos)
-		len = 2;
 	if (*redir_pos == '>' && *(redir_pos + 1) == '>')
 		node = create_node(">>", APPEND);
 	else if (*redir_pos == '<' && *(redir_pos + 1) == '<')
@@ -78,18 +80,51 @@ t_tree	*handle_redirection(char *str, t_shell *shell)
 		node = create_node(">", REDIR_OUT);
 	else if (*redir_pos == '<')
 		node = create_node("<", REDIR_IN);
-	if (!node)
-		return (NULL);
-	char *left_str = ft_substr(str, 0, redir_pos - str);
-	char *right_str = ft_strdup(redir_pos + 1);
-	node->left = build_ast(left_str, shell);
-	free(left_str);
-	node->right = build_ast(right_str, shell);
-	free(right_str);
 	return (node);
 }
 
-t_tree	*handle_command(char *str, t_shell *shell)
+int	calculate_length(char *redir_pos)
+{
+	int	len;
+
+	len = 1;
+	if (*(redir_pos + 1) == *redir_pos)
+		len = 2;
+	return (len);
+}
+
+t_tree	*handle_redirection(char *str, t_shell *shell, int *flag)
+{
+	int		len;
+	t_tree	*node;
+	char	*left_str;
+	char	*right_str;
+	char	*redir_pos;
+
+	node = NULL;
+	redir_pos = find_last_redir(str);
+	if (redir_pos)
+	{
+		len = calculate_length(redir_pos);
+		node = create_redir_node(redir_pos);
+		if (!node)
+			return (free_handle_pipe_redir(flag, NULL, NULL));
+		left_str = ft_substr(str, 0, redir_pos - str);
+		if (!left_str)
+			return (free_handle_pipe_redir(flag, node, NULL));
+		right_str = ft_strdup(redir_pos + len);
+		if (!right_str)
+			return (free_handle_pipe_redir(flag, node, left_str));
+		node->left = build_ast(left_str, shell, flag);
+		node->right = build_ast(right_str, shell, flag);
+		free_strings(left_str, right_str);
+		if (*flag)
+			return (free_handle_pipe_redir(flag, node, right_str));
+	}
+	return (node);
+}
+
+t_tree	*handle_command(char *str, t_shell *shell, int *flag)
 {
 	int		i;
 	t_tree	*node;
@@ -101,16 +136,16 @@ t_tree	*handle_command(char *str, t_shell *shell)
 	node = NULL;
 	cmd_tokens = split_cmd(str, ' ', shell);
 	if (!cmd_tokens || !cmd_tokens[0])
-		return (NULL);
+		return (*flag = 1, NULL);
 	node = create_node(cmd_tokens[0], NODE_COMMAND);
 	if (!node)
-		return (free_split(cmd_tokens), NULL);
+		return (*flag = 1, free_split(cmd_tokens), NULL);
 	current = node;
 	while (cmd_tokens[i])
 	{
 		current->right = create_node(cmd_tokens[i], NODE_ARG);
 		if (!current->right)
-			break ;
+			return (*flag = 1, free_ast(node), free_split(cmd_tokens), NULL);
 		current = current->right;
 		i++;
 	}

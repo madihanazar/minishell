@@ -169,7 +169,6 @@ void	free_env_list(t_list **node)
 t_list	*create_env_node(void *content)
 {
 	t_list	*new;
-	char	*temp;
 
 	if (!content)
 		return (NULL);

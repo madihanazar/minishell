@@ -30,12 +30,13 @@ t_tree	*create_node(char *str, t_node_type type)
 	return (node);
 }
 
-void free_result(char **result, int count)
+void	free_result(char **result, int count)
 {
+	int	i;
+
+	i = 0;
 	if (!result)
 		return ;
-	int i;
-	i = 0;
 	while (i < count)
 	{
 		free(result[i]);
@@ -44,12 +45,13 @@ void free_result(char **result, int count)
 	free(result);
 }
 
-void free_split(char **result)
+void	free_split(char **result)
 {
+	int	i;
+
+	i = 0;
 	if (!result)
 		return ;
-	int i;
-	i = 0;
 	while (result[i])
 	{
 		free(result[i]);
@@ -58,13 +60,13 @@ void free_split(char **result)
 	free(result);
 }
 
-void free_ast(t_tree *node)
+void	free_ast(t_tree *node)
 {
-    if (!node)
-        return ;
-    free_ast(node->left);
-    free_ast(node->right);
-    if (node->cmd)
-        free(node->cmd);
-    free(node);
+	if (!node)
+		return ;
+	free_ast(node->left);
+	free_ast(node->right);
+	if (node->cmd)
+		free(node->cmd);
+	free(node);
 }

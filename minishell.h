@@ -78,7 +78,11 @@ typedef struct s_exp
 
 char	*find_last_pipe(char *str);
 char	*find_last_redir(char *str);
-t_tree	*build_ast(char *str, t_shell *shell);
+t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str);
+int		calculate_length(char *redir_pos);
+t_tree	*create_redir_node(char *redir_pos);
+void	free_strings(char *str1, char *str2);
+t_tree	*build_ast(char *str, t_shell *shell, int *flag);
 t_tree	*create_tree(char *str, t_shell *shell);
 t_tree	*create_node(char *str,  t_node_type type);
 char	**split_cmd(char *str, char split_char, t_shell *shell);
@@ -128,9 +132,9 @@ void	test_command(char **env, char *test_name, char *cmd);
 int		execute_heredoc(t_tree *node, char ***env);
 int		process_heredocs(t_tree *node, char ***env);
 int		has_heredoc(t_tree *node);
-t_tree	*handle_pipe(char *str, t_shell *shell);
-t_tree	*handle_redirection(char *str, t_shell *shell);
-t_tree	*handle_command(char *str, t_shell *shell);
+t_tree	*handle_pipe(char *str, t_shell *shell, int *flag);
+t_tree	*handle_redirection(char *str, t_shell *shell, int *flag);
+t_tree	*handle_command(char *str, t_shell *shell, int *flag);
 int		count_tokens(char *str, char split_char, int sq, int dq);
 int		fill_tokens(char **result, char *str, char split_char, t_shell *shell);
 int		get_token_len(char *str, char split_char);

@@ -9,6 +9,8 @@ char	*find_last_pipe(char *str)
 	begin = NULL;
 	single_quote = 0;
 	double_quote = 0;
+	if (str == NULL || *str == '\0')
+		return (NULL);
 	while (*str)
 	{
 		if (*str == '"')
@@ -31,6 +33,8 @@ char	*find_last_redir(char *str)
 	last_redir = NULL;
 	single_quote = 0;
 	double_quote = 0;
+	if (str == NULL || *str == '\0')
+		return (NULL);
 	while (*str)
 	{
 		if (*str == '"')
@@ -46,4 +50,22 @@ char	*find_last_redir(char *str)
 		str++;
 	}
 	return (last_redir);
+}
+
+t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str)
+{
+	*flag = 1;
+	if (node)
+		free_ast(node);
+	if (str)
+		free(str);
+	return (NULL);
+}
+
+void	free_strings(char *str1, char *str2)
+{
+	if (str1)
+		free(str1);
+	if (str2)
+		free(str2);
 }
