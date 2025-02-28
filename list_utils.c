@@ -52,10 +52,8 @@ void	ft_lstadd_back(t_list **lst, t_list *new)
 	}
 	temp = *lst;
 	while (temp->next != NULL)
-	{
 		temp = temp->next;
-	}
-	temp -> next = new;
+	temp->next = new;
 }
 
 void	ft_lstdelone(t_list *lst, void (*del)(void *))

@@ -79,7 +79,9 @@ typedef struct s_exp
 char	*find_last_pipe(char *str);
 char	*find_last_redir(char *str);
 t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str);
+t_tree	*free_commands(int *flag, char **cmd_tokens, t_tree *node, char *str);
 int		calculate_length(char *redir_pos);
+int		find_num_arguments(t_tree *node);
 t_tree	*create_redir_node(char *redir_pos);
 void	free_strings(char *str1, char *str2);
 t_tree	*build_ast(char *str, t_shell *shell, int *flag);
@@ -121,12 +123,12 @@ void	make_string(char *f_string, unsigned int num, int index, int n);
 int		execute_pipe(t_tree *node, char ***env, t_shell *shell);
 int		execute_redir(t_tree *node, char ***env, t_shell *shell);
 int		is_builtin(char *cmd);
-int		execute_builtin(t_tree *node, char **args, char ***env, t_shell *shell);
+int		execute_builtin(char **args, t_shell *shell);
 char	*join_path(char *path, char *args);
 char	*extract_path(char *envp[], char *args);
 int		execute_command(t_tree *node, char ***env);
-int		execute_cmd(t_tree *node, char ***env, t_shell *shell);
-int		execute_node(t_tree *node, char ***env, t_shell *shell);
+int		execute_cmd(t_shell *shell);
+int		execute_node(t_shell *shell);
 char	**build_args(t_tree *node);
 void	test_command(char **env, char *test_name, char *cmd);
 int		execute_heredoc(t_tree *node, char ***env);
@@ -144,7 +146,9 @@ void	handle_quotes(int *i, int *quote_flag);
 int		handle_expansion(char *str, t_exp *exp, t_shell *shell);
 
 //built in
-int		builtin_cd(t_tree *node, char **args, char **env);
+int		builtin_cd(t_shell *shell, char **args);
+int		replace_directory(t_shell *shell, char *old_path, char *new_path);
+char	*set_new_path(char **args);
 int		builtin_pwd(t_tree *node, char **args, char **env);
 int		builtin_echo(t_tree *node, char **argv, char **env);
 int		builtin_env(t_tree *node, char **args, char **env);

@@ -18,7 +18,7 @@ void	free_shell(t_shell *shell)
 	if (shell)
 	{
 		if (shell->export_list)
-			ft_lstclear(&(shell->export_list), free);
+			free_env_list(&(shell->export_list));
 		if (shell->env_list)
 			free_env_list(&(shell->env_list));
 		if (shell->tree)

@@ -136,16 +136,16 @@ t_tree	*handle_command(char *str, t_shell *shell, int *flag)
 	node = NULL;
 	cmd_tokens = split_cmd(str, ' ', shell);
 	if (!cmd_tokens || !cmd_tokens[0])
-		return (*flag = 1, NULL);
+		return (free_commands(flag, NULL, NULL, NULL));
 	node = create_node(cmd_tokens[0], NODE_COMMAND);
 	if (!node)
-		return (*flag = 1, free_split(cmd_tokens), NULL);
+		return (free_commands(flag, cmd_tokens, NULL, NULL));
 	current = node;
 	while (cmd_tokens[i])
 	{
 		current->right = create_node(cmd_tokens[i], NODE_ARG);
 		if (!current->right)
-			return (*flag = 1, free_ast(node), free_split(cmd_tokens), NULL);
+			return (free_commands(flag, cmd_tokens, node, NULL));
 		current = current->right;
 		i++;
 	}

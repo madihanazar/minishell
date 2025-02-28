@@ -44,7 +44,7 @@ int	main_loop(t_shell *shell)
 		shell->tree = create_tree(input, shell);
 		if (shell->tree == NULL)
 			return (free(input), 1);
-	// 	g_status = execute_node(ast, &env_copy, shell);
+		g_status = execute_node(shell);
 		free(input);
 		free_ast(shell->tree);
 		input = NULL;
@@ -68,14 +68,13 @@ int	main(int argc, char **argv, char **env)
 		ft_putstr_fd("An error has occured\n", 2);
 		return (1);
 	}
-	env_list = env_to_list(env);
-	if (env_list == NULL)
+	shell->env_list = env_to_list(env);
+	if (shell->env_list == NULL)
 	{
 		free_shell(shell);
 		ft_putstr_fd("An error has occured\n", 2);
 		return (1);
 	}
-	shell->env_list = env_list;
 	g_status = main_loop(shell);
 	free_shell(shell);
 	return (g_status);

@@ -1,17 +1,19 @@
 #include "minishell.h"
 
-int execute_node(t_tree *node, char ***env, t_shell *shell)
+int execute_node(t_shell *shell)
 {
-	if (!node)
+	if (!(shell->tree))
 		g_status = 1;
-	else if (node->type == PIPE)
+	else if (shell->tree->type == PIPE)
 		g_status = execute_pipe(node, env, shell);
-	else if (node->type == REDIR_IN || node->type == REDIR_OUT || node->type == APPEND)
+	else if (shell->tree->type == REDIR_IN || shell->tree->type == REDIR_OUT)
 		g_status = execute_redir(node, env, shell);
-	else if (node->type == HEREDOC)
+	else if (shell->tree->type == APPEND)
+		g_status = execute_redir(node, env, shell);
+	else if (shell->tree->type == HEREDOC)
 		g_status = process_heredocs(node, env);
-	else if (node->type == NODE_COMMAND)
-		g_status = execute_cmd(node, env, shell);
+	else if (shell->tree->type == NODE_COMMAND)
+		g_status = execute_cmd(shell);
 	return (g_status);
 }
 
@@ -88,21 +90,24 @@ int execute_redir(t_tree *node, char ***env, t_shell *shell)
     return (check_status(status));
 }
 
-int execute_cmd(t_tree *node, char ***env, t_shell *shell)
+int	execute_cmd(t_shell *shell)
 {
-    char **args;
-    char *cmd_path;
-    pid_t pid;
-    int status;
+	pid_t	pid;
+	int		status;
+	char	**args;
+	char	*cmd_path;
 
-    args = build_args(node);
-    if (!args)
-        return (perror("An error has occured\n"), 1);
-    if (is_builtin(args[0]))
-		return (execute_builtin(node, args, env, shell));
-    if (ft_strchr(node->cmd, '/'))
+	args = build_args(shell->tree);
+	if (!args)
+	{
+		perror("An error has occured \n");
+		return (1);
+	}
+	if (is_builtin(args[0]))
+		return (execute_builtin(args, shell));
+	if (ft_strchr(node->cmd, '/'))
 		cmd_path = ft_strdup(node->cmd);
-    else
+	else
 		cmd_path = extract_path(*env, args[0]);
 	pid = fork();
 	if (pid == 0)
@@ -178,43 +183,38 @@ int execute_cmd(t_tree *node, char ***env, t_shell *shell)
 			// exit(g_status);
 			builtin_exit(node, args, *env, shell);
 		}
-    }
+	}
 	waitpid(pid, &status, 0);
 	free_split(args);
 	free(cmd_path);
 	return (check_status(status));
 }
 
-char **build_args(t_tree *node)
+char	**build_args(t_tree *node)
 {
-    int arg_count = 1;
-    t_tree *current = node;
+	int		i;
+	char	*temp;
+	char	**args;
+	t_tree	*current;
+	int		arg_count;
 
-    // Count arguments by traversing right children
-    while (current->right)
-    {
-        arg_count++;
-        current = current->right;
-    }
-
-    // Allocate space for arguments plus NULL terminator
-    char **args = malloc(sizeof(char *) * (arg_count + 1));
-    if (!args)
-        return NULL;
-
-    // Add command as first argument
-    args[0] = ft_strdup(node->cmd);
-    // Add remaining arguments
-    current = node;
-    int i = 1;
-    while (current->right)
-    {
-        args[i] = ft_strdup(current->right->cmd);
-        current = current->right;
-        i++;
-    }
-    args[i] = NULL;
-    return args;
+	i = 0;
+	current = node;
+	arg_count = find_num_arguments(current);
+	args = malloc(sizeof(char *) * (arg_count + 1));
+	if (!args)
+		return (NULL);
+	while (current)
+	{
+		temp = ft_strdup(current->cmd);
+		if (!temp)
+			return (free_build_args(args, i));
+		current = current->right;
+		args[i] = temp;
+		i++;
+	}
+	args[i] = NULL;
+	return (args);
 }
 
 char *join_path(char *path, char *args)
@@ -241,7 +241,6 @@ char *extract_path(char *envp[], char *args)
         i++;
     if (envp[i] == NULL)
         return (NULL);
-	// printf("evnp[i] value: %s\n", envp[i]);
     paths = ft_split(envp[i] + 5, ':');
     if (paths == NULL)
         return (NULL);
@@ -253,7 +252,6 @@ char *extract_path(char *envp[], char *args)
 			return (free_split(paths), NULL);
 		if (access(full_cmd, X_OK) == 0)
 			return (free_split(paths), full_cmd);
-		// printf("full_cmd value:%s\n", full_cmd);
 		free(full_cmd);
 		i++;
     }

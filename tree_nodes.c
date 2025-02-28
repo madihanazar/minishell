@@ -30,6 +30,33 @@ t_tree	*create_node(char *str, t_node_type type)
 	return (node);
 }
 
+char	**free_build_args(char	**args, int i)
+{
+	if (args)
+	{
+		if (i != 0)
+			free_result(args, i);
+		else
+			free(args);
+	}
+	return (NULL);
+}
+
+int	find_num_arguments(t_tree *node)
+{
+	int		count;
+	t_tree	*current;
+
+	count = 0;
+	current = node;
+	while (current)
+	{
+		count += 1;
+		current = current->right;
+	}
+	return (count);
+}
+
 void	free_result(char **result, int count)
 {
 	int	i;
