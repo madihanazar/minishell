@@ -11,6 +11,7 @@
 # include "readline/readline.h"
 # include "readline/history.h"
 # include <termios.h>
+# include <stdbool.h>
 
 // extern int g_sig;
 extern int	g_status;
@@ -76,8 +77,8 @@ typedef struct s_exp
 //     int     d_quote;    // double quote flag
 // } t_expand;
 
-char	*find_last_pipe(char *str);
-char	*find_last_redir(char *str);
+char	*find_first_pipe(char *str);
+char	*find_first_redir(char *str);
 t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str);
 t_tree	*free_commands(int *flag, char **cmd_tokens, t_tree *node, char *str);
 int		calculate_length(char *redir_pos);
@@ -135,7 +136,8 @@ int		execute_heredoc(t_tree *node, char ***env);
 int		process_heredocs(t_tree *node, char ***env);
 int		has_heredoc(t_tree *node);
 t_tree	*handle_pipe(char *str, t_shell *shell, int *flag);
-t_tree	*handle_redirection(char *str, t_shell *shell, int *flag);
+bool	handle_redirection(t_tree *node);
+bool	split_redirects(char *str, char *beg, t_tree **left, t_tree **right);
 t_tree	*handle_command(char *str, t_shell *shell, int *flag);
 int		count_tokens(char *str, char split_char, int sq, int dq);
 int		fill_tokens(char **result, char *str, char split_char, t_shell *shell);

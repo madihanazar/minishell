@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 21:02:27 by mnazar            #+#    #+#             */
-/*   Updated: 2024/12/23 21:07:22 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/02 13:24:54 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,4 +96,5 @@ void	free_ast(t_tree *node)
 	if (node->cmd)
 		free(node->cmd);
 	free(node);
+	node = NULL;
 }

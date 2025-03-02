@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-char	*find_last_pipe(char *str)
+char	*find_first_pipe(char *str)
 {
 	char	*begin;
 	int		single_quote;
@@ -18,38 +18,53 @@ char	*find_last_pipe(char *str)
 		else if (*str == '\'')
 			single_quote = !single_quote;
 		if (*str == '|' && !double_quote && !single_quote)
-			begin = str;
+			return (str);
 		str++;
 	}
-	return (begin);
+	return (NULL);
 }
 
-char	*find_last_redir(char *str)
+void	check_redir_type(t_tree *node, char *str)
 {
-	char	*last_redir;
+	if (*str == '>')
+	{
+		if (*(str + 1) == '>')
+			node->type = APPEND;
+		else
+			node->type = REDIR_OUT;
+	}
+	else if (*str == '<')
+	{
+		if (*(str + 1) == '<')
+			node->type = HEREDOC;
+		else
+			node->type = REDIR_IN;
+	}
+}
+
+char	*find_first_redir(t_tree *node)
+{
 	int		single_quote;
 	int		double_quote;
 
-	last_redir = NULL;
 	single_quote = 0;
 	double_quote = 0;
-	if (str == NULL || *str == '\0')
+	if (node->cmd == NULL || *node->cmd == '\0')
 		return (NULL);
-	while (*str)
+	while (*node->cmd)
 	{
-		if (*str == '"')
+		if (*node->cmd == '"')
 			double_quote = !double_quote;
-		else if (*str == '\'')
+		else if (*node->cmd == '\'')
 			single_quote = !single_quote;
-		if ((*str == '<' || *str == '>') && !double_quote && !single_quote)
+		if ((*node->cmd == '<' || *node->cmd == '>') && !double_quote && !single_quote)
 		{
-			last_redir = str;
-			if (*(str + 1) == *str)
-				str++;
+			check_redir_type(node, node->cmd);
+			return (node->cmd);
 		}
-		str++;
+		node->cmd++;
 	}
-	return (last_redir);
+	return (NULL);
 }
 
 t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str)

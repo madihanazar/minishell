@@ -47,7 +47,7 @@ t_tree	*handle_pipe(char *str, t_shell *shell, int *flag)
 	char	*right_str;
 
 	node = NULL;
-	pipe_pos = find_last_pipe(str);
+	pipe_pos = find_first_pipe(str);
 	if (pipe_pos)
 	{
 		node = create_node("|", PIPE);
