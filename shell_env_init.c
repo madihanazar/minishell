@@ -135,19 +135,19 @@ char	**create_env_copy(char **env)
 	return (env_copy);
 }
 
-void	free_env(char **env_copy)
-{
-	int		i;
+// void	free_env(char **env_copy)
+// {
+// 	int		i;
 
-	i = 0;
-	while (env_copy[i])
-	{
-		free(env_copy[i]);
-		i += 1;
-	}
-	free(env_copy);
-	return ;
-}
+// 	i = 0;
+// 	while (env_copy[i])
+// 	{
+// 		free(env_copy[i]);
+// 		i += 1;
+// 	}
+// 	free(env_copy);
+// 	return ;
+// }
 
 void	free_env_list(t_list **node)
 {

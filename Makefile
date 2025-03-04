@@ -28,15 +28,17 @@ SRC_FILES = main.c \
            env_expand.c \
            string_utils.c \
            tree_nodes.c  \
-		   list_utils.c \
-		   status_handling.c \
-		   pipe_redir.c  \
-		   shell_env_init.c
-        #    built_in.c \
-        #    exec.c \
-		#    ft_export.c  \
-		#    ft_unset.c \
-		#    heredoc.c \
+           list_utils.c \
+           status_handling.c \
+           pipe_redir.c  \
+           parse.c \
+           shell_env_init.c
+           # built_in.c \
+           # exec.c \
+           # ft_export.c  \
+           # ft_unset.c \
+           # heredoc.c
+
 
 
 OBJS = $(SRC_FILES:.c=.o)

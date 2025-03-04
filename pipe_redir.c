@@ -42,27 +42,27 @@ void	check_redir_type(t_tree *node, char *str)
 	}
 }
 
-char	*find_first_redir(t_tree *node)
+char	*find_first_redir(char *str)
 {
 	int		single_quote;
 	int		double_quote;
 
 	single_quote = 0;
 	double_quote = 0;
-	if (node->cmd == NULL || *node->cmd == '\0')
+	if (str == NULL)
 		return (NULL);
-	while (*node->cmd)
+	while (*str)
 	{
-		if (*node->cmd == '"')
+		if (*str == '"')
 			double_quote = !double_quote;
-		else if (*node->cmd == '\'')
+		else if (*str == '\'')
 			single_quote = !single_quote;
-		if ((*node->cmd == '<' || *node->cmd == '>') && !double_quote && !single_quote)
+		if ((*str == '<' || *str == '>') && !double_quote && !single_quote)
 		{
-			check_redir_type(node, node->cmd);
-			return (node->cmd);
+			// check_redir_type(node, str);
+			return (str);
 		}
-		node->cmd++;
+		str++;
 	}
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/02 14:39:23 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/04 15:59:11 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,28 @@ void	handle_sigint(int sig)
 		rl_redisplay();
 	}
 }
+void print_ast(t_tree *node, int depth)
+{
+    if (node != NULL)
+    {
+        // Print the left subtree first
+        if (node->left)
+        {
+            print_ast(node->left, depth + 1);
+        }
+
+        // Print the current node with indentation based on depth
+        for (int i = 0; i < depth; i++)
+            printf("    "); // Indentation for visualization
+        printf("Depth: %d, Command: %s\n", depth, node->cmd);
+
+        // Print the right subtree
+        if (node->right)
+        {
+            print_ast(node->right, depth + 1);
+        }
+    }
+}
 
 int	main_loop(t_shell *shell)
 {
@@ -42,9 +64,10 @@ int	main_loop(t_shell *shell)
 			return (g_status);
 		add_history(input);
 		shell->tree = create_tree(input, shell);
+		print_ast(shell->tree, 0);
 		if (shell->tree == NULL)
 			return (free(input), 1);
-		g_status = execute_node(shell);
+		// g_status = execute_node(shell);
 		free(input);
 		free_ast(shell->tree);
 		input = NULL;

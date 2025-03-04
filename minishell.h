@@ -32,11 +32,13 @@ typedef enum e_node_type {
     APPEND      
 } t_node_type;
 
+
 typedef struct s_tree
 {
 	struct s_tree	*left;
 	struct s_tree	*right;
 	char			*cmd;
+	char			**args;
 	t_node_type		type;
 	int             heredoc_fd;
 }	t_tree;
@@ -140,7 +142,7 @@ bool	handle_redirection(t_tree *node);
 bool	split_redirects(char *str, char *beg, t_tree **left, t_tree **right);
 t_tree	*handle_command(char *str, t_shell *shell, int *flag);
 int		count_tokens(char *str, char split_char, int sq, int dq);
-int		fill_tokens(char **result, char *str, char split_char, t_shell *shell);
+int		fill_tokens(char **result, char *str, char split_char);
 int		get_token_len(char *str, char split_char);
 char	*extract_token(char *str, int len, t_shell *shell);
 int		init_extract(int len, t_exp *exp);
