@@ -122,6 +122,7 @@ bool	split_redirects(char *str, char *beg, t_tree **left, t_tree **right)
 	*right = create_node(right_str, NODE_COMMAND);
 	if (!*left || !*right)
 		return (free(left_str), free(right_str), false);
+	free_strings(left_str, right_str);
 	return (true);
 }
 
@@ -159,71 +160,148 @@ void	free_env(char **env_copy)
 	free(env_copy);
 	return ;
 }
-char	*get_env_value_helper(char *name, t_shell *shell)
+// char	*get_env_value_helper(char *name, t_shell *shell)
+// {
+// 	int		i;
+// 	int		len;
+// 	char	*value;
+// 	char	**env_array;
+
+// 	i = 0;
+// 	env_array = list_to_env(shell->env_list);
+// 	if (!name || !env_array)
+// 		return (NULL); 
+// 	len = ft_strlen(name);
+// 	while (env_array[i])
+// 	{
+// 		if (ft_strncmp(env_array[i], name, len) == 0 && env_array[i][len] == '=')
+// 		{
+// 			value = ft_strdup(env_array[i] + len + 1); // Automatically, NULL is taken care of
+// 			free_env(env_array);
+// 			return (value);
+// 		}
+// 		i++;
+// 	}
+// 	free_env(env_array);
+// 	return (NULL);
+// }
+
+// char	*get_env_value(char *str, int **i, int len, t_shell *shell)
+// {
+// 	char	*value;
+// 	char	*var_name;
+
+// 	var_name = NULL;
+// 	value = NULL;
+// 	if (len == 0)
+// 	{
+// 		value = ft_strdup("$"); // Automatically, NULL is taken care of
+// 		return (value);
+// 	}
+// 	var_name = ft_substr(str, **i, len);
+// 	if (!var_name)
+//         return (NULL);
+// 	value = get_env_value_helper(var_name, shell);
+// 	free(var_name);
+// 	if (value)
+// 		return (value);
+// 	value = ft_strdup(""); // Automatically, NULL is taken care of
+// 	return (value);
+// }
+
+// char	*expand_var(char *str, int *i, t_shell *shell)
+// {
+// 	int		len;
+// 	char	*value;
+
+// 	len = 0;
+// 	value = NULL;
+// 	if (str[*i] == '?')
+// 	{
+// 		value = ft_itoa(g_status);
+// 		return (value);
+// 	}
+// 	while (str[*i + len] && (str[*i + len] == '_' || ft_isalnum(str[*i + len])))
+// 		len++;
+// 	value = get_env_value(str, &i, len, shell);
+// 	return (value);
+// }
+
+char	*get_env_value(char *name, t_shell *shell)
 {
 	int		i;
-	int		len;
-	char	*value;
-	char	**env_array;
+	char	*find;
+	char	**env;
+	char	*temp;
 
 	i = 0;
-	env_array = list_to_env(shell->env_list);
-	if (!name || !env_array)
-		return (NULL); 
-	len = ft_strlen(name);
-	while (env_array[i])
-	{
-		if (ft_strncmp(env_array[i], name, len) == 0 && env_array[i][len] == '=')
-		{
-			value = ft_strdup(env_array[i] + len + 1); // Automatically, NULL is taken care of
-			free_env(env_array);
-			return (value);
-		}
+	env = list_to_env(shell->env_list);
+	if (!env)
+		return (ft_strdup(""));
+	if (ft_strncmp(name, "?", 2) == 0)
+		return (free_env(env), ft_itoa(g_status));
+	find = ft_strjoin(name, "=");
+	if (find == NULL)
+		return (free_env(env), NULL);
+	while (env[i] && ft_strncmp(env[i], find, ft_strlen(find)) != 0)
 		i++;
-	}
-	free_env(env_array);
-	return (NULL);
+	free(find);
+	if (!env[i])
+		return (free_env(env), ft_strdup(""));
+	temp = ft_strdup(env[i] + ft_strlen(name) + 1);
+	return (free_env(env), temp);
+}
+int	ft_isdigit(int c)
+{
+	if (c >= '0' && c <= '9')
+		return (1);
+	return (0);
 }
 
-char	*get_env_value(char *str, int **i, int len, t_shell *shell)
+char	*get_var_name(char *str)
 {
-	char	*value;
-	char	*var_name;
+	char	*word;
 
-	var_name = NULL;
-	value = NULL;
-	if (len == 0)
+	word = str;
+	if (ft_isdigit(*str))
 	{
-		value = ft_strdup("$"); // Automatically, NULL is taken care of
-		return (value);
+		word = ft_strdup(" ");
+		if (word)
+			word[0] = *str;
+		return (word);
 	}
-	var_name = ft_substr(str, **i, len);
-	if (!var_name)
-        return (NULL);
-	value = get_env_value_helper(var_name, shell);
-	free(var_name);
-	if (value)
-		return (value);
-	value = ft_strdup(""); // Automatically, NULL is taken care of
-	return (value);
+	if (*str == '?')
+		return (ft_strdup("?"));
+	while (*word == '_' || ft_isalnum(*word))
+		word++;
+	if (word == str)
+		word = ft_strdup("");
+	else
+		word = ft_substr(str, 0, word - str);
+	return (word);
 }
 
-char	*expand_var(char *str, int *i, t_shell *shell)
+char	*expanded_str(char *str, char *var, t_shell *shell)
 {
-	int		len;
-	char	*value;
+	char	*word;
+	char	*lstr;
+	char	*rstr;
+	char	*mstr;	
 
-	len = 0;
-	value = NULL;
-	if (str[*i] == '?')
-	{
-		value = ft_itoa(g_status);
-		return (value);
-	}
-	while (str[*i + len] && (str[*i + len] == '_' || ft_isalnum(str[*i + len])))
-		len++;
-	value = get_env_value(str, &i, len, shell);
-	return (value);
+	word = get_var_name(var);
+	if (word == NULL)
+		return (free(str), NULL);
+	lstr = ft_strdup(str);
+	mstr = get_env_value(word, shell);
+	rstr = ft_strdup(var + ft_strlen(word));
+	free(word);
+	free(str);
+	if (lstr == NULL || mstr == NULL || rstr == NULL)
+		return (free(lstr), free(mstr), free(rstr), NULL);
+	lstr = ft_strappend(ft_strappend(lstr, mstr), rstr);
+	free(rstr);
+	free(mstr);
+	return (lstr);
 }
 
 bool	perform_exp(t_tree *node, t_shell *shell)
@@ -250,10 +328,7 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 		else if (node->cmd[i] == '$' && !sq)
 		{
 			node->cmd[i++] = '\0';
-			temp = expand_var(node->cmd, &i, shell);
-			if (!temp)
-				return (false);
-			node->cmd = ft_strjoin(node->cmd, temp);
+			node->cmd = expanded_str(node->cmd, &node->cmd[i--], shell);
 			if (!node->cmd)
 				return (false);
 		}	
@@ -338,9 +413,7 @@ int	fill_tokens(char **result, char *str, char split_char)
 		if (!str[i])
 			break ;
 		token_len = get_token_len(str + i, split_char);
-		printf("The token length is: %d", token_len);
 		result[j] = extract_word(str + i, split_char);
-		printf(" and the word is: %s\n", result[j]);
 		if (!result[j])
 			return (-1);
 		i += token_len;

@@ -93,7 +93,7 @@ t_tree	*create_node(char *str,  t_node_type type);
 char	**split_cmd(char *str, char split_char, t_shell *shell);
 void	free_result(char **result, int count);
 char	*expand_var(char *str, int *i, t_shell *shell);
-char	*get_env_value(char *str, int **i, int len, t_shell *shell);
+char	*get_env_value(char *name, t_shell *shell);
 char	*get_env_value_helper(char *name, t_shell *shell);
 void	free_ast(t_tree *node);
 void	free_split(char **result);
