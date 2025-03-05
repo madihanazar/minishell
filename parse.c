@@ -12,20 +12,29 @@
 
 #include "minishell.h"
 
-bool	split_evenly(char *str, char *curr, t_tree **left, t_tree **right)
+t_tree	*build_ast(char *str, t_shell *shell, int *flag)
 {
-	char	*lstr;
-	char	*rstr;
+	t_tree	*node;
 
-	lstr = ft_substr(str, 0, curr - str);
-	rstr = ft_substr(str, curr - str + 1, -1);
-	if (!lstr || !rstr)    //what if lstr is null?
-		return (free(lstr), free(rstr), false);
-	*left = create_node(lstr, NODE_COMMAND);
-	*right = create_node(rstr, NODE_COMMAND);
-	if (!*left || !*right)
-		return (free(lstr), free(rstr), false);
-	return (true);
+	node = create_node(str, NODE_COMMAND); //by default type = command
+	if (!node)
+		return (NULL);
+	if (!handle_pipes(node))
+		return (ft_putstr_fd("split pipes failed\node", 2),
+			free_ast(node), NULL);
+	if (!handle_redirection(node))
+		return (ft_putstr_fd("split redirects failed\node", 2),
+			free_ast(node), NULL);
+	if (!perform_exp(node, shell))
+		return (ft_putstr_fd("split redirects failed\node", 2),
+			free_ast(node), NULL);
+	if (!split_args(node))
+		return (ft_putstr_fd("split redirects failed\node", 2),
+			free_ast(node), NULL);
+	return (node);
+	// if (!handle_quotes(node))
+	// 	return (ft_putstr_fd("split redirects failed\node", 2),
+	// 		free_ast(&node), NULL);
 }
 
 bool	handle_pipes(t_tree *node)
@@ -47,6 +56,23 @@ bool	handle_pipes(t_tree *node)
 	return (handle_pipes(node->left) && handle_pipes(node->right));
 }
 
+bool	split_evenly(char *str, char *curr, t_tree **left, t_tree **right)
+{
+	char	*lstr;
+	char	*rstr;
+
+	lstr = ft_substr(str, 0, curr - str);
+	rstr = ft_substr(str, curr - str + 1, -1);
+	if (!lstr || !rstr)
+		return (free_strings(lstr, rstr), false);
+	*left = create_node(lstr, NODE_COMMAND);
+	*right = create_node(rstr, NODE_COMMAND);
+	free_strings(lstr, rstr);
+	if (!*left || !*right)
+		return (false);
+	else
+		return (true);
+}
 
 int	get_len_separator(char *str)
 {
@@ -181,6 +207,7 @@ char	*get_env_value(char *str, int **i, int len, t_shell *shell)
 	value = ft_strdup(""); // Automatically, NULL is taken care of
 	return (value);
 }
+
 char	*expand_var(char *str, int *i, t_shell *shell)
 {
 	int		len;
@@ -188,7 +215,6 @@ char	*expand_var(char *str, int *i, t_shell *shell)
 
 	len = 0;
 	value = NULL;
-	(*i)++;
 	if (str[*i] == '?')
 	{
 		value = ft_itoa(g_status);
@@ -205,6 +231,7 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 	int	sq;
 	int	dq;
 	int i;
+	char	*temp;
 
 	dq = 0;
 	sq = 0;
@@ -222,9 +249,13 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 			sq = !sq;
 		else if (node->cmd[i] == '$' && !sq)
 		{
-			if (expand_var(node->cmd, &i, shell) == NULL)
+			node->cmd[i++] = '\0';
+			temp = expand_var(node->cmd, &i, shell);
+			if (!temp)
 				return (false);
-			node->cmd = expand_var(node->cmd, &i, shell);
+			node->cmd = ft_strjoin(node->cmd, temp);
+			if (!node->cmd)
+				return (false);
 		}	
 		i++;
 	}
@@ -255,30 +286,29 @@ int	get_token_len(char *str, char split_char)
 
 int	count_tokens(char *str, char split_char, int sq, int dq)
 {
-	int	i;
 	int	count;
 
-	i = 0;
 	count = 0;
-	while (str[i])
+	while (*str)
 	{
-		if (str[i] == '"' && !sq)
-			dq = !dq;
-		else if (str[i] == '\'' && !dq)
-			sq = !sq;
-		if (str[i] == split_char && !dq && !sq)
-		{
+		while (*str == split_char)
+			str++;
+		if (*str)
 			count++;
-			while (str[i + 1] == split_char)
-				i++;
+		while (*str != '\0' && *str != split_char)
+		{
+			if (*str == '"' || *str == '\'')
+				str = ft_strchr(str + 1, *str);
+			str++;
 		}
-		i++;
 	}
-	return (count + 1);
+	return (count);
 }
+
 char	*extract_word(char *str, char c)
 {
 	char	*curr;
+	char	*temp;
 
 	curr = str;
 	while (*curr != '\0' && *curr != c)
@@ -287,8 +317,12 @@ char	*extract_word(char *str, char c)
 			curr = ft_strchr(curr + 1, *curr);
 		curr++;
 	}
-	return (ft_substr(str, 0, curr - str));
+	temp = ft_substr(str, 0, curr - str);
+	if (!temp)
+		return (NULL);
+	return (temp);
 }
+
 int	fill_tokens(char **result, char *str, char split_char)
 {
 	int	i;
@@ -304,7 +338,9 @@ int	fill_tokens(char **result, char *str, char split_char)
 		if (!str[i])
 			break ;
 		token_len = get_token_len(str + i, split_char);
+		printf("The token length is: %d", token_len);
 		result[j] = extract_word(str + i, split_char);
+		printf(" and the word is: %s\n", result[j]);
 		if (!result[j])
 			return (-1);
 		i += token_len;
@@ -312,6 +348,16 @@ int	fill_tokens(char **result, char *str, char split_char)
 	}
 	result[j] = NULL;
 	return (0);
+}
+
+bool	split_args(t_tree *node)
+{
+	if (node->type != NODE_COMMAND)
+		return (split_args(node->left) && split_args(node->right));
+	node->args = quote_split(node->cmd, ' ');
+	if (!node->args)
+		return (false);
+	return (true);
 }
 
 char	**quote_split(char *str, char split_char)
@@ -333,15 +379,6 @@ char	**quote_split(char *str, char split_char)
 	return (result);
 }
 
-bool	split_args(t_tree *node)
-{
-	if (node->type != NODE_COMMAND)
-		return (split_args(node->left) && split_args(node->right));
-	node->args = quote_split(node->cmd, ' ');
-	if (!node->args)
-		return (false);
-	return (true);
-}
 // bool	handle_quotes(t_tree *node)
 // {
 // 	int		i;
@@ -367,27 +404,3 @@ bool	split_args(t_tree *node)
 // 	}
 // 	return (true);
 // }
-t_tree	*build_ast(char *str, t_shell *shell, int *flag)
-{
-	t_tree	*node;
-
-	node = create_node(str, NODE_COMMAND); //by default type = command
-	if (!node)
-		return (NULL);
-	if (!handle_pipes(node))
-		return (ft_putstr_fd("split pipes failed\node", 2),
-			free_ast(node), NULL);
-	if (!handle_redirection(node))
-		return (ft_putstr_fd("split redirects failed\node", 2),
-			free_ast(node), NULL);
-	if (!perform_exp(node, shell))
-		return (ft_putstr_fd("split redirects failed\node", 2),
-			free_ast(node), NULL);
-	if (!split_args(node))
-		return (ft_putstr_fd("split redirects failed\node", 2),
-			free_ast(node), NULL);
-	return (node);
-	// if (!handle_quotes(node))
-	// 	return (ft_putstr_fd("split redirects failed\node", 2),
-	// 		free_ast(&node), NULL);
-}

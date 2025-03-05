@@ -103,6 +103,11 @@ void	free_env(char **env_copy);
 void	rl_replace_line(const char *text, int pos);
 t_shell	*create_shell(void);
 char	**create_env_copy(char **env);
+bool	split_args(t_tree *node);
+bool	perform_exp(t_tree *node, t_shell *shell);
+bool	split_evenly(char *str, char *curr, t_tree **left, t_tree **right);
+bool	handle_pipes(t_tree *node);
+char	**quote_split(char *str, char split_char);
 
 //string utils
 char	*ft_substr(char const *s, unsigned int start, size_t len);

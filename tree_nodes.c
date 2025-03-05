@@ -23,6 +23,7 @@ t_tree	*create_node(char *str, t_node_type type)
 	node->left = NULL;
 	node->right = NULL;
 	node->heredoc_fd = 0;
+	node->args = NULL;
 	node->cmd = ft_strdup(str);
 	if (node->cmd == NULL)
 		return (free(node), NULL);
@@ -95,6 +96,8 @@ void	free_ast(t_tree *node)
 	free_ast(node->right);
 	if (node->cmd)
 		free(node->cmd);
+	if (node->args)
+		free_split(node->args);
 	free(node);
 	node = NULL;
 }

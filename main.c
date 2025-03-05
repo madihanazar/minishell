@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42abudhabi.ae>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/04 15:59:11 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/01/31 17:11:11 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,6 @@
 
 int	g_status = 0;
 
-void	handle_sigint(int sig)
-{
-	g_status = sig;
-	if (sig == SIGINT)
-	{
-		write(1, "\n", 1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
 void print_ast(t_tree *node, int depth)
 {
     if (node != NULL)
@@ -48,6 +37,18 @@ void print_ast(t_tree *node, int depth)
     }
 }
 
+void	handle_sigint(int sig)
+{
+	g_status = sig;
+	if (sig == SIGINT)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+
 int	main_loop(t_shell *shell)
 {
 	char	*input;
@@ -64,9 +65,9 @@ int	main_loop(t_shell *shell)
 			return (g_status);
 		add_history(input);
 		shell->tree = create_tree(input, shell);
-		print_ast(shell->tree, 0);
 		if (shell->tree == NULL)
 			return (free(input), 1);
+		print_ast(shell->tree, 0);
 		// g_status = execute_node(shell);
 		free(input);
 		free_ast(shell->tree);
