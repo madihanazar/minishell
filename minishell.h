@@ -151,7 +151,7 @@ int		fill_tokens(char **result, char *str, char split_char);
 int		get_token_len(char *str, char split_char);
 char	*extract_token(char *str, int len, t_shell *shell);
 int		init_extract(int len, t_exp *exp);
-void	handle_quotes(int *i, int *quote_flag);
+bool	handle_quotes(t_tree *node);
 int		handle_expansion(char *str, t_exp *exp, t_shell *shell);
 
 //built in
