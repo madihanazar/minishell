@@ -71,13 +71,71 @@ int	skip_whitespaces(char	*input)
 	return (i);
 }
 
+char	*is_valid_pipe(char *input)
+{
+	input += 1;
+	while (*input)
+	{
+		if (*input != ' ')
+			break ;
+		input += 1;
+	}
+	if (*input == '\0' || *input == '|')
+		return (NULL);
+	return (input - 1);
+}
+
+char	*is_valid_redir(char *str)
+{
+	if (*str == *(str + 1))
+		str++;
+	str++;
+	while (*str)
+	{
+		if (*str != ' ')
+			break ;
+		str++;
+	}
+	if (ft_strchr("<>|&", *str) != NULL)
+		return (NULL);
+	while (*str)
+	{
+		if (*str == '"' || *str == '\'')
+			str = ft_strchr(str + 1, *str);
+		else if (ft_strchr(" <>|&", *str))
+			break ;
+		if (!str)
+			return (NULL);
+		str++;
+	}
+	return (str - 1);
+}
+
 bool	is_valid_string(char *input)
 {
-	if (!is_valid_pipe(input))
-		return (false);
-	if (!is_valid_redir(input))
-		return (false)
-	
+	int	words;
+
+	words = 0;
+	while (*input)
+	{
+		if (*input == '"' || *input == '\'' && ++words)
+			input = ft_strchr(input + 1, *input);
+		else if ((*input == '>' || *input == '<') && ++words)
+			input = is_valid_redir(input);
+		else if (*input == '|')
+		{
+			input = is_valid_pipe(input);
+			if (input == NULL || words == 0)
+				return (false);
+			words = 0;
+		}
+		else if (*input != ' ' && *input != '\t')
+			words += 1;
+		if (input == NULL)
+			return (false);
+		input += 1;
+	}
+	return (true);
 }
 
 char	*get_input(void)
@@ -101,7 +159,7 @@ char	*get_input(void)
 			free(input);
 			continue ;
 		}
-		if (add_history(input), true && is_valid_string(input))
+		if ((add_history(input), true ) && is_valid_string(input))
 			return (input);
 		ft_putstr_fd("Input parsing error\n", 2);
 		free(input);
