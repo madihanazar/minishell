@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/04 15:55:22 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/06 14:17:03 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,20 @@ t_tree	*build_ast(char *str, t_shell *shell, int *flag)
 	if (!node)
 		return (NULL);
 	if (!handle_pipes(node))
-		return (ft_putstr_fd("split pipes failed\node", 2),
+		return (ft_putstr_fd("pipes failed\n", 2),
 			free_ast(node), NULL);
 	if (!handle_redirection(node))
-		return (ft_putstr_fd("split redirects failed\node", 2),
+		return (ft_putstr_fd("redirects failed\n", 2),
 			free_ast(node), NULL);
 	if (!perform_exp(node, shell))
-		return (ft_putstr_fd("split redirects failed\node", 2),
+		return (ft_putstr_fd("expansion failed\n", 2),
 			free_ast(node), NULL);
 	if (!split_args(node))
-		return (ft_putstr_fd("split redirects failed\node", 2),
+		return (ft_putstr_fd("split arguments failed\n", 2),
 			free_ast(node), NULL);
-	// if (!handle_quotes(node))
-	// 	return (ft_putstr_fd("split redirects failed\node", 2),
-	// 		free_ast(&node), NULL);
+	if (!handle_quotes(node))
+		return (ft_putstr_fd("split quotes failed\n", 2),
+			free_ast(node), NULL);
 	return (node);
 }
 
@@ -452,28 +452,49 @@ char	**quote_split(char *str, char split_char)
 	return (result);
 }
 
-// bool	handle_quotes(t_tree *node)
-// {
-// 	int		i;
-// 	char	**strs;
+char	*remove_quotes(char *str, int *i, char *end)
+{
+	char	*lstr;
+	char	*mstr;
+	char	*rstr;
 
-// 	if (node->type != NODE_COMMAND)
-// 		return (handle_quotes(node->left)
-// 			&& handle_quotes(node->right));
-// 	strs = node->args;
-// 	while (*strs)
-// 	{
-// 		i = 0;
-// 		while ((*strs)[i])
-// 		{
-// 			if ((*strs)[i] == '"' || (*strs)[i] == '\'')
-// 				(*strs) = snip_snip((*strs), &i,
-// 						ft_strchr(&((*strs)[i + 1]), (*strs)[i]));
-// 			if ((*strs) == NULL)
-// 				return (false);
-// 			i++;
-// 		}
-// 		strs++;
-// 	}
-// 	return (true);
-// }
+	lstr = ft_substr(str, 0, *i);
+	mstr = ft_substr(str, *i + 1, end - (str + *i + 1));
+	rstr = ft_strdup(end + 1);
+	*i = end - str - 2;
+	free(str);
+	if (lstr == NULL || mstr == NULL || rstr == NULL)
+		return (free(lstr), free(rstr), free(mstr), NULL);
+	lstr = ft_strappend(ft_strappend(lstr, mstr), rstr);
+	free(rstr);
+	free(mstr);
+	return (lstr);
+}
+
+bool	handle_quotes(t_tree *node)
+{
+	int		i;
+	char	**strs;
+
+	if (node->type != NODE_COMMAND)
+		return (handle_quotes(node->left)
+			&& handle_quotes(node->right));
+	strs = node->args;
+	while (*strs)
+	{
+		i = 0;
+		while ((*strs)[i])
+		{
+			if ((*strs)[i] == '"' || (*strs)[i] == '\'')
+			{
+				(*strs) = remove_quotes((*strs), &i,
+						ft_strchr(&((*strs)[i + 1]), (*strs)[i]));
+			}
+			if ((*strs) == NULL)
+				return (false);
+			i++;
+		}
+		strs++;
+	}
+	return (true);
+}
