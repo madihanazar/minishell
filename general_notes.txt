@@ -1,0 +1,112 @@
+Memory Leak report:
+valgrind --trace-children=yes -s --suppressions=readline.txt  --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./minishell
+
+ERROR CODES:
+
+
+Questions:
+1. How does an AST work?
+2. Why an AST?
+
+3. What is env?
+	Answer: The env variable is similar to argv, in the sense that it
+	is also an array of strings. The difference here is that is contains
+	all the environment variables of the program.
+	
+	The argv mechanism is typically used to pass command-line arguments 
+	specific to the particular program being invoked. The environment, 
+	on the other hand, keeps track of information that is shared by 
+	many programs, changes infrequently, and that is less frequently used.
+
+Program Flow:
+main.c
+	This function details the main execution point of the program,
+	here is where the user input is accepted.
+1. input will take the user command
+2. now we try to create an AST using the input
+	a. The tree is of type t_tree. 
+	b. t_tree has a left_child, a right_child, a string for the command,
+		and a structure to represent the type of command it is.
+3. finally, we try to execute the nodes of this tree
+4. We free the input we accepted. 
+
+build_tree.c:
+	create_tree():
+		This function attempts to create the AST from scratch. The function
+		returns either a tree or a NULL.
+	1. Initially, the create_tree() function is called.
+	2. We trim the command of all leading and trailing spaces.
+	3. Then using the trimmed string and the env variables, 
+		we attempt to build a tree using the build_ast() function. 
+	4. The build_ast() function returns the root node of the ast or NULL.
+
+	build_ast():
+	1. This function first tries to find the location of the last pipe (|):
+		
+		find_last_pipe():
+		a. If the current character is a pipe (|) and we're not inside single quotes 
+			(!single_quote) or double quotes (!double_quote), then this pipe is 
+			considered valid. We update the begin pointer to point to 
+			the current position (str).
+		b. It creates a node using the create_node() function. This function takes
+			the "|" operator and the node_type PIPE as its parameters.
+		c. The left child of the node we just created is now recursively created by
+			calling the build_ast() function again, and passing the string to the LEFT
+			of the last pipe as the first argument, and the env variables as the second.
+		d. The right child of the node we just created is also created recursively, with
+			the string to the right of the last pipe sent as the first param and the env 
+			variables as the second one.
+
+	2. If there is no pipe found, then this function tries to locate that last redirect
+		operator (< or >):
+
+		find_last_redir():
+		a. This function works similar to the find_last_pipe() function, in that 
+			it ensures we aren't in single or double quotes, and if these conditions are 
+			satisfied, then it stores and returns the location of the last < or > symbol found
+			within the string.
+		b. Once we have the location of the < or > symbol, we then check the value of the 
+			(location + 1)th element. Depending on its value, we will create a node with
+			the value HEREDOC, APPEND, REDIR_IN or REDIR_OUT.
+		c. Then, we proceed to construct the rest of the tree recursively by calling the 
+			build_ast() function and passing the left part of the string for the left node
+			and the right part of the string for the right node.
+
+	3. If neither of the above are found, we know that our command only contains keywords, so we 
+		attempt to create an array of these keywords by using the split_cmd() function:
+
+		split_cmd():
+		a. This function is similar to the split() function, except it also accepts the env
+			variables as a parameter too.
+		b. First, we find the number of tokens we have in our string by counting the number
+			of ' ' characters present in it.
+		c. Then using the above number, we allocate that many spaces + 2 to a double pointer array.
+			(similar to split)
+		d. The we calculate the length of the token (string) so we can allocate that much space for it
+			in the double pointer array.
+		e. We then try to fill up the above space using the extract_token() function. We end up having
+			an array of commands (strings) that will be returned to the build ast function.
+		
+		extract_token():
+		a. This function is responsible for filling up the above double pointer array with strings.
+		b. It follows the same logic as split, with a special case that occurs when a $ is found in the 
+			string.
+		c. If we find a $ in bash, it means we've come across an env variable, and it displays the value
+			of said variable.
+		d. In this function, if we come across a $, we call the expand_var() function. This function is 
+			responsible for finding out what the value is after the $ and then expanding that value.
+		
+	4. Assuming we are now left with an array of strings\tokens from the split_cmd() function, we now
+		(create a tree / add these tokens to a pre-existing tree). The initial node is treated as a command
+		while remaning nodes are treated as arguments. These arguments are always placed as the right children
+		of the tree.
+
+	5. Finally, the build_ast() function returns the root node of the tree.
+
+Once we get back to the main() function, what we have left is to execute the nodes of the tree
+we created. We do this by calling the execute_node() command.
+
+exec.c:
+
+	execute_node():
+	1. 
