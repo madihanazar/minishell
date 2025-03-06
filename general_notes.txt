@@ -116,15 +116,19 @@ parsing error (anna tested)
 2. () - bash gives syntax error, our doesnt
 3. <1<2<3 - bash gives syntax error as it requires space, our takes it
 4. <1>2 - fails in our shell as we are  splitting on the basis of spaces
-5. && and ! - gives syntax eror, our takes it
+5. && and ! - gives syntax eror, our takes it - not handled cause its bonus
 6. anna's suggestion - if its odd $, print 1, if even nothing, if you decide not to handle this case at all you need to
 have a valid reason
-7. cd '$PWD/files', cd "$PWD/files", echo "'$PWD/files'", echo "'"$USER"'", echo " $USER ", echo text"'$USER'" ' $USER '- double check this
-echo $USER$12USER$USER=4$USER12
-echo "text" "text$USER" ... "$USER"
-'//'
 
-execution error:
+-- DONE ---
+7. cd '$PWD/files' - done
+ cd "$PWD/files" -- done
+ echo "'$PWD/files'" - done, echo "'"$USER"'", echo " $USER ", echo text"'$USER'" ' $USER '- ALL CHECKED
+echo $USER$12USER$USER=4$USER12
+echo "text" "text$USER" ... "$USER" - done
+'//' - done
+
+Execution error:
 1. If cat << "1" is input and in heredoc>$USER itt should not expand! because delimiter has quotes
 1. . - bash gives filename argument required
 2. / - directory (make sure) and // - directory
