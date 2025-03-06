@@ -70,22 +70,20 @@ char	*ft_strtrim(char const *s1, char const *set)
 		i--;
 	return (ft_substr(s1, 0, i + 1));
 }
-char *ft_strchr(const char *str, int c) 
+char	*ft_strchr(const char *str, int c) 
 {
-    size_t i;
-    i = 0;
+	size_t	i;
 
-    while (str[i] != '\0')
-    {
-        if (str[i] == (char)c)
-         {
-            return ((char *)(str + i));
-         }
-        i++;
-    }
-    if ((char)c == '\0')
-        return ((char *)(str + i));
-    return (NULL);
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] == (char)c)
+			return ((char *)(str + i));
+		i++;
+	}
+	if ((char)c == '\0')
+		return ((char *)(str + i));
+	return (NULL);
 }
 
 char	*ft_strdup(char *s)

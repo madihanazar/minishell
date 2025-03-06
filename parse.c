@@ -31,10 +31,10 @@ t_tree	*build_ast(char *str, t_shell *shell, int *flag)
 	if (!split_args(node))
 		return (ft_putstr_fd("split redirects failed\node", 2),
 			free_ast(node), NULL);
-	return (node);
 	// if (!handle_quotes(node))
 	// 	return (ft_putstr_fd("split redirects failed\node", 2),
 	// 		free_ast(&node), NULL);
+	return (node);
 }
 
 bool	handle_pipes(t_tree *node)
@@ -135,7 +135,7 @@ bool	handle_redirection(t_tree *node)
 	if (node->type != NODE_COMMAND)
 		return (handle_redirection(node->left)
 			&& handle_redirection(node->right));
-	redir_pos = find_first_redir(node->cmd);
+	redir_pos = find_first_redir(node, node->cmd);
 	if (!redir_pos)
 		return (true);
 	*redir_pos = '\0';
@@ -329,12 +329,12 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 		{
 			node->cmd[i++] = '\0';
 			node->cmd = expanded_str(node->cmd, &node->cmd[i--], shell);
-			if (!node->cmd)
-				return (false);
+			printf("NODE COMMAND IS: %s\n", node->cmd);
+			i--;
 		}	
 		i++;
 	}
-	return (true);
+	return (node->cmd != NULL);
 }
 
 int	get_token_len(char *str, char split_char)

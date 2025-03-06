@@ -80,7 +80,7 @@ typedef struct s_exp
 // } t_expand;
 
 char	*find_first_pipe(char *str);
-char	*find_first_redir(char *str);
+char	*find_first_redir(t_tree*node, char *str);
 t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str);
 t_tree	*free_commands(int *flag, char **cmd_tokens, t_tree *node, char *str);
 int		calculate_length(char *redir_pos);

@@ -42,7 +42,7 @@ void	check_redir_type(t_tree *node, char *str)
 	}
 }
 
-char	*find_first_redir(char *str)
+char	*find_first_redir(t_tree *node, char *str)
 {
 	int		single_quote;
 	int		double_quote;
@@ -59,7 +59,7 @@ char	*find_first_redir(char *str)
 			single_quote = !single_quote;
 		if ((*str == '<' || *str == '>') && !double_quote && !single_quote)
 		{
-			// check_redir_type(node, str);
+			check_redir_type(node, str);
 			return (str);
 		}
 		str++;

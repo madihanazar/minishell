@@ -14,29 +14,6 @@
 
 int	g_status = 0;
 
-void print_ast(t_tree *node, int depth)
-{
-    if (node != NULL)
-    {
-        // Print the left subtree first
-        if (node->left)
-        {
-            print_ast(node->left, depth + 1);
-        }
-
-        // Print the current node with indentation based on depth
-        for (int i = 0; i < depth; i++)
-            printf("    "); // Indentation for visualization
-        printf("Depth: %d, Command: %s\n", depth, node->cmd);
-
-        // Print the right subtree
-        if (node->right)
-        {
-            print_ast(node->right, depth + 1);
-        }
-    }
-}
-
 void	handle_sigint(int sig)
 {
 	g_status = sig;
@@ -46,6 +23,88 @@ void	handle_sigint(int sig)
 		rl_on_new_line();
 		rl_replace_line("", 0);
 		rl_redisplay();
+	}
+}
+
+void print_ast(t_tree *node, int depth)
+{
+    if (node != NULL)
+    {
+        // Print the left subtree first (if it exists)
+        if (node->left)
+        {
+            print_ast(node->left, depth + 1);  // Increase depth for left child
+        }
+
+        // Print the current node's command and depth
+        printf("Depth: %d, Command: %s, Type: %d\n", depth, node->cmd, node->type);
+
+        // Print the right subtree (if it exists)
+        if (node->right)
+        {
+            print_ast(node->right, depth + 1);  // Increase depth for right child
+        }
+    }
+}
+
+void	convert_to_whitespace(char	*input)
+{
+	while (*input)
+	{
+		if (*input == '"' || *input == '\'')
+			input = ft_strchr(input + 1, *input);
+		else if (*input > 8 && *input < 13)
+			*input = ' ';
+		if (input == NULL)
+			return ;
+		input += 1;
+	}
+}
+
+int	skip_whitespaces(char	*input)
+{
+	int	i;
+
+	i = 0;
+	while (input[i] == ' ')
+		i += 1;
+	return (i);
+}
+
+bool	is_valid_string(char *input)
+{
+	if (!is_valid_pipe(input))
+		return (false);
+	if (!is_valid_redir(input))
+		return (false)
+	
+}
+
+char	*get_input(void)
+{
+	char	*input;
+	int		i;
+
+	while (1)
+	{
+		i = 0;
+		if (isatty(0))
+			input = readline("minishell>");
+		else
+			input = readline("");
+		if (!input)
+			return (NULL);
+		convert_to_whitespace(input);
+		i = skip_whitespaces(input);
+		if (input[i] == '\0')
+		{
+			free(input);
+			continue ;
+		}
+		if (add_history(input), true && is_valid_string(input))
+			return (input);
+		ft_putstr_fd("Input parsing error\n", 2);
+		free(input);
 	}
 }
 
@@ -60,10 +119,9 @@ int	main_loop(t_shell *shell)
 	}
 	while (1)
 	{
-		input = readline("minishell>");
+		input = get_input();
 		if (!input)
 			return (g_status);
-		add_history(input);
 		shell->tree = create_tree(input, shell);
 		if (shell->tree == NULL)
 			return (free(input), 1);
