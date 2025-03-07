@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42abudhabi.ae>  +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/01/31 17:11:11 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/07 16:05:40 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,11 +184,13 @@ int	main_loop(t_shell *shell)
 		if (shell->tree == NULL)
 			return (free(input), 1);
 		print_ast(shell->tree, 0);
-		// g_status = execute_node(shell);
+		g_status = new_execute(shell);
 		free(input);
+		free_context_list(shell->context);
 		free_ast(shell->tree);
 		input = NULL;
 		shell->tree = NULL;
+		shell->context = NULL;
 	}
 	return (g_status);
 }

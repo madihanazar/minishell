@@ -32,7 +32,8 @@ SRC_FILES = main.c \
            status_handling.c \
            pipe_redir.c  \
            parse.c \
-           shell_env_init.c
+           shell_env_init.c \
+		   new_execute.c
            # built_in.c \
            # exec.c \
            # ft_export.c  \

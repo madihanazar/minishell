@@ -79,24 +79,24 @@ int has_heredoc(t_tree *node)
 //     return process_heredocs(node->right, env);
 // }
 
-int process_heredocs(t_tree *node, char ***env)
-{
-    int status;
-    if (!node)
-        return (0);
+// int process_heredocs(t_tree *node, char ***env)
+// {
+//     int status;
+//     if (!node)
+//         return (0);
     
-    if (node->left && node->left->type == HEREDOC)
-        status = process_heredocs(node->left, env);
+//     if (node->left && node->left->type == HEREDOC)
+//         status = process_heredocs(node->left, env);
         
-    if (node->type == HEREDOC)
-    {
-        printf("yes im executing\n");
-        execute_heredoc(node, env);
-    }
-    //execute_node(node->left, env);
+//     if (node->type == HEREDOC)
+//     {
+//         printf("yes im executing\n");
+//         execute_heredoc(node, env);
+//     }
+//     //execute_node(node->left, env);
         
-    return (status);
-}
+//     return (status);
+// }
 
 
 // static void run_heredoc(int pipe_fd, char *cmd, char **env)

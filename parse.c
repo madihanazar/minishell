@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/06 16:39:22 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/07 16:05:22 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,6 @@ t_tree	*build_ast(char *str, t_shell *shell, int *flag)
 	if (!handle_quotes(node))
 		return (ft_putstr_fd("split quotes failed\n", 2),
 			free_ast(node), NULL);
-	int i = 0;
-	while (node->args[i])
-	{
-		
-		printf("ARGS:%s\n",node->args[i]);
-		i++;
-	}
 	return (node);
 }
 
@@ -336,7 +329,6 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 		{
 			node->cmd[i++] = '\0';
 			node->cmd = expanded_str(node->cmd, &node->cmd[i--], shell);
-			printf("NODE COMMAND IS: %s\n", node->cmd);
 			i--;
 		}	
 		i++;

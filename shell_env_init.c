@@ -10,6 +10,7 @@ t_shell	*create_shell(void)
 	shell->export_list = NULL;
 	shell->env_list = NULL;
 	shell->tree = NULL;
+	shell->context = NULL;
 	return (shell);
 }
 
@@ -23,6 +24,8 @@ void	free_shell(t_shell *shell)
 			free_env_list(&(shell->env_list));
 		if (shell->tree)
 			free_ast(shell->tree);
+		if (shell->context)
+			free_context_list(shell->context);
 		free(shell);
 	}
 }

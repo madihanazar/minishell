@@ -50,13 +50,23 @@ typedef struct s_list
 	struct s_list	*next;
 }	t_list;
 
+typedef struct s_context
+{
+	char	*cmd;
+	char	**args;
+	int		input;
+	int		output;
+	int		error;
+	struct s_context	*next;
+}	t_context;
+
 typedef struct s_shell
 {
-    t_list      *env_list;
-    t_tree      *tree;
-    //t_context   *context;
-    // int         status;
-    t_list     *export_list;
+	t_list		*env_list;
+	t_tree		*tree;
+	t_context	*context;
+	// int         status;
+	t_list		*export_list;
 } t_shell;
 
 typedef struct s_exp
@@ -140,7 +150,6 @@ int		execute_node(t_shell *shell);
 char	**build_args(t_tree *node);
 void	test_command(char **env, char *test_name, char *cmd);
 int		execute_heredoc(t_tree *node, char ***env);
-int		process_heredocs(t_tree *node, char ***env);
 int		has_heredoc(t_tree *node);
 t_tree	*handle_pipe(char *str, t_shell *shell, int *flag);
 bool	handle_redirection(t_tree *node);
@@ -187,5 +196,12 @@ void	ft_lstdelone(t_list *lst, void (*del)(void *));
 //signal
 void	handle_sigint(int sig);
 int		check_status(int status);
+
+//exec
+int		new_execute(t_shell *shell);
+void	free_context_list(t_context *context);
+void	free_context(t_context *context);
+char	*expanded_str(char *str, char *var, t_shell *shell);
+void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim);
 
 #endif
