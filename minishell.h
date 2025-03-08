@@ -1,4 +1,3 @@
-
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -13,25 +12,25 @@
 # include <termios.h>
 # include <stdbool.h>
 
-// extern int g_sig;
 extern int	g_status;
 
-typedef struct s_cmd {
-    char    *cmd_name;   
-    char    **args;     
-    int     arg_count;
-} t_cmd;
+typedef struct s_cmd
+{
+	char	*cmd_name;
+	char	**args;
+	int		arg_count;
+}	t_cmd;
 
-typedef enum e_node_type {
-    NODE_COMMAND,
+typedef enum e_node_type
+{
+	NODE_COMMAND,
 	NODE_ARG,
-    PIPE,       
-    REDIR_IN,  
-    REDIR_OUT,  
-    HEREDOC,    
-    APPEND      
-} t_node_type;
-
+	PIPE,
+	REDIR_IN,
+	REDIR_OUT,
+	HEREDOC,
+	APPEND
+}	t_node_type;
 
 typedef struct s_tree
 {
@@ -40,10 +39,9 @@ typedef struct s_tree
 	char			*cmd;
 	char			**args;
 	t_node_type		type;
-	int             heredoc_fd;
+	int				heredoc_fd;
 }	t_tree;
 
-// remove
 typedef struct s_list
 {
 	void			*content;
@@ -52,12 +50,12 @@ typedef struct s_list
 
 typedef struct s_context
 {
-	char	*cmd;
-	char	**args;
-	int		input;
-	int		output;
-	int		error;
 	struct s_context	*next;
+	char				*cmd;
+	char				**args;
+	int					input;
+	int					output;
+	int					error;
 }	t_context;
 
 typedef struct s_shell
@@ -65,29 +63,18 @@ typedef struct s_shell
 	t_list		*env_list;
 	t_tree		*tree;
 	t_context	*context;
-	// int         status;
 	t_list		*export_list;
-} t_shell;
+}	t_shell;
 
 typedef struct s_exp
 {
-    int  i;       // Index for iterating through the input string
-    int  j;       // Index for storing characters in the token
-    int  sq;      // Single quote flag (1 if inside single quotes, 0 otherwise)
-    int  dq;      // Double quote flag (1 if inside double quotes, 0 otherwise)
-    int  len;     // Length of the input string or token
-    char *token;  // Pointer to the extracted token
-} t_exp;
-
-// typedef struct s_expand
-// {
-//     char    *result;
-//     int     i;          // index for input string
-//     int     j;          // index for result string
-//     int     len;        // length for variable names or allocations
-//     int     s_quote;    // single quote flag
-//     int     d_quote;    // double quote flag
-// } t_expand;
+	int  i;       // Index for iterating through the input string
+	int  j;       // Index for storing characters in the token
+	int  sq;      // Single quote flag (1 if inside single quotes, 0 otherwise)
+	int  dq;      // Double quote flag (1 if inside double quotes, 0 otherwise)
+	int  len;     // Length of the input string or token
+	char *token;  // Pointer to the extracted token
+}	t_exp;
 
 char	*find_first_pipe(char *str);
 char	*find_first_redir(t_tree*node, char *str);
@@ -99,7 +86,7 @@ t_tree	*create_redir_node(char *redir_pos);
 void	free_strings(char *str1, char *str2);
 t_tree	*build_ast(char *str, t_shell *shell, int *flag);
 t_tree	*create_tree(char *str, t_shell *shell);
-t_tree	*create_node(char *str,  t_node_type type);
+t_tree	*create_node(char *str, t_node_type type);
 char	**split_cmd(char *str, char split_char, t_shell *shell);
 void	free_result(char **result, int count);
 char	*expand_var(char *str, int *i, t_shell *shell);
@@ -118,8 +105,6 @@ bool	perform_exp(t_tree *node, t_shell *shell);
 bool	split_evenly(char *str, char *curr, t_tree **left, t_tree **right);
 bool	handle_pipes(t_tree *node);
 char	**quote_split(char *str, char split_char);
-
-//string utils
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strdup(char *s);
 char	*ft_strtrim(char const *s1, char const *set);
@@ -137,7 +122,6 @@ int		ft_isalpha(int c);
 char	*ft_itoa(int n);
 int		find_num_of_digits(int n);
 void	make_string(char *f_string, unsigned int num, int index, int n);
-
 int		execute_pipe(t_tree *node, char ***env, t_shell *shell);
 int		execute_redir(t_tree *node, char ***env, t_shell *shell);
 int		is_builtin(char *cmd);
@@ -162,8 +146,6 @@ char	*extract_token(char *str, int len, t_shell *shell);
 int		init_extract(int len, t_exp *exp);
 bool	handle_quotes(t_tree *node);
 int		handle_expansion(char *str, t_exp *exp, t_shell *shell);
-
-//built in
 int		builtin_cd(t_shell *shell, char **args);
 int		replace_directory(t_shell *shell, char *old_path, char *new_path);
 char	*set_new_path(char **args);
@@ -185,19 +167,13 @@ char	*find_shlvl_str(t_list	*shlvl_node);
 int		assign_shlvl_val(int shlvl_val);
 t_list	*find_node(t_list **env_list, char *str, int len);
 int		ft_atoi(const char *str);
-
-//list
 t_list	*ft_lstnew(void *content);
 int		ft_lstsize(t_list *lst);
 void	ft_lstclear(t_list **lst, void (*del)(void *));
 void	ft_lstadd_back(t_list **lst, t_list *new);
 void	ft_lstdelone(t_list *lst, void (*del)(void *));
-
-//signal
 void	handle_sigint(int sig);
 int		check_status(int status);
-
-//exec
 int		new_execute(t_shell *shell);
 void	free_context_list(t_context *context);
 void	free_context(t_context *context);
@@ -206,5 +182,4 @@ bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env);
 void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim, char **env);
 bool	process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env);
 bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env);
-
 #endif
