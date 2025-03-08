@@ -81,21 +81,18 @@ void	ft_putendl_fd(char *s, int fd)
 	write(fd, "\n", 1);
 }
 
-bool	process_heredocs(t_shell *shell, t_tree *node, char *delim)
+bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env)
 {
-	pid_t	pid;
+	int		pid;
 	int		status;
 	int		fd[2];
 
 	if (pipe(fd) == -1)
 		return (false);
-	// pid = fork();
-	// if (pid == -1)
-	// 	return (false);
-	// if (pid == 0)
-	child_heredoc(fd, shell, node, delim);
-	// waitpid(pid, &status, 0);
-	// wait(NULL);
+	pid = fork();
+	if (pid == 0)
+		child_heredoc(fd, shell, node, delim, env);
+	waitpid(pid, &status, 0);
 	if (shell->context->input >= 0)
 		close(shell->context->input);
 	shell->context->input = fd[0];
@@ -104,31 +101,58 @@ bool	process_heredocs(t_shell *shell, t_tree *node, char *delim)
 	return (WEXITSTATUS(status) == 0);
 }
 
-void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim)
+void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim, char **env)
 {
 	char	*str;
 	
-	// close(fd[0]);
+	close(fd[0]);
 	str = readline(">");
-	while (str && (ft_strncmp(str, delim, ft_strlen(delim)) != 0))
+	while (str && (ft_strcmp(str, delim) != 0))
 	{
 		str = expand_heredocs(str, shell);
 		ft_putendl_fd(str, fd[1]);
 		free(str);
 		str = readline(">");
 	}
-	// close(fd[1]);
-	// return (true);
+	if (str)
+		free(str);
+	free_env(env);
+	free_shell(shell);
+	close(fd[1]);
+	exit(0);  //modify the exit value???
 }
 
-bool	preprocess(t_shell *shell, t_tree *node, char **env)
+bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
 {
-	// if (node->type == PIPE)
-	// 	return (process_pipes());
-	if (node->type == HEREDOC)
-		return (process_heredocs(shell, node, node->right->args[0]));
-	else
+	int		fd[2];
+
+	if (pipe(fd) == -1)
+		return (false);
+	context->next = create_context();
+	if (!context->next)
+	{
+		close(fd[0]);
+		close(fd[1]);
+		return (false);
+	}
+	context->next->input = fd[0];
+	context->output = fd[1];
+	return (preprocess(shell, context->next, node->right, env));
+}
+
+bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
+{
+	if (node == NULL)
 		return (true);
+	if (node->type == HEREDOC)
+		if (process_heredocs(shell, node, node->right->args[0], env) == false)
+			return (false);
+	if (!preprocess(shell, context, node->left, env))
+		return (false);
+	if (node->type == PIPE)
+		if (process_pipes(shell, context, node, env) == false)
+			return (false);
+	return (true);
 }
 
 int	new_execute(t_shell *shell)
@@ -140,8 +164,8 @@ int	new_execute(t_shell *shell)
 		return (ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!(shell->context = create_context()))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	if (!preprocess(shell, shell->tree, env))
-		return (free_env(env), ft_putstr_fd("HEREDOC error has occured\n", 2), 1);
+	if (!preprocess(shell, shell->context, shell->tree, env))
+		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	free_env(env);
 	return (0);
 }

@@ -202,6 +202,9 @@ int		new_execute(t_shell *shell);
 void	free_context_list(t_context *context);
 void	free_context(t_context *context);
 char	*expanded_str(char *str, char *var, t_shell *shell);
-void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim);
+bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env);
+void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim, char **env);
+bool	process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env);
+bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env);
 
 #endif
