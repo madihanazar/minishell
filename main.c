@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/08 16:53:36 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/08 23:54:31 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,8 +166,8 @@ int	main_loop(t_shell *shell)
 			return (free(input), 1);
 		g_status = new_execute(shell);
 		free(input);
-		free_context_list(shell->context);
 		free_ast(shell->tree);
+		free_context_list(shell->context);
 		input = NULL;
 		shell->tree = NULL;
 		shell->context = NULL;

@@ -27,10 +27,16 @@ void	free_context(t_context *context)
 {
 	if (!context)
 		return ;
-	free_split(context->args);
-	context->args = NULL;
-	free(context->cmd);
-	context->cmd = NULL;
+	if (context->args != NULL)
+	{
+		free_split(context->args);
+		context->args = NULL;
+	}	
+	if (context->cmd)
+	{
+		free(context->cmd);
+		context->cmd = NULL;
+	}
 	if (context->input >= 0)
 		close(context->input);
 	context->input = -1;
@@ -115,6 +121,7 @@ void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 
 	close(fd[0]);
 	str = readline(">");
+	delim = node->right->args[0];
 	while (str && (ft_strcmp(str, delim) != 0))
 	{
 		str = expand_heredocs(str, shell);
@@ -215,6 +222,7 @@ char	*extract_path(char *cmd, char **env)
 bool	process_command(t_shell *shell, t_tree *node, char **env)
 {
 	shell->context->args = node->args;
+	node->args = NULL;
 	if (!shell->context->args)
 	{
 		ft_putstr_fd("An error has occurred\n", 2);
@@ -223,14 +231,16 @@ bool	process_command(t_shell *shell, t_tree *node, char **env)
 	if (shell->context->args[0])
 	{
 		if (is_builtin(shell->context->args[0]))
+		{
 			shell->context->cmd = ft_strdup(shell->context->args[0]);
+		}
 		else
 			shell->context->cmd = extract_path(shell->context->args[0], env);
 	}
 	return (true);
 }
 
-void	traverse_tree(t_shell *shell, t_tree *node, char **env)
+bool	traverse_tree(t_shell *shell, t_tree *node, char **env)
 {
 	if (node->type == PIPE)
 		(traverse_tree(shell, node->left, env)),
@@ -238,7 +248,7 @@ void	traverse_tree(t_shell *shell, t_tree *node, char **env)
 	if (node->type == HEREDOC)
 		traverse_tree(shell, node->left, env);
 	if (node->type == NODE_COMMAND)
-		(process_command(shell, node, env));
+		return (process_command(shell, node, env));
 }
 
 int new_execute(t_shell *shell)
@@ -254,6 +264,7 @@ int new_execute(t_shell *shell)
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!preprocess(shell, shell->context, shell->tree, env))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
+	traverse_tree(shell, shell->tree, env);
 	free_env(env);
 	return (0);
 }

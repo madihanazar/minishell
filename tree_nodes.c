@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tree_nodes.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 21:02:27 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/08 17:19:11 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/09 00:53:58 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,11 @@ void	free_result(char **result, int count)
 	while (i < count)
 	{
 		free(result[i]);
+		result[i] = NULL;
 		i++;
 	}
 	free(result);
+	result = NULL;
 }
 
 void	free_split(char **result)
@@ -82,9 +84,11 @@ void	free_split(char **result)
 	while (result[i])
 	{
 		free(result[i]);
+		result[i] = NULL;
 		i++;
 	}
 	free(result);
+	result = NULL;
 }
 
 void	free_ast(t_tree *node)
@@ -94,11 +98,15 @@ void	free_ast(t_tree *node)
 	free_ast(node->left);
 	free_ast(node->right);
 	if (node->cmd)
+	{
 		free(node->cmd);
-	node->cmd = NULL;
-	// if (node->args)
-	// 	free_split(node->args);
-	// node->args = NULL;
+		node->cmd = NULL;
+	}	
+	if (node->args)
+	{
+		free_split(node->args);
+		node->args = NULL;
+	}
 	free(node);
 	node = NULL;
 }
