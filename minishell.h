@@ -40,7 +40,6 @@ typedef struct s_tree
 	char			*cmd;
 	char			**args;
 	t_node_type		type;
-	int             heredoc_fd;
 }	t_tree;
 
 // remove
@@ -143,7 +142,7 @@ int		execute_redir(t_tree *node, char ***env, t_shell *shell);
 int		is_builtin(char *cmd);
 int		execute_builtin(char **args, t_shell *shell);
 char	*join_path(char *path, char *args);
-char	*extract_path(char *envp[], char *args);
+char	*extract_path(char *cmd, char **env);
 int		execute_command(t_tree *node, char ***env);
 int		execute_cmd(t_shell *shell);
 int		execute_node(t_shell *shell);
@@ -202,8 +201,8 @@ int		new_execute(t_shell *shell);
 void	free_context_list(t_context *context);
 void	free_context(t_context *context);
 char	*expanded_str(char *str, char *var, t_shell *shell);
-bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env);
-void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim, char **env);
+bool	process_heredocs(t_shell *shell, t_tree *node, char **env);
+void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env);
 bool	process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env);
 bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env);
 

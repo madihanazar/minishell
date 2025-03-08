@@ -20,9 +20,11 @@ void	free_context(t_context *context)
 {
 	if (!context)
 		return ;
-	free_split(context->args);
+	if (context->args)
+		free_split(context->args);
 	context->args = NULL;
-	free(context->cmd);
+	if (context->cmd)
+		free(context->cmd);
 	context->cmd = NULL;
 	if (context->input >= 0)
 		close(context->input);
@@ -81,7 +83,7 @@ void	ft_putendl_fd(char *s, int fd)
 	write(fd, "\n", 1);
 }
 
-bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env)
+bool	process_heredocs(t_shell *shell, t_tree *node, char **env)
 {
 	int		pid;
 	int		status;
@@ -91,7 +93,7 @@ bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env)
 		return (false);
 	pid = fork();
 	if (pid == 0)
-		child_heredoc(fd, shell, node, delim, env);
+		child_heredoc(fd, shell, node, env);
 	waitpid(pid, &status, 0);
 	if (shell->context->input >= 0)
 		close(shell->context->input);
@@ -101,11 +103,13 @@ bool	process_heredocs(t_shell *shell, t_tree *node, char *delim, char **env)
 	return (WEXITSTATUS(status) == 0);
 }
 
-void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char *delim, char **env)
+void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 {
+	char	*delim;
 	char	*str;
-	
+
 	close(fd[0]);
+	delim = node->right->args[0];
 	str = readline(">");
 	while (str && (ft_strcmp(str, delim) != 0))
 	{
@@ -145,7 +149,7 @@ bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 	if (node == NULL)
 		return (true);
 	if (node->type == HEREDOC)
-		if (process_heredocs(shell, node, node->right->args[0], env) == false)
+		if (process_heredocs(shell, node, env) == false)
 			return (false);
 	if (!preprocess(shell, context, node->left, env))
 		return (false);
@@ -155,7 +159,85 @@ bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
-int	new_execute(t_shell *shell)
+int		is_builtin(char *cmd)
+{
+	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5)
+			|| !ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7)
+			|| !ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4)
+			|| !ft_strncmp(cmd, "exit", 5));
+}
+
+char	*join_path(char *path, char *args)
+{
+	char	*temp;
+	char	*full_cmd;
+
+	temp = ft_strjoin(path, "/");
+	if (temp == NULL)
+		return (NULL);
+	full_cmd = ft_strjoin(temp, args);
+	free(temp);
+	return (full_cmd);
+}
+
+char	*extract_path(char *cmd, char **env)
+{
+	int		i;
+	char	**paths;
+	char	*full_cmd;
+
+	i = 0;
+	while (env[i] != NULL && (ft_strncmp(env[i], "PATH=", 5) != 0))
+		i++;
+	if (env[i] == NULL)
+		return (NULL);
+	paths = ft_split(env[i] + 5, ':');
+	if (paths == NULL)
+		return (NULL);
+	i = 0;
+	while (paths[i])
+	{
+		full_cmd = join_path(paths[i], cmd);
+		if (full_cmd == NULL)
+			return (free_split(paths), NULL);
+		if (access(full_cmd, X_OK) == 0)
+			return (free_split(paths), full_cmd);
+		free(full_cmd);
+		i++;
+	}
+	return (free_split(paths), NULL);
+}
+
+bool	process_command(t_shell *shell, t_tree *node, char **env)
+{
+	shell->context->args = node->args;
+	if (!shell->context->args)
+	{
+		ft_putstr_fd("An error has occurred\n", 2);
+		return (false);
+	}
+	if (shell->context->args[0])
+	{
+		if (is_builtin(shell->context->args[0]))
+			shell->context->cmd = ft_strdup(shell->context->args[0]);
+		else
+			shell->context->cmd = extract_path(shell->context->args[0], env);
+	}
+	return (true);
+}
+
+void	traverse_tree(t_shell *shell, t_tree *node, char **env)
+{
+	if (node->type == PIPE)
+		(traverse_tree(shell, node->left, env)),
+			(traverse_tree(shell, node->right, env));
+	if (node->type == HEREDOC)
+		traverse_tree(shell, node->left, env);
+	if (node->type == NODE_COMMAND)
+		(process_command(shell, node, env));
+}
+
+int new_execute(t_shell *shell)
 {
 	char	**env;
 
@@ -166,6 +248,7 @@ int	new_execute(t_shell *shell)
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!preprocess(shell, shell->context, shell->tree, env))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
+	traverse_tree(shell, shell->tree, env);
 	free_env(env);
 	return (0);
 }
