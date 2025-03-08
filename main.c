@@ -26,27 +26,6 @@ void	handle_sigint(int sig)
 	}
 }
 
-void print_ast(t_tree *node, int depth)
-{
-    if (node != NULL)
-    {
-        // Print the left subtree first (if it exists)
-        if (node->left)
-        {
-            print_ast(node->left, depth + 1);  // Increase depth for left child
-        }
-
-        // Print the current node's command and depth
-        printf("Depth: %d, Command: %s, Type: %d\n", depth, node->cmd, node->type);
-
-        // Print the right subtree (if it exists)
-        if (node->right)
-        {
-            print_ast(node->right, depth + 1);  // Increase depth for right child
-        }
-    }
-}
-
 void	convert_to_whitespace(char	*input)
 {
 	while (*input)
@@ -159,7 +138,7 @@ char	*get_input(void)
 			free(input);
 			continue ;
 		}
-		if ((add_history(input), true ) && is_valid_string(input))
+		if ((add_history(input), true) && is_valid_string(input))
 			return (input);
 		ft_putstr_fd("Input parsing error\n", 2);
 		free(input);
@@ -177,13 +156,14 @@ int	main_loop(t_shell *shell)
 	}
 	while (1)
 	{
+		signal(SIGINT, handle_sigint);
+		signal(SIGQUIT, SIG_IGN);
 		input = get_input();
 		if (!input)
 			return (g_status);
 		shell->tree = create_tree(input, shell);
 		if (shell->tree == NULL)
 			return (free(input), 1);
-		print_ast(shell->tree, 0);
 		g_status = new_execute(shell);
 		free(input);
 		free_context_list(shell->context);
@@ -202,8 +182,6 @@ int	main(int argc, char **argv, char **env)
 
 	(void)argc;
 	(void)argv;
-	signal(SIGINT, handle_sigint);
-	signal(SIGQUIT, SIG_IGN);
 	shell = create_shell();
 	if (shell == NULL)
 	{

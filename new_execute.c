@@ -1,5 +1,12 @@
 #include "minishell.h"
 
+void	heredoc_sig(int sig)
+{
+	g_status = sig;
+	write(1, "\n", 1);
+	close(0);
+}
+
 t_context	*create_context(void)
 {
 	t_context	*context;
@@ -20,11 +27,9 @@ void	free_context(t_context *context)
 {
 	if (!context)
 		return ;
-	if (context->args)
-		free_split(context->args);
+	free_split(context->args);
 	context->args = NULL;
-	if (context->cmd)
-		free(context->cmd);
+	free(context->cmd);
 	context->cmd = NULL;
 	if (context->input >= 0)
 		close(context->input);
@@ -68,7 +73,7 @@ char	*expand_heredocs(char *str, t_shell *shell)
 			str[i++] = '\0';
 			str = expanded_str(str, &str[i--], shell);
 			i--;
-		}	
+		}
 		i++;
 	}
 	return (str);
@@ -109,7 +114,6 @@ void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 	char	*str;
 
 	close(fd[0]);
-	delim = node->right->args[0];
 	str = readline(">");
 	while (str && (ft_strcmp(str, delim) != 0))
 	{
@@ -120,10 +124,10 @@ void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 	}
 	if (str)
 		free(str);
+	close(fd[1]);
 	free_env(env);
 	free_shell(shell);
-	close(fd[1]);
-	exit(0);  //modify the exit value???
+	exit(g_status == SIGINT);
 }
 
 bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
@@ -241,14 +245,15 @@ int new_execute(t_shell *shell)
 {
 	char	**env;
 
-	// Add signal handler
-	if (!(env = list_to_env(shell->env_list)))
+	signal(SIGINT, SIG_IGN);
+	env = list_to_env(shell->env_list);
+	if (!env)
 		return (ft_putstr_fd("An error has occured\n", 2), 1);
-	if (!(shell->context = create_context()))
+	shell->context = create_context();
+	if (!(shell->context))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!preprocess(shell, shell->context, shell->tree, env))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	traverse_tree(shell, shell->tree, env);
 	free_env(env);
 	return (0);
 }
