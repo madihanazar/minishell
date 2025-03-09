@@ -224,10 +224,7 @@ bool	process_command(t_context *context, t_tree *node, char **env)
 	context->args = node->args;
 	node->args = NULL;
 	if (!context->args)
-	{
-		ft_putstr_fd("An error has occurred\n", 2);
 		return (false);
-	}
 	if (context->args[0])
 	{
 		if (is_builtin(context->args[0]))
@@ -236,6 +233,51 @@ bool	process_command(t_context *context, t_tree *node, char **env)
 			context->cmd = extract_path(context->args[0], env);
 	}
 	return (true);
+}
+
+bool	check_heredoc(t_tree *node)
+{
+	if (node == NULL)
+		return (false);
+	if (node->type == HEREDOC)
+		return (true);
+	return (check_heredoc(node->left));
+}
+
+bool	process_input(t_context *context, t_tree *node, char **env)
+{
+	int		fd;
+
+	if (!node->right->args[0])
+		return (false);
+	fd = open(node->right->args[0], O_RDONLY);
+	if (fd == -1)
+	{
+        //error handling - in case file not readable blah blah
+	}
+	if (check_heredoc(node->left))
+		return (close(fd), traverse_tree(context, node->left, env));
+	if (context->input >= 0)
+		close(context->input);
+	context->input = fd;
+	return (traverse_tree(context, node->left, env));
+}
+
+bool	process_output(t_context *context, t_tree *node, char **env, int flag)
+{
+	if (context->output >= 0)
+		close(context->output);
+	if (!flag)
+		context->output = open(node->right->args[0],
+				O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else
+		context->output = open(node->right->args[0],
+				O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (context->output == -1)
+	{
+		// some error handling here
+	}
+	return (traverse_tree(context, node->left, env));
 }
 
 bool	traverse_tree(t_context *context, t_tree *node, char **env)
@@ -247,7 +289,16 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env)
 		traverse_tree(context, node->left, env);
 	if (node->type == NODE_COMMAND)
 		return (process_command(context, node, env));
+	if (node->type == REDIR_IN)
+		return (process_input(context, node, env));
+	if (node->type == REDIR_OUT)
+		return (process_output(context, node, env, 1));
+	if (node->type == APPEND)
+		return (process_output(context, node, env, 0));
+	return (true);
 }
+
+
 
 int new_execute(t_shell *shell)
 {
@@ -262,7 +313,8 @@ int new_execute(t_shell *shell)
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!preprocess(shell, shell->context, shell->tree, env))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	traverse_tree(shell->context, shell->tree, env);
+	if (!traverse_tree(shell->context, shell->tree, env))
+		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	free_env(env);
 	return (0);
 }

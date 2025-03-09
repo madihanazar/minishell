@@ -11,6 +11,7 @@
 # include "readline/history.h"
 # include <termios.h>
 # include <stdbool.h>
+#include <errno.h>
 
 extern int	g_status;
 
@@ -182,4 +183,5 @@ bool	process_heredocs(t_shell *shell, t_tree *node, char **env);
 void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env);
 bool	process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env);
 bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env);
+bool	traverse_tree(t_context *context, t_tree *node, char **env);
 #endif
