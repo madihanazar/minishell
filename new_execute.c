@@ -219,36 +219,34 @@ char	*extract_path(char *cmd, char **env)
 	return (free_split(paths), NULL);
 }
 
-bool	process_command(t_shell *shell, t_tree *node, char **env)
+bool	process_command(t_context *context, t_tree *node, char **env)
 {
-	shell->context->args = node->args;
+	context->args = node->args;
 	node->args = NULL;
-	if (!shell->context->args)
+	if (!context->args)
 	{
 		ft_putstr_fd("An error has occurred\n", 2);
 		return (false);
 	}
-	if (shell->context->args[0])
+	if (context->args[0])
 	{
-		if (is_builtin(shell->context->args[0]))
-		{
-			shell->context->cmd = ft_strdup(shell->context->args[0]);
-		}
+		if (is_builtin(context->args[0]))
+			context->cmd = ft_strdup(context->args[0]);
 		else
-			shell->context->cmd = extract_path(shell->context->args[0], env);
+			context->cmd = extract_path(context->args[0], env);
 	}
 	return (true);
 }
 
-bool	traverse_tree(t_shell *shell, t_tree *node, char **env)
+bool	traverse_tree(t_context *context, t_tree *node, char **env)
 {
 	if (node->type == PIPE)
-		(traverse_tree(shell, node->left, env)),
-			(traverse_tree(shell, node->right, env));
+		(traverse_tree(context, node->left, env)),
+			(traverse_tree(context->next, node->right, env));
 	if (node->type == HEREDOC)
-		traverse_tree(shell, node->left, env);
+		traverse_tree(context, node->left, env);
 	if (node->type == NODE_COMMAND)
-		return (process_command(shell, node, env));
+		return (process_command(context, node, env));
 }
 
 int new_execute(t_shell *shell)
@@ -264,7 +262,7 @@ int new_execute(t_shell *shell)
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!preprocess(shell, shell->context, shell->tree, env))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	traverse_tree(shell, shell->tree, env);
+	traverse_tree(shell->context, shell->tree, env);
 	free_env(env);
 	return (0);
 }
