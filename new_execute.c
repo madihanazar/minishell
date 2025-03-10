@@ -126,6 +126,7 @@ void child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 	while (str && (ft_strcmp(str, delim) != 0))
 	{
 		str = expand_heredocs(str, shell);
+		printf("%s\n", str);
 		ft_putendl_fd(str, fd[1]);
 		free(str);
 		str = readline(">");
@@ -312,8 +313,10 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env)
 
 int new_execute(t_shell *shell)
 {
-	char **env;
+	char	**env;
+	int		status;
 
+	status = 0;
 	signal(SIGINT, SIG_IGN);
 	env = list_to_env(shell->env_list);
 	if (!env)
@@ -324,7 +327,7 @@ int new_execute(t_shell *shell)
 	if (!preprocess(shell, shell->context, shell->tree, env))
 		return (free_env(env), 0);
 	if (!traverse_tree(shell->context, shell->tree, env))
-		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
+		return (free_env(env), 1);
 	free_env(env);
-	return (0);
+	return (WEXITSTATUS(status));
 }
