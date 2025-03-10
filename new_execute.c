@@ -1,15 +1,15 @@
 #include "minishell.h"
 
-void	heredoc_sig(int sig)
+void heredoc_sig(int sig)
 {
 	g_status = sig;
 	write(1, "\n", 1);
 	close(0);
 }
 
-t_context	*create_context(void)
+t_context *create_context(void)
 {
-	t_context	*context;
+	t_context *context;
 
 	context = malloc(sizeof(t_context));
 	if (!context)
@@ -23,15 +23,15 @@ t_context	*create_context(void)
 	return (context);
 }
 
-void	free_context(t_context *context)
+void free_context(t_context *context)
 {
 	if (!context)
-		return ;
+		return;
 	if (context->args != NULL)
 	{
 		free_split(context->args);
 		context->args = NULL;
-	}	
+	}
 	if (context->cmd)
 	{
 		free(context->cmd);
@@ -48,10 +48,10 @@ void	free_context(t_context *context)
 	free(context);
 }
 
-void	free_context_list(t_context *context)
+void free_context_list(t_context *context)
 {
-	t_context	*curr;
-	t_context	*temp;
+	t_context *curr;
+	t_context *temp;
 
 	curr = context;
 	temp = curr;
@@ -63,10 +63,10 @@ void	free_context_list(t_context *context)
 	}
 }
 
-char	*expand_heredocs(char *str, t_shell *shell)
+char *expand_heredocs(char *str, t_shell *shell)
 {
-	int		i;
-	int		j;
+	int i;
+	int j;
 
 	i = 0;
 	j = 0;
@@ -85,23 +85,23 @@ char	*expand_heredocs(char *str, t_shell *shell)
 	return (str);
 }
 
-void	ft_putendl_fd(char *s, int fd)
+void ft_putendl_fd(char *s, int fd)
 {
-	int	size;
+	int size;
 
 	size = ft_strlen(s);
 	write(fd, s, size);
 	write(fd, "\n", 1);
 }
 
-bool	process_heredocs(t_shell *shell, t_tree *node, char **env)
+bool process_heredocs(t_shell *shell, t_tree *node, char **env)
 {
-	int		pid;
-	int		status;
-	int		fd[2];
+	int pid;
+	int status;
+	int fd[2];
 
 	if (pipe(fd) == -1)
-		return (false);
+		return (ft_putstr_fd("An error has occured\n", 2), false);
 	pid = fork();
 	if (pid == 0)
 		child_heredoc(fd, shell, node, env);
@@ -109,16 +109,17 @@ bool	process_heredocs(t_shell *shell, t_tree *node, char **env)
 	if (shell->context->input >= 0)
 		close(shell->context->input);
 	shell->context->input = fd[0];
-	close(fd[0]);
+	// close(fd[0]);
 	close(fd[1]);
 	return (WEXITSTATUS(status) == 0);
 }
 
-void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
+void child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 {
-	char	*delim;
-	char	*str;
+	char *str;
+	char *delim;
 
+	signal(SIGINT, heredoc_sig);
 	close(fd[0]);
 	str = readline(">");
 	delim = node->right->args[0];
@@ -139,10 +140,10 @@ void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 
 bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
 {
-	int		fd[2];
+	int fd[2];
 
 	if (pipe(fd) == -1)
-		return (false);
+		return (ft_putstr_fd("An error has occured\n", 2), false);
 	context->next = create_context();
 	if (!context->next)
 	{
@@ -155,7 +156,7 @@ bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
 	return (preprocess(shell, context->next, node->right, env));
 }
 
-bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
+bool preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 {
 	if (node == NULL)
 		return (true);
@@ -170,12 +171,13 @@ bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
-int		is_builtin(char *cmd)
+int is_builtin(char *cmd)
 {
-	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5)
-			|| !ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7)
-			|| !ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4)
-			|| !ft_strncmp(cmd, "exit", 5));
+	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) || 
+		!ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) || 
+		!ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) || 
+		!ft_strncmp(cmd, "exit", 5)
+	);
 }
 
 char	*join_path(char *path, char *args)
@@ -246,14 +248,19 @@ bool	check_heredoc(t_tree *node)
 
 bool	process_input(t_context *context, t_tree *node, char **env)
 {
-	int		fd;
+	int	fd;
 
 	if (!node->right->args[0])
 		return (false);
 	fd = open(node->right->args[0], O_RDONLY);
 	if (fd == -1)
 	{
-        //error handling - in case file not readable blah blah
+		ft_putstr_fd(node->right->args[0], 2);
+		if (errno == EACCES)
+			ft_putstr_fd(": Permission denied\n", 2);
+		else
+			ft_putstr_fd(": No such file or directory\n", 2);
+		return (false);
 	}
 	if (check_heredoc(node->left))
 		return (close(fd), traverse_tree(context, node->left, env));
@@ -269,13 +276,18 @@ bool	process_output(t_context *context, t_tree *node, char **env, int flag)
 		close(context->output);
 	if (!flag)
 		context->output = open(node->right->args[0],
-				O_WRONLY | O_CREAT | O_APPEND, 0644);
+							   O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else
 		context->output = open(node->right->args[0],
-				O_WRONLY | O_CREAT | O_TRUNC, 0644);
+							   O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (context->output == -1)
 	{
-		// some error handling here
+		ft_putstr_fd(node->right->args[0], 2);
+		if (errno == EACCES)
+			ft_putstr_fd(": Permission denied\n", 2);
+		else
+			ft_putstr_fd(": No such file or directory\n", 2);
+		return (false);
 	}
 	return (traverse_tree(context, node->left, env));
 }
@@ -298,11 +310,9 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
-
-
 int new_execute(t_shell *shell)
 {
-	char	**env;
+	char **env;
 
 	signal(SIGINT, SIG_IGN);
 	env = list_to_env(shell->env_list);
@@ -312,7 +322,7 @@ int new_execute(t_shell *shell)
 	if (!(shell->context))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	if (!preprocess(shell, shell->context, shell->tree, env))
-		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
+		return (free_env(env), 0);
 	if (!traverse_tree(shell->context, shell->tree, env))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
 	free_env(env);
