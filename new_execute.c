@@ -9,7 +9,7 @@ void heredoc_sig(int sig)
 
 t_context *create_context(void)
 {
-	t_context *context;
+	t_context	*context;
 
 	context = malloc(sizeof(t_context));
 	if (!context)
@@ -50,8 +50,8 @@ void free_context(t_context *context)
 
 void free_context_list(t_context *context)
 {
-	t_context *curr;
-	t_context *temp;
+	t_context	*curr;
+	t_context	*temp;
 
 	curr = context;
 	temp = curr;
@@ -141,7 +141,7 @@ void child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 
 bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
 {
-	int fd[2];
+	int	fd[2];
 
 	if (pipe(fd) == -1)
 		return (ft_putstr_fd("An error has occured\n", 2), false);
@@ -157,7 +157,7 @@ bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
 	return (preprocess(shell, context->next, node->right, env));
 }
 
-bool preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
+bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 {
 	if (node == NULL)
 		return (true);
@@ -172,11 +172,11 @@ bool preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
-int is_builtin(char *cmd)
+int	is_builtin(char *cmd)
 {
-	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) || 
-		!ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) || 
-		!ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) || 
+	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) ||
+		!ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) ||
+		!ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) ||
 		!ft_strncmp(cmd, "exit", 5)
 	);
 }
@@ -277,10 +277,10 @@ bool	process_output(t_context *context, t_tree *node, char **env, int flag)
 		close(context->output);
 	if (!flag)
 		context->output = open(node->right->args[0],
-							   O_WRONLY | O_CREAT | O_APPEND, 0644);
+			O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else
 		context->output = open(node->right->args[0],
-							   O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (context->output == -1)
 	{
 		ft_putstr_fd(node->right->args[0], 2);
@@ -311,7 +311,7 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
-int new_execute(t_shell *shell)
+int	new_execute(t_shell *shell)
 {
 	char	**env;
 	int		status;
