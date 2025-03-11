@@ -321,13 +321,15 @@ int	new_execute(t_shell *shell)
 	env = list_to_env(shell->env_list);
 	if (!env)
 		return (ft_putstr_fd("An error has occured\n", 2), 1);
-	shell->context = create_context();
+	shell->context = create_context(); // Create context node
 	if (!(shell->context))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	if (!preprocess(shell, shell->context, shell->tree, env))
+	if (!preprocess(shell, shell->context, shell->tree, env)) // Figure out fds for context and context->next node 
 		return (free_env(env), 0);
-	if (!traverse_tree(shell->context, shell->tree, env))
+	if (!traverse_tree(shell->context, shell->tree, env)) // Figure out context->cmd and change context->input and context->output as required
 		return (free_env(env), 1);
+	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
+		status = new_execute_builtin(shell, env);
 	free_env(env);
 	return (WEXITSTATUS(status));
 }

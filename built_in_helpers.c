@@ -1,18 +1,41 @@
 #include "minishell.h"
 
-char	*set_new_path(char **args)
+char	*find_from_env_list(char *to_find, t_list *env_list)
+{
+	char	*temp;
+	t_list	*node;
+	int		length;
+
+	temp = NULL;
+	node = env_list;
+	length = ft_strlen(to_find);
+	while (node)
+	{
+		if (!ft_strncmp(to_find, node->content, length))
+		{
+			temp = ft_substr(node->content, length + 1, -1);
+			break ;
+		}
+		node = node->next;
+	}
+	return (temp);
+}
+
+char	*set_new_path(char **args, t_list *env_list)
 {
 	char	*new_path;
 
 	if (args[1] == NULL)
 	{
-		new_path = getenv("HOME");
+		// new_path = getenv("HOME");
+		new_path = find_from_env_list("HOME", env_list);
 		if (new_path == NULL)
 			ft_putstr_fd("cd: HOME not set\n", 2);
 	}
 	else if (ft_strncmp(args[1], "-", 2) == 0)
 	{
-		new_path = getenv("OLDPWD");
+		// new_path = getenv("OLDPWD");
+		new_path = find_from_env_list("OLDPWD", env_list);
 		if (new_path == NULL)
 		{
 			ft_putstr_fd("cd: OLDPWD not set\n", 2);
@@ -51,4 +74,5 @@ int	replace_directory(t_shell *shell, char *old_path, char *new_path)
 		}
 		node = node->next;
 	}
+	return (0);
 }

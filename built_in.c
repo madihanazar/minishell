@@ -90,7 +90,7 @@ int	builtin_cd(t_shell *shell, char **args)
 	return (status);
 }
 
-int builtin_echo(t_tree *node, char **argv, char **env)
+int	builtin_echo(t_tree *node, char **argv, char **env)
 {
     int i;
     int newline;

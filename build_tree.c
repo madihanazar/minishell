@@ -12,7 +12,7 @@ t_tree	*create_tree(char *str, t_shell *shell)
 	trimmed = ft_strtrim(str, " ");
 	if (trimmed == NULL)
 		return (NULL);
-	root = build_ast(trimmed, shell, &flag);
+	root = build_ast(str, shell, &flag);
 	free(trimmed);
 	return (root);
 }

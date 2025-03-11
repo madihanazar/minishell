@@ -147,12 +147,13 @@ char	*extract_token(char *str, int len, t_shell *shell);
 int		init_extract(int len, t_exp *exp);
 bool	handle_quotes(t_tree *node);
 int		handle_expansion(char *str, t_exp *exp, t_shell *shell);
-int		builtin_cd(t_shell *shell, char **args);
+int		builtin_cd(t_shell *shell);
+char	*find_from_env_list(char *to_find, t_list *env_list);
 int		replace_directory(t_shell *shell, char *old_path, char *new_path);
-char	*set_new_path(char **args);
-int		builtin_pwd(t_tree *node, char **args, char **env);
-int		builtin_echo(t_tree *node, char **argv, char **env);
-int		builtin_env(t_tree *node, char **args, char **env);
+char	*set_new_path(char **args, t_list *env_list);
+int		builtin_pwd(void);
+int		builtin_echo(char **argv);
+int		builtin_env(char **env);
 int		builtin_export(t_tree *node, char **args, char ***env, t_list **export_list);
 int		builtin_exit(t_tree *node, char **args, char **env, t_shell *shell);
 int		add_export(char *str, char ***env, t_list **export_list);
@@ -184,4 +185,6 @@ void	child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env);
 bool	process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env);
 bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env);
 bool	traverse_tree(t_context *context, t_tree *node, char **env);
+
+int		new_execute_builtin(t_shell *shell, char **env);
 #endif
