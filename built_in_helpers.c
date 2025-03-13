@@ -49,7 +49,7 @@ char	*set_new_path(char **args, t_list *env_list)
 {
 	char	*new_path;
 
-	if (args[1] == NULL)
+	if (args[1] == NULL || (ft_strncmp(args[1], "~", 2) == 0))
 	{
 		// new_path = getenv("HOME");
 		new_path = find_from_env_list("HOME", env_list);

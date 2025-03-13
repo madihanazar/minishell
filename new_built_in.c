@@ -1,5 +1,20 @@
 #include "minishell.h"
 
+void	print_cderror(char *str)
+{
+	ft_putstr_fd(str, 2);
+	if (errno == ENOTDIR)
+		ft_putstr_fd(": Not a directory\n", 2);
+	else if (errno == EACCES)
+		ft_putstr_fd(": Permission denied\n", 2);
+	else if (errno == ELOOP)
+		ft_putstr_fd(": Too many levels of symbolic links\n", 2);
+	else if (errno == ENAMETOOLONG)
+		ft_putstr_fd(": File name too long\n", 2);
+	else
+		ft_putstr_fd(": No such file or directory\n", 2);
+}
+
 int	builtin_cd(t_shell *shell)
 {
 	int		status;
@@ -15,12 +30,7 @@ int	builtin_cd(t_shell *shell)
 		return (1);
 	}
 	if (chdir(new_path) != 0)
-	{
-		free(old_path);
-		free(new_path);
-		perror("cd");
-		return (1);
-	}
+		return (print_cderror(new_path), free(old_path), free(new_path), 1);
 	free(new_path);
 	new_path = getcwd(NULL, 0);
 	if (replace_directory(shell, old_path, new_path) == 1)
@@ -76,7 +86,7 @@ int builtin_env(char **env)
 	while (env[i])
 	{
 		temp = ft_strchr(env[i], '=');
-		if (temp == NULL)
+		if (temp == NULL || *(temp + 1) == '\0')
 			i += 1;
 		else
 		{
