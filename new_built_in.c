@@ -86,7 +86,7 @@ int builtin_env(char **env)
 	while (env[i])
 	{
 		temp = ft_strchr(env[i], '=');
-		if (temp == NULL || *(temp + 1) == '\0')
+		if (temp == NULL)
 			i += 1;
 		else
 		{
