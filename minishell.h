@@ -155,7 +155,7 @@ int		builtin_pwd(void);
 int		builtin_echo(char **argv);
 int		builtin_env(char **env);
 int		builtin_export(t_tree *node, char **args, char ***env, t_list **export_list);
-int		builtin_exit(t_tree *node, char **args, char **env, t_shell *shell);
+int		builtin_exit(t_shell *shell, char **env);
 int		add_export(char *str, char ***env, t_list **export_list);
 int		add_export_1(char *str, char ***env, t_list **export_list);
 int		check_export(char *str);

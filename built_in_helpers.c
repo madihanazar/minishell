@@ -44,7 +44,7 @@ char	*set_new_path(char **args, t_list *env_list)
 		printf("%s\n", new_path);
 	}
 	else
-		new_path = args[1];
+		new_path = ft_strdup(args[1]);
 	return (new_path);
 }
 

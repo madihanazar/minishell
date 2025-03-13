@@ -34,9 +34,12 @@ int	env_init(t_list **env_list)
 {
 	char	*shlvl_str;
 	t_list	*shlvl_node;
+	t_list	*oldpwd_node;
 	t_list	*node;
+	t_list	*temp;
 
 	shlvl_node = find_node(env_list, "SHLVL", 5);
+	oldpwd_node = find_node(env_list, "OLDPWD", 6);
 	shlvl_str = find_shlvl_str(shlvl_node);
 	if (!shlvl_str)
 		return (1);
@@ -52,6 +55,15 @@ int	env_init(t_list **env_list)
 			return (free(shlvl_str), 1);
 		ft_lstadd_back(env_list, node);
 		free(shlvl_str);
+	}
+	if (oldpwd_node)
+		return (0);
+	else
+	{
+		temp = ft_lstnew("OLDPWD=");
+		if (!temp)
+			return (1);
+		ft_lstadd_back(env_list, temp);
 	}
 	return (0);
 }

@@ -17,9 +17,11 @@ int	builtin_cd(t_shell *shell)
 	if (chdir(new_path) != 0)
 	{
 		free(old_path);
+		free(new_path);
 		perror("cd");
 		return (1);
 	}
+	free(new_path);
 	new_path = getcwd(NULL, 0);
 	if (replace_directory(shell, old_path, new_path) == 1)
 	{
@@ -91,6 +93,13 @@ int	builtin_pwd(void)
 	return (0);
 }
 
+int	builtin_exit(t_shell *shell, char **env)
+{
+	free_env(env);
+	free_shell(shell);
+	exit(g_status);
+}
+
 int	new_execute_builtin(t_shell *shell, char **env)
 {
 	if (!ft_strncmp(shell->context->cmd, "cd", 3))
@@ -101,12 +110,12 @@ int	new_execute_builtin(t_shell *shell, char **env)
 		return (builtin_env(env));
 	else if (!ft_strncmp(shell->context->cmd, "pwd", 4))
 		return (builtin_pwd());
-	// else if (!ft_strncmp(shell->context->cmd, "export", 7))
-	// 	return builtin_export(node, args, env,  &shell->export_list);
+	else if (!ft_strncmp(shell->context->cmd, "exit", 5))
+		builtin_exit(shell, env);
+	else if (!ft_strncmp(shell->context->cmd, "export", 7))
+		return builtin_export(node, args, env,  &shell->export_list);
 	// else if (!ft_strncmp(shell->context->cmd, "unset", 6))
 	// 	return builtin_unset(node, args, env);
-	// else if (!ft_strncmp(shell->context->cmd, "exit", 5))
-	// 	builtin_exit(node, args, *env, shell);
 	// ft_putstr_fd("An error has occured\n", 2);
 	return (1);
 }

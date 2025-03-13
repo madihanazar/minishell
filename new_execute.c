@@ -126,7 +126,6 @@ void child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
 	while (str && (ft_strcmp(str, delim) != 0))
 	{
 		str = expand_heredocs(str, shell);
-		printf("%s\n", str);
 		ft_putendl_fd(str, fd[1]);
 		free(str);
 		str = readline(">");

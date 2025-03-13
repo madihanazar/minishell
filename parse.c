@@ -488,7 +488,6 @@ bool	handle_quotes(t_tree *node)
 			{
 				(*strs) = remove_quotes((*strs), &i,
 						ft_strchr(&((*strs)[i + 1]), (*strs)[i]));
-				printf("After removing quotes %s\n", *strs);
 			}
 			if ((*strs) == NULL)
 				return (false);
