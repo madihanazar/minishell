@@ -69,14 +69,21 @@ int	builtin_echo(char **argv)
 
 int builtin_env(char **env)
 {
-	int i;
+	int 	i;
+	char	*temp;
 
 	i = 0;
 	while (env[i])
 	{
-		write(1, env[i], ft_strlen(env[i]));
-		write(1, "\n", 1);
-		i++;
+		temp = ft_strchr(env[i], '=');
+		if (temp == NULL || (temp + 1) == '\0')
+			i += 1;
+		else
+		{
+			write(1, env[i], ft_strlen(env[i]));
+			write(1, "\n", 1);
+			i++;
+		}
 	}
 	return (0);
 }
@@ -113,7 +120,7 @@ int	new_execute_builtin(t_shell *shell, char **env)
 	else if (!ft_strncmp(shell->context->cmd, "exit", 5))
 		builtin_exit(shell, env);
 	else if (!ft_strncmp(shell->context->cmd, "export", 7))
-		return builtin_export(node, args, env,  &shell->export_list);
+		return (builtin_export(shell, env));
 	// else if (!ft_strncmp(shell->context->cmd, "unset", 6))
 	// 	return builtin_unset(node, args, env);
 	// ft_putstr_fd("An error has occured\n", 2);

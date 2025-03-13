@@ -326,7 +326,7 @@ int	new_execute(t_shell *shell)
 	if (!preprocess(shell, shell->context, shell->tree, env)) // Figure out fds for context and context->next node 
 		return (free_env(env), 0);
 	if (!traverse_tree(shell->context, shell->tree, env)) // Figure out context->cmd and change context->input and context->output as required
-		return (free_env(env), 1);
+		return (free_env(env), 1); // Remove return value over here
 	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
 		status = new_execute_builtin(shell, env);
 	free_env(env);
