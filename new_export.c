@@ -65,6 +65,53 @@ int	check_export(char *str)
 	return (1);
 }
 
+void	display_export_error(char *str)
+{
+	ft_putstr_fd("bash: export: ", 2);
+	ft_putstr_fd(str, 2);
+	ft_putstr_fd(" not a valid identifier\n", 2);
+}
+
+void	update_env_list(char *temp, t_list *node)
+{
+	char	*key;
+
+	key = ft_strchr(temp, '=');
+	if (*(key + 1) == '\0')
+	{
+		free(temp);
+		return ;
+	}
+	free(node->content);
+	node->content = temp;
+}
+
+bool	add_to_env_list(t_shell *shell, char *str)
+{
+	char	*temp;
+	t_list	*node;
+
+	// temp = ft_strchr(str, '=');
+	// if (temp == NULL)
+	// 	temp = ft_strjoin(str, "=");
+	// else
+	temp = ft_strdup(str);
+	if (!temp)
+		return (false);
+	node = find_node_from_env(temp, shell->env_list);
+	if (node == NULL)
+	{
+		node = ft_lstnew(temp);
+		if (!node)
+			return (free(temp), false);
+		ft_lstadd_back(&(shell->env_list), node);
+		free(temp);
+	}
+	else
+		update_env_list(temp, node);
+	return (true);
+}
+
 int	builtin_export(t_shell *shell, char **env)
 {
 	int		i;
@@ -74,31 +121,19 @@ int	builtin_export(t_shell *shell, char **env)
 	args = shell->context->args;
 	if (!args[1])
 		print_export(env);
-	// else
-	// {
-	// 	while (args[i])
-	// 	{
-	// 		if (!check_export(args[i]))
-	// 		{
-	// 			ft_putstr_fd("bash: export: ", 2);
-	// 			ft_putstr_fd(args[i], 2);
-	// 			ft_putstr_fd("not a valid identifier\n", 2);
-	// 		}
-	// 		if (ft_strchr(args[i], '='))
-	// 		{
-	// 			if (add_export(args[i], env, export_list))
-	// 				printf("bash: export: failed to add `%s`\n", args[i]);
-	// 		}
-	// 		else
-	// 		{
-	// 			if (add_export_1(args[i], env, export_list))
-	// 			{
-	// 				printf("im isndie func\n");
-	// 				printf("bash: export: failed to add `%s`\n", args[i]);
-	// 			}
-	// 		}
-	// 		i++;
-	// 	}
-	// }
+	else
+	{
+		while (args[i])
+		{
+			if (!check_export(args[i]))
+				display_export_error(args[i]);
+			else
+			{
+				if (!add_to_env_list(shell, args[i]))
+					return (ft_putstr_fd("An error has occurred\n", 2), 1);
+			}
+			i++;
+		}
+	}
 	return (0);
 }
