@@ -188,7 +188,7 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env);
 
 int		new_execute_builtin(t_shell *shell, char **env);
 // t_list	*find_node_from_env(char *to_find, int length, t_list *env_list);
-t_list	*find_node_from_env(char *to_find, t_list *env_list);
+t_list	*find_node_from_env(char *to_find, t_list *env_list, int *flag);
 void	display_export_error(char *str);
 bool	add_to_env_list(t_shell *shell, char *str);
 void	update_env_list(char *temp, t_list *node);

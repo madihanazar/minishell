@@ -72,43 +72,76 @@ void	display_export_error(char *str)
 	ft_putstr_fd(" not a valid identifier\n", 2);
 }
 
-void	update_env_list(char *temp, t_list *node)
-{
-	char	*key;
+// void	update_env_list(char *temp, t_list *node)
+// {
+// 	char	*key;
 
-	key = ft_strchr(temp, '=');
-	if (*(key + 1) == '\0')
-	{
-		free(temp);
-		return ;
-	}
-	free(node->content);
-	node->content = temp;
-}
+// 	key = ft_strchr(temp, '=');
+// 	if (*(key + 1) == '\0')
+// 	{
+// 		free(temp);
+// 		return ;
+// 	}
+// 	free(node->content);
+// 	node->content = temp;
+// }
+
+// bool	add_to_env_list(t_shell *shell, char *str)
+// {
+// 	char	*temp;
+// 	t_list	*node;
+
+// 	// temp = ft_strchr(str, '=');
+// 	// if (temp == NULL)
+// 	// 	temp = ft_strjoin(str, "=");
+// 	// else
+// 	temp = ft_strdup(str);
+// 	if (!temp)
+// 		return (false);
+// 	node = find_node_from_env(temp, shell->env_list);
+// 	if (node == NULL)
+// 	{
+// 		node = ft_lstnew(temp);
+// 		if (!node)
+// 			return (free(temp), false);
+// 		ft_lstadd_back(&(shell->env_list), node);
+// 		free(temp);
+// 	}
+// 	else
+// 		update_env_list(temp, node);
+// 	return (true);
+// }
 
 bool	add_to_env_list(t_shell *shell, char *str)
 {
-	char	*temp;
 	t_list	*node;
+	char	*temp;
+	int		flag;
 
-	// temp = ft_strchr(str, '=');
-	// if (temp == NULL)
-	// 	temp = ft_strjoin(str, "=");
-	// else
-	temp = ft_strdup(str);
-	if (!temp)
+	flag = 0;
+	node = find_node_from_env(str, shell->env_list, &flag);
+	if (flag)
 		return (false);
-	node = find_node_from_env(temp, shell->env_list);
 	if (node == NULL)
 	{
-		node = ft_lstnew(temp);
+		node = ft_lstnew(str);
 		if (!node)
-			return (free(temp), false);
+			return (false);
 		ft_lstadd_back(&(shell->env_list), node);
-		free(temp);
+		return (true);
 	}
 	else
-		update_env_list(temp, node);
+	{
+		if (ft_strchr(str, '=') != NULL)
+		{
+			temp = ft_strdup(str);
+			if (!temp)
+				return (false);
+			free(node->content);
+			node->content = temp;
+			return (true);
+		}
+	}
 	return (true);
 }
 

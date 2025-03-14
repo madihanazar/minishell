@@ -21,28 +21,32 @@ char	*find_from_env_list(char *to_find, t_list *env_list)
 	return (temp);
 }
 
-t_list	*find_node_from_env(char *to_find, t_list *env_list)
+t_list	*find_node_from_env(char *to_find, t_list *env_list, int *flag)
 {
 	t_list	*node;
+	char	*temp;
 	char	*key;
-	char	*key_word;
-	int		length;
 
+	temp = to_find;
 	node = env_list;
-	key = ft_strchr(to_find, '=');
+	while (*temp && *temp != '=')
+		temp ++;
+	if (*temp == '\0')
+		key = ft_strdup(to_find);
+	else
+		key = ft_substr(to_find, 0, temp - to_find);
 	if (!key)
+	{
+		*flag = 1;
 		return (NULL);
-	key_word = ft_substr(to_find, 0, to_find - key);
-	if (!key_word)
-		return (NULL);
-	length = ft_strlen(key_word);
+	}
 	while (node)
 	{
-		if (!ft_strncmp(to_find, node->content, length))
-			return (node);
+		if (!ft_strncmp(key, node->content, ft_strlen(key)))
+			return (free(key), node);
 		node = node->next;
 	}
-	return (NULL);
+	return (free(key), NULL);
 }
 
 char	*set_new_path(char **args, t_list *env_list)
