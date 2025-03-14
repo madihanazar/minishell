@@ -49,27 +49,27 @@ t_list	*find_node_from_env(char *to_find, t_list *env_list, int *flag)
 	return (free(key), NULL);
 }
 
-char	*set_new_path(char **args, t_list *env_list)
+char	*set_new_path(char **args, t_list *env_list, int fd)
 {
 	char	*new_path;
 
+	if(fd == -1)
+		fd = 1;
 	if (args[1] == NULL || (ft_strncmp(args[1], "~", 2) == 0))
 	{
-		// new_path = getenv("HOME");
 		new_path = find_from_env_list("HOME", env_list);
 		if (new_path == NULL)
 			ft_putstr_fd("cd: HOME not set\n", 2);
 	}
 	else if (ft_strncmp(args[1], "-", 2) == 0)
 	{
-		// new_path = getenv("OLDPWD");
 		new_path = find_from_env_list("OLDPWD", env_list);
 		if (new_path == NULL)
 		{
 			ft_putstr_fd("cd: OLDPWD not set\n", 2);
 			return (NULL);
 		}
-		printf("%s\n", new_path);
+		ft_putstr_fd(new_path, fd);
 	}
 	else
 		new_path = ft_strdup(args[1]);
