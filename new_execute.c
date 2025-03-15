@@ -315,7 +315,6 @@ int	new_execute(t_shell *shell)
 	char	**env;
 	int		status;
 	
-
 	status = 0;
 	signal(SIGINT, SIG_IGN);
 	env = list_to_env(shell->env_list);
@@ -329,7 +328,11 @@ int	new_execute(t_shell *shell)
 	if (!traverse_tree(shell->context, shell->tree, env)) // Figure out context->cmd and change context->input and context->output as required
 		return (free_env(env), 1); // Remove return value over here
 	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
+	{
 		status = new_execute_builtin(shell, env);
+		free_env(env);
+		return (status);
+	}
 	else if (!execute_context(shell, env))          //If we dont give else if it will execute twice builtsins
 		return (ft_putstr_fd("An error has occurred: ", 2), free_env(env), 1);
 	free_env(env);

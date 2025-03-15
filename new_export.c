@@ -64,11 +64,12 @@ int	check_export(char *str)
 	return (1);
 }
 
-void	display_export_error(char *str)
+void	display_export_error(char *str, int *status)
 {
 	ft_putstr_fd("bash: export: ", 2);
 	ft_putstr_fd(str, 2);
 	ft_putstr_fd(" not a valid identifier\n", 2);
+	*status = 1;
 }
 
 // void	update_env_list(char *temp, t_list *node)
@@ -147,9 +148,11 @@ bool	add_to_env_list(t_shell *shell, char *str)
 int	builtin_export(t_shell *shell, char **env)
 {
 	int		i;
+	int		status;
 	char	**args;
 
 	i = 1;
+	status = 0;
 	args = shell->context->args;
 	if (!args[1])
 		print_export(env);
@@ -158,7 +161,7 @@ int	builtin_export(t_shell *shell, char **env)
 		while (args[i])
 		{
 			if (!check_export(args[i]))
-				display_export_error(args[i]);
+				display_export_error(args[i], &status);
 			else
 			{
 				if (!add_to_env_list(shell, args[i]))
@@ -167,5 +170,60 @@ int	builtin_export(t_shell *shell, char **env)
 			i++;
 		}
 	}
-	return (0);
+	return (status);
+}
+
+void	remove_from_env_list(t_list **head, char *name)
+{
+	t_list	*tmp;
+
+	if (*head == NULL)
+		return ;
+	if (ft_strncmp((*head)->content, name, ft_strlen(name)) == 0)
+	{
+		tmp = (*head)->next;
+		ft_lstdelone(*head, free);
+		*head = tmp;
+		remove_from_env_list(head, name);
+		return ;
+	}
+	remove_from_env_list(&((*head)->next), name);
+}
+
+int	check_unset(char *str)
+{
+	if (!ft_isalpha(*str) && *str != '_')
+		return (0);
+	while (*str != '\0')
+	{
+		if (!ft_isalnum(*str) && *str != '_')
+			return (0);
+		str++;
+	}
+	return (1);
+}
+
+int	builtin_unset(t_shell *shell)
+{
+	char	**args;
+    int		i;
+	int		status;
+
+    i = 1;
+	status = 0;
+	args = shell->context->args;
+    while (args[i])
+    {
+		if (!check_unset(args[i]))
+		{
+			printf("bash: unset: ");
+			printf("`%s': ", args[i]);
+			printf("not a valid identifier\n");
+			status = 1;
+		}
+		else
+			remove_from_env_list(&(shell->env_list), args[i]);
+		i++;
+    }
+    return (status);
 }

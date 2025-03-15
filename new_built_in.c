@@ -203,8 +203,8 @@ int	new_execute_builtin(t_shell *shell, char **env)
 		return (builtin_exit(shell, env));
 	else if (!ft_strncmp(shell->context->cmd, "export", 7))
 		return (builtin_export(shell, env));
-	// else if (!ft_strncmp(shell->context->cmd, "unset", 6))
-	// 	return builtin_unset(node, args, env);
+	else if (!ft_strncmp(shell->context->cmd, "unset", 6))
+		return (builtin_unset(shell));
 	// ft_putstr_fd("An error has occured\n", 2);
 	return (1);
 }

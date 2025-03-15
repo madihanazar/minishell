@@ -63,21 +63,3 @@ static int remove_var(char *str, char ***env)
     return (0);
 }
 
-int builtin_unset(t_tree *node, char **args, char ***env)
-{
-    int i;
-
-    i = 1;
-    while (args[i])
-    {
-        if (!check_export(args[i]))
-        {
-            printf("bash: unset: ");
-            printf("`%s': ", args[i]);
-            printf("not a valid identifier\n");
-        }
-        remove_var(args[i], env);
-        i++;
-    }
-    return (0);
-}

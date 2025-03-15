@@ -65,7 +65,7 @@ bool    execute_context(t_shell *shell, char **env)
 			free_shell(shell);
 			exit(status);
 		}
-        // free_context(shell->context);
+        free_context(shell->context);
         shell->context = next;
     }
 	waitpid(pid, &status, 0);
