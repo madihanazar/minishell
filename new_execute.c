@@ -23,10 +23,10 @@ t_context *create_context(void)
 	return (context);
 }
 
-void free_context(t_context *context)
+void	free_context(t_context *context)
 {
 	if (!context)
-		return;
+		return ;
 	if (context->args != NULL)
 	{
 		free_split(context->args);
@@ -314,6 +314,7 @@ int	new_execute(t_shell *shell)
 {
 	char	**env;
 	int		status;
+	pid_t		pid;
 	
 
 	status = 0;
@@ -329,12 +330,16 @@ int	new_execute(t_shell *shell)
 	if (!traverse_tree(shell->context, shell->tree, env)) // Figure out context->cmd and change context->input and context->output as required
 		return (free_env(env), 1); // Remove return value over here
 	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
+	{
 		status = new_execute_builtin(shell, env);
-	else if (!execute_context(shell, env))          //If we dont give else if it will execute twice builtsins
+		free_env(env);
+		return (status);
+	}
+	if (!execute_context(shell, env, &pid))
 		return (ft_putstr_fd("An error has occurred: ", 2), free_env(env), 1);
 	free_env(env);
-	// waitpid(pid, &status, 0);
-	// while (wait(NULL) != -1)
-	// 	;
+	waitpid(pid, &status, 0);
+	while (wait(NULL) != -1)
+		;
 	return (WEXITSTATUS(status));
 }

@@ -196,5 +196,5 @@ bool	add_to_env_list(t_shell *shell, char *str);
 void	update_env_list(char *temp, t_list *node);
 int		builtin_echo(char **argv, int fd);
 int		ft_isdigit(int c);
-bool	execute_context(t_shell *shell, char **env);
+bool	execute_context(t_shell *shell, char **env, pid_t *pid);
 #endif
