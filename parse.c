@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/09 01:19:41 by marvin           ###   ########.fr       */
+/*   Updated: 2025/03/15 14:09:14 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_tree	*build_ast(char *str, t_shell *shell, int *flag)
+t_tree	*build_ast(char *str, t_shell *shell)
 {
 	t_tree	*node;
 
@@ -309,7 +309,6 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 	int	sq;
 	int	dq;
 	int i;
-	char	*temp;
 
 	dq = 0;
 	sq = 0;
@@ -358,7 +357,7 @@ int	get_token_len(char *str, char split_char)
 	return (len);
 }
 
-int	count_tokens(char *str, char split_char, int sq, int dq)
+int	count_tokens(char *str, char split_char)
 {
 	int	count;
 
@@ -439,7 +438,7 @@ char	**quote_split(char *str, char split_char)
 
 	if (!str)
 		return (NULL);
-	token_count = count_tokens(str, split_char, 0, 0);
+	token_count = count_tokens(str, split_char);
 	result = malloc((token_count + 1) * sizeof(char *));
 	if (!result)
 		return (NULL);

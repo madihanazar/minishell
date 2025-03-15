@@ -2,11 +2,9 @@
 
 char	*find_first_pipe(char *str)
 {
-	char	*begin;
 	int		single_quote;
 	int		double_quote;
 
-	begin = NULL;
 	single_quote = 0;
 	double_quote = 0;
 	if (str == NULL || *str == '\0')

@@ -66,10 +66,8 @@ void free_context_list(t_context *context)
 char *expand_heredocs(char *str, t_shell *shell)
 {
 	int i;
-	int j;
 
 	i = 0;
-	j = 0;
 	if (ft_strchr(str, '$') == NULL)
 		return (str);
 	while (str[i])
@@ -173,6 +171,8 @@ bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 
 int	is_builtin(char *cmd)
 {
+	if (!cmd)
+		return (false);
 	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) ||
 		!ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) ||
 		!ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) ||
@@ -314,6 +314,7 @@ int	new_execute(t_shell *shell)
 {
 	char	**env;
 	int		status;
+	
 
 	status = 0;
 	signal(SIGINT, SIG_IGN);
@@ -329,6 +330,11 @@ int	new_execute(t_shell *shell)
 		return (free_env(env), 1); // Remove return value over here
 	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
 		status = new_execute_builtin(shell, env);
+	else if (!execute_context(shell, env))          //If we dont give else if it will execute twice builtsins
+		return (ft_putstr_fd("An error has occurred: ", 2), free_env(env), 1);
 	free_env(env);
+	// waitpid(pid, &status, 0);
+	// while (wait(NULL) != -1)
+	// 	;
 	return (WEXITSTATUS(status));
 }

@@ -31,7 +31,6 @@ static void	bubble_sort(char **env)
 
 static void	print_export(char **env)
 {
-	int		len;
 	int		i;
 	char	*equals;
 

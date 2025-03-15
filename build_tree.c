@@ -2,17 +2,15 @@
 
 t_tree	*create_tree(char *str, t_shell *shell)
 {
-	int		flag;
 	t_tree	*root;
 	char	*trimmed;
 
-	flag = 0;
 	root = NULL;
 	trimmed = NULL;
 	trimmed = ft_strtrim(str, " ");
 	if (trimmed == NULL)
 		return (NULL);
-	root = build_ast(str, shell, &flag);
+	root = build_ast(str, shell);
 	free(trimmed);
 	return (root);
 }

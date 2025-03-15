@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/08 23:54:31 by marvin           ###   ########.fr       */
+/*   Updated: 2025/03/15 14:05:55 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ bool	is_valid_string(char *input)
 	words = 0;
 	while (*input)
 	{
-		if (*input == '"' || *input == '\'' && ++words)
+		if ((*input == '"' || *input == '\'') && ++words)
 			input = ft_strchr(input + 1, *input);
 		else if ((*input == '>' || *input == '<') && ++words)
 			input = is_valid_redir(input);
@@ -178,7 +178,6 @@ int	main_loop(t_shell *shell)
 int	main(int argc, char **argv, char **env)
 {
 	t_shell	*shell;
-	t_list	*env_list;
 
 	(void)argc;
 	(void)argv;

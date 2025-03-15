@@ -11,7 +11,9 @@
 # include "readline/history.h"
 # include <termios.h>
 # include <stdbool.h>
-#include <errno.h>
+# include <errno.h>
+#include <dirent.h>
+
 
 extern int	g_status;
 
@@ -85,7 +87,7 @@ int		calculate_length(char *redir_pos);
 int		find_num_arguments(t_tree *node);
 t_tree	*create_redir_node(char *redir_pos);
 void	free_strings(char *str1, char *str2);
-t_tree	*build_ast(char *str, t_shell *shell, int *flag);
+t_tree	*build_ast(char *str, t_shell *shell);
 t_tree	*create_tree(char *str, t_shell *shell);
 t_tree	*create_node(char *str, t_node_type type);
 char	**split_cmd(char *str, char split_char, t_shell *shell);
@@ -129,7 +131,7 @@ int		is_builtin(char *cmd);
 int		execute_builtin(char **args, t_shell *shell);
 char	*join_path(char *path, char *args);
 char	*extract_path(char *cmd, char **env);
-int		execute_command(t_tree *node, char ***env);
+int     execute_command(t_context *context, char **env);
 int		execute_cmd(t_shell *shell);
 int		execute_node(t_shell *shell);
 char	**build_args(t_tree *node);
@@ -140,7 +142,7 @@ t_tree	*handle_pipe(char *str, t_shell *shell, int *flag);
 bool	handle_redirection(t_tree *node);
 bool	split_redirects(char *str, char *beg, t_tree **left, t_tree **right);
 t_tree	*handle_command(char *str, t_shell *shell, int *flag);
-int		count_tokens(char *str, char split_char, int sq, int dq);
+int		count_tokens(char *str, char split_char);
 int		fill_tokens(char **result, char *str, char split_char);
 int		get_token_len(char *str, char split_char);
 char	*extract_token(char *str, int len, t_shell *shell);
@@ -194,4 +196,5 @@ bool	add_to_env_list(t_shell *shell, char *str);
 void	update_env_list(char *temp, t_list *node);
 int		builtin_echo(char **argv, int fd);
 int		ft_isdigit(int c);
+bool	execute_context(t_shell *shell, char **env);
 #endif

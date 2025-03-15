@@ -1,6 +1,6 @@
 NAME = minishell
 CC = cc
-# CFLAGS = -Wall -Wextra -Werror 
+CFLAGS = -Wall -Wextra -Werror 
 # CFLAGS = -g3
 RM = rm -rf
 
@@ -36,7 +36,8 @@ SRC_FILES = main.c \
 		   new_execute.c \
 		   new_built_in.c \
 		   built_in_helpers.c \
-		   new_export.c
+		   new_export.c \
+		   new_exec_context.c
            # built_in.c \
            # exec.c \
            # ft_export.c  \
