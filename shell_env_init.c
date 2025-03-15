@@ -197,10 +197,22 @@ t_list	*env_to_list(char **env)
 {
 	t_list	*head;
 	t_list	*new_node;
+	char	*temp;
+	char	*final_string;
 	int		i;
 
-	if (!env)
-		return (NULL);
+	if (!env[0])
+	{
+		head = ft_lstnew("SHLVL=1");
+		temp = getcwd(NULL, 0);
+		final_string = ft_strjoin("OLDPWD=", temp);
+		new_node = ft_lstnew(final_string);
+		head->next = new_node;
+		final_string = ft_strjoin("PWD=", temp);
+		new_node = ft_lstnew(final_string);
+		head->next->next = new_node;
+		return (head);
+	}
 	head = create_env_node(env[0]);
 	if (!head)
 		return (NULL);

@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/15 15:41:14 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/15 17:08:40 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ char	*get_input(void)
 	{
 		i = 0;
 		if (isatty(0))
-			input = readline("minishell>");
+			input = readline("minishell> ");
 		else
 			input = readline("");
 		if (!input)
@@ -183,16 +183,12 @@ int	main(int argc, char **argv, char **env)
 	(void)argv;
 	shell = create_shell();
 	if (shell == NULL)
-	{
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
-	}
+		return (ft_putstr_fd("An error has occured\n", 2), 1);
 	shell->env_list = env_to_list(env);
 	if (shell->env_list == NULL)
 	{
 		free_shell(shell);
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
+		return (ft_putstr_fd("An error has occured\n", 2), 1);
 	}
 	g_status = main_loop(shell);
 	free_shell(shell);

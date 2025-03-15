@@ -200,6 +200,8 @@ char	*extract_path(char *cmd, char **env)
 	char	*full_cmd;
 
 	i = 0;
+	if (ft_strchr(cmd, '/'))
+		return (ft_strdup(cmd));
 	while (env[i] != NULL && (ft_strncmp(env[i], "PATH=", 5) != 0))
 		i++;
 	if (env[i] == NULL)
