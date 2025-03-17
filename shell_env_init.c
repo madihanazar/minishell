@@ -193,26 +193,45 @@ t_list	*create_env_node(void *content)
 	return (new);
 }
 
-t_list	*env_to_list(char **env)
+t_list	*handle_empty_env(void)
 {
 	t_list	*head;
 	t_list	*new_node;
 	char	*temp;
 	char	*final_string;
+
+	head = ft_lstnew("SHLVL=1");
+	if (!head)
+		return (NULL);
+	temp = getcwd(NULL, 0);
+	if (!temp)
+		return (free(head), NULL);
+	final_string = ft_strjoin("OLDPWD=", temp);
+	if (!final_string)
+		return (free(head), free(temp), NULL);
+	new_node = ft_lstnew(final_string);
+	if (!new_node)
+		return (free(head), free(temp), free(final_string), NULL);
+	head->next = new_node;
+	free(final_string);
+	final_string = ft_strjoin("PWD=", temp);
+	if (!final_string)
+		return (ft_lstclear(&head, free), free(temp), NULL);
+	new_node = ft_lstnew(final_string);
+	if (!new_node)
+		return (ft_lstclear(&head, free), free(temp), free(final_string), NULL);
+	head->next->next = new_node;
+	return (head);
+}
+
+t_list	*env_to_list(char **env)
+{
+	t_list	*head;
+	t_list	*new_node;
 	int		i;
 
 	if (!env[0])
-	{
-		head = ft_lstnew("SHLVL=1");
-		temp = getcwd(NULL, 0);
-		final_string = ft_strjoin("OLDPWD=", temp);
-		new_node = ft_lstnew(final_string);
-		head->next = new_node;
-		final_string = ft_strjoin("PWD=", temp);
-		new_node = ft_lstnew(final_string);
-		head->next->next = new_node;
-		return (head);
-	}
+		return (handle_empty_env());
 	head = create_env_node(env[0]);
 	if (!head)
 		return (NULL);

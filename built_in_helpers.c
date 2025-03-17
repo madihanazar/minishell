@@ -69,7 +69,7 @@ char	*set_new_path(char **args, t_list *env_list, int fd)
 			ft_putstr_fd("cd: OLDPWD not set\n", 2);
 			return (NULL);
 		}
-		ft_putstr_fd(new_path, fd);
+		ft_putendl_fd(new_path, fd);
 	}
 	else
 		new_path = ft_strdup(args[1]);
