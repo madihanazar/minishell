@@ -312,6 +312,48 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
+void	ft_putchar_fd(char c, int fd)
+{
+	if (!fd)
+		return ;
+	write(fd, &c, 1);
+}
+void	ft_putnbr_fd(int n, int fd)
+{
+	if (n == -2147483648)
+		ft_putstr_fd("-2147483648", fd);
+	else if (n < 0)
+	{
+		ft_putchar_fd('-', fd);
+		ft_putnbr_fd(-n, fd);
+	}
+	else if (n >= 10)
+	{
+		ft_putnbr_fd(n / 10, fd);
+		ft_putchar_fd(n % 10 + 48, fd);
+	}
+	else
+		ft_putchar_fd(n + 48, fd);
+}
+
+void	print_signal_errors(int status)
+{
+	if (status == SIGINT)
+		ft_putstr_fd("\n", 2);
+	else if (status == SIGQUIT)
+	{
+		ft_putstr_fd("Quit: ", 2);
+		ft_putnbr_fd(status, 2);
+		ft_putstr_fd("\n", 2);
+	}
+	else if (status == SIGSEGV)
+	{
+		ft_putstr_fd("Segmentation fault: ", 2);
+		ft_putnbr_fd(status, 2);
+		ft_putstr_fd("\n", 2);
+	}
+}
+
 int	new_execute(t_shell *shell)
 {
 	char	**env;
@@ -323,13 +365,13 @@ int	new_execute(t_shell *shell)
 	env = list_to_env(shell->env_list);
 	if (!env)
 		return (ft_putstr_fd("An error has occured\n", 2), 1);
-	shell->context = create_context(); // Create context node
+	shell->context = create_context();
 	if (!(shell->context))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	if (!preprocess(shell, shell->context, shell->tree, env)) // Figure out fds for context and context->next node 
-		return (free_env(env), 0);
-	if (!traverse_tree(shell->context, shell->tree, env)) // Figure out context->cmd and change context->input and context->output as required
-		return (free_env(env), 1); // Remove return value over here
+	if (!preprocess(shell, shell->context, shell->tree, env))
+		return (free_env(env), 1);
+	if (!traverse_tree(shell->context, shell->tree, env))
+		return (free_env(env), 1);
 	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
 	{
 		status = new_execute_builtin(shell, env);
@@ -342,5 +384,7 @@ int	new_execute(t_shell *shell)
 	waitpid(pid, &status, 0);
 	while (wait(NULL) != -1)
 		;
+	if (WIFSIGNALED(status))
+		return (print_signal_errors(WTERMSIG(status)), 128 + WTERMSIG(status));
 	return (WEXITSTATUS(status));
 }

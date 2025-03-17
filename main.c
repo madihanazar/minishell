@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+// echo hi | echo >>./outfiles/outfile01 bye >./test_files/invalid_permission
+
 #include "minishell.h"
 
 int	g_status = 0;
@@ -184,6 +186,8 @@ int	main(int argc, char **argv, char **env)
 	shell = create_shell();
 	if (shell == NULL)
 		return (ft_putstr_fd("An error has occured\n", 2), 1);
+	if (!isatty(0))
+		rl_outstream = stdin;
 	shell->env_list = env_to_list(env);
 	if (shell->env_list == NULL)
 	{

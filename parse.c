@@ -141,7 +141,7 @@ bool	handle_redirection(t_tree *node)
 	*redir_pos = '\0';
 	redir_pos++;
 	if (node->type == HEREDOC || node->type == APPEND)
-		redir_pos++; 
+		redir_pos++;
 	if (!split_redirects(node->cmd, redir_pos, &node->left, &node->right))
 		return (false);
 	return (handle_redirection(node->left));
@@ -326,10 +326,15 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 			sq = !sq;
 		else if (node->cmd[i] == '$' && !sq)
 		{
-			node->cmd[i++] = '\0';
-			node->cmd = expanded_str(node->cmd, &node->cmd[i--], shell);
-			i--;
-		}	
+			if (node->cmd[i + 1] == '\0' || (!ft_isalnum(node->cmd[i + 1]) && node->cmd[i + 1] != '_' && node->cmd[i + 1] != '?'))
+				i++;
+			else
+			{
+				node->cmd[i++] = '\0';
+				node->cmd = expanded_str(node->cmd, &node->cmd[i--], shell);
+				i--;
+			}
+		}
 		i++;
 	}
 	return (node->cmd != NULL);

@@ -14,14 +14,14 @@ int	get_execution_error(char *cmd)
 		closedir(dir);
 		if (ft_strchr(cmd, '/'))
 			return (ft_putstr_fd(": is a directory\n", 2), 126);
-		return (ft_putstr_fd(": Command not found\n", 2), 127);
+		return (ft_putstr_fd(": command not found\n", 2), 127);
 	}
 	if (errnum == EACCES)
 		return (ft_putstr_fd(": Permission denied\n", 2), 126);
 	if (ft_strchr(cmd, '/') != NULL)
 		ft_putstr_fd(": No such file or directory\n", 2);
 	else
-		ft_putstr_fd(": Command not found\n", 2);
+		ft_putstr_fd(": command not found\n", 2);
     return (127);
 }
 
@@ -35,7 +35,7 @@ int	execute_command(t_context *context, char **env)
 	if (context->output != -1)
 		dup2(context->output, 1), close(context->output);
 	if (!context->args[0])
-		return (free_env(env), 0);
+		return (0);
 	if (context->cmd)
 		execve(context->cmd, context->args, env);
 	status = get_execution_error(context->args[0]);
