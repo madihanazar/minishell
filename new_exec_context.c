@@ -27,15 +27,19 @@ int	get_execution_error(char *cmd)
 
 int	execute_command(t_context *context, char **env)
 {
-	int		status;
+	int		status = 0;
 
 	free_context_list(context->next);
 	if (context->input != -1)
 		dup2(context->input, 0), close(context->input);
 	if (context->output != -1)
 		dup2(context->output, 1), close(context->output);
-	if (!context->args[0])
+	if (!context->args || !context->args[0])
+	{
+		if (!context->args)
+			return (1);
 		return (0);
+	}
 	if (context->cmd)
 		execve(context->cmd, context->args, env);
 	status = get_execution_error(context->args[0]);

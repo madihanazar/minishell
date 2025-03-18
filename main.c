@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/15 17:08:40 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/18 16:19:48 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,7 @@ char	*get_input(void)
 		}
 		if ((add_history(input), true) && is_valid_string(input))
 			return (input);
+		g_status = 258;
 		ft_putstr_fd("Input parsing error\n", 2);
 		free(input);
 	}

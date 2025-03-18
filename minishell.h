@@ -199,4 +199,7 @@ int		builtin_unset(t_shell *shell);
 bool	execute_context(t_shell *shell, char **env, pid_t *pid);
 t_list	*handle_empty_env(void);
 void	print_signal_errors(int status);
+int		skip_whitespaces(char	*input);
+void	ft_putnbr_fd(int n, int fd);
+
 #endif

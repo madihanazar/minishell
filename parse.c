@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/15 16:48:09 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/18 14:31:59 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,13 +106,30 @@ char	*ft_strappend(char *str1, char *str2)
 	return (temp);
 }
 
+char	*get_word(char *str)
+{
+	while (*str == ' ')
+		str++;
+	while (*str != '\0')
+	{
+		if (*str == '"')
+			str = ft_strchr(str + 1, '"');
+		else if (*str == '\'')
+			str = ft_strchr(str + 1, '\'');
+		else if (ft_strchr(" |<>\t", *str) != NULL)
+			return (str);
+		str++;
+	}
+	return (str);
+}
+
 bool	split_redirects(char *str, char *beg, t_tree **left, t_tree **right)
 {
 	char	*left_str;
 	char 	*right_str;
 
 	left_str = ft_strdup(str);
-	right_str = ft_substr(beg, 0, get_len_separator(beg)); //cat << h1 - will still have spaceh1
+	right_str = ft_substr(beg, 0, get_word(beg) - beg); //cat << h1 - will still have spaceh1
 	if (!left_str || !right_str)
 		return (free(left_str), free(right_str), false);
 	left_str = ft_strappend(left_str, beg + ft_strlen(right_str));
