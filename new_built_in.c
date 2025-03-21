@@ -151,7 +151,7 @@ bool	exit_atoi(char *str)
 		i++;
 	if (str[i])
 	{
-		g_status = 255;
+		g_status = 2;
 		return (false);
 	}
 	if (sign == -1)

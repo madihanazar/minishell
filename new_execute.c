@@ -92,7 +92,7 @@ void ft_putendl_fd(char *s, int fd)
 	write(fd, "\n", 1);
 }
 
-bool process_heredocs(t_shell *shell, t_tree *node, char **env)
+bool process_heredocs(t_shell *shell, t_context *context, t_tree *node, char **env)
 {
 	int pid;
 	int status;
@@ -104,9 +104,9 @@ bool process_heredocs(t_shell *shell, t_tree *node, char **env)
 	if (pid == 0)
 		child_heredoc(fd, shell, node, env);
 	waitpid(pid, &status, 0);
-	if (shell->context->input >= 0)
-		close(shell->context->input);
-	shell->context->input = fd[0];
+	if (context->input >= 0)
+		close(context->input);
+	context->input = fd[0];
 	// close(fd[0]);
 	close(fd[1]);
 	return (WEXITSTATUS(status) == 0);
@@ -159,7 +159,7 @@ bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
 	if (node == NULL)
 		return (true);
 	if (node->type == HEREDOC)
-		if (process_heredocs(shell, node, env) == false)
+		if (process_heredocs(shell, context, node, env) == false)
 			return (false);
 	if (!preprocess(shell, context, node->left, env))
 		return (false);

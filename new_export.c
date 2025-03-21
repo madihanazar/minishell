@@ -192,11 +192,11 @@ void	remove_from_env_list(t_list **head, char *name)
 
 int	check_unset(char *str)
 {
-	if (!ft_isalpha(*str) && *str != '_')
-		return (0);
+	// if (!ft_isalnum(*str) && *str != '_')
+	// 	return (0);
 	while (*str != '\0')
 	{
-		if (!ft_isalnum(*str) && *str != '_')
+		if (!ft_isalnum(*str) && ft_strchr("\'\".", *str))
 			return (0);
 		str++;
 	}
