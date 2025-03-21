@@ -194,36 +194,51 @@ int	check_unset(char *str)
 {
 	// if (!ft_isalnum(*str) && *str != '_')
 	// 	return (0);
+	// while (*str != '\0')
+	// {
+	// 	if (!ft_isalnum(*str) && ft_strchr("!$^?{}+-=\'\".", *str))
+	// 		return (0);
+	// 	str++;
+	// }
 	while (*str != '\0')
 	{
-		if (!ft_isalnum(*str) && ft_strchr("\'\".", *str))
-			return (0);
-		str++;
+		if (ft_isalnum(*str) || ft_strchr("_", *str))
+			str++;
+		return (0);
 	}
 	return (1);
+}
+
+void   display_unset_error(char *str)
+{
+	printf("bash: unset: ");
+	printf("`%s': ", str);
+	printf("not a valid identifier\n");
 }
 
 int	builtin_unset(t_shell *shell)
 {
 	char	**args;
     int		i;
+	int		j;
 	int		status;
 
     i = 1;
 	status = 0;
-	args = shell->context->args;
-    while (args[i])
-    {
-		if (!check_unset(args[i]))
-		{
-			printf("bash: unset: ");
-			printf("`%s': ", args[i]);
-			printf("not a valid identifier\n");
-			status = 1;
-		}
-		else
-			remove_from_env_list(&(shell->env_list), args[i]);
+	args = shell->context->args; 
+	while (shell->context->args[i])
+	{
+		j = 0;
+		if (!ft_isalpha(shell->context->args[i][j]) &&
+			shell->context->args[i][j] != '_')
+			return (display_unset_error(args[i]), 1);
+		while (ft_isalnum(shell->context->args[i][j]) ||
+			shell->context->args[i][j] == '_')
+			j++;
+		if (shell->context->args[i][j] != '\0')
+			return (display_unset_error(args[i]), 1);
+		remove_from_env_list(&(shell->env_list), args[i]);
 		i++;
-    }
+	}
     return (status);
 }

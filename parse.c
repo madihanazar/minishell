@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/19 22:59:20 by marvin           ###   ########.fr       */
+/*   Updated: 2025/03/21 15:49:17 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ t_tree	*build_ast(char *str, t_shell *shell)
 {
 	t_tree	*node;
 
-	node = create_node(str, NODE_COMMAND); //by default type = command
+	node = create_node(str, NODE_COMMAND);
 	if (!node)
 		return (NULL);
 	if (!handle_pipes(node))
@@ -47,11 +47,10 @@ bool	handle_pipes(t_tree *node)
 		return (handle_pipes(node->left)
 			&& handle_pipes(node->right));
 	curr = find_first_pipe(node->cmd);
-	if (!curr)		// if pipe is not found
+	if (!curr)
 		return (true);
 	if (!split_evenly(node->cmd, curr, &node->left, &node->right))
 		return (ft_putstr_fd("split pipe failed\node", 2), false);
-	// free_null((void **)&node->cmd);
 	node->type = PIPE;
 	return (handle_pipes(node->left) && handle_pipes(node->right));
 }
@@ -80,15 +79,15 @@ int	get_len_separator(char *str)
 
 	i = 1;
 	while (*str == ' ')
-		str++;	
+		str++;
 	while (*str)
 	{
-		if (*str != ' ' && *str != '\0' && *str != '|' && *str != '>' 
+		if (*str != ' ' && *str != '\0' && *str != '|' && *str != '>'
 			&& *str != '<' && *str != '\t')
-			{
-				i+=1;
-				str++;
-			}
+		{
+			i += 1;
+			str++;
+		}
 		else
 			return (i);
 	}
@@ -98,7 +97,7 @@ int	get_len_separator(char *str)
 char	*ft_strappend(char *str1, char *str2)
 {
 	char	*temp;
-	
+
 	if (!str1 || !str2)
 		return (NULL);
 	temp = ft_strjoin(str1, str2);
@@ -126,10 +125,10 @@ char	*get_word(char *str)
 bool	split_redirects(char *str, char *beg, t_tree **left, t_tree **right)
 {
 	char	*left_str;
-	char 	*right_str;
+	char	*right_str;
 
 	left_str = ft_strdup(str);
-	right_str = ft_substr(beg, 0, get_word(beg) - beg); //cat << h1 - will still have spaceh1
+	right_str = ft_substr(beg, 0, get_word(beg) - beg);
 	if (!left_str || !right_str)
 		return (free(left_str), free(right_str), false);
 	left_str = ft_strappend(left_str, beg + ft_strlen(right_str));
@@ -177,72 +176,6 @@ void	free_env(char **env_copy)
 	free(env_copy);
 	return ;
 }
-// char	*get_env_value_helper(char *name, t_shell *shell)
-// {
-// 	int		i;
-// 	int		len;
-// 	char	*value;
-// 	char	**env_array;
-
-// 	i = 0;
-// 	env_array = list_to_env(shell->env_list);
-// 	if (!name || !env_array)
-// 		return (NULL); 
-// 	len = ft_strlen(name);
-// 	while (env_array[i])
-// 	{
-// 		if (ft_strncmp(env_array[i], name, len) == 0 && env_array[i][len] == '=')
-// 		{
-// 			value = ft_strdup(env_array[i] + len + 1); // Automatically, NULL is taken care of
-// 			free_env(env_array);
-// 			return (value);
-// 		}
-// 		i++;
-// 	}
-// 	free_env(env_array);
-// 	return (NULL);
-// }
-
-// char	*get_env_value(char *str, int **i, int len, t_shell *shell)
-// {
-// 	char	*value;
-// 	char	*var_name;
-
-// 	var_name = NULL;
-// 	value = NULL;
-// 	if (len == 0)
-// 	{
-// 		value = ft_strdup("$"); // Automatically, NULL is taken care of
-// 		return (value);
-// 	}
-// 	var_name = ft_substr(str, **i, len);
-// 	if (!var_name)
-//         return (NULL);
-// 	value = get_env_value_helper(var_name, shell);
-// 	free(var_name);
-// 	if (value)
-// 		return (value);
-// 	value = ft_strdup(""); // Automatically, NULL is taken care of
-// 	return (value);
-// }
-
-// char	*expand_var(char *str, int *i, t_shell *shell)
-// {
-// 	int		len;
-// 	char	*value;
-
-// 	len = 0;
-// 	value = NULL;
-// 	if (str[*i] == '?')
-// 	{
-// 		value = ft_itoa(g_status);
-// 		return (value);
-// 	}
-// 	while (str[*i + len] && (str[*i + len] == '_' || ft_isalnum(str[*i + len])))
-// 		len++;
-// 	value = get_env_value(str, &i, len, shell);
-// 	return (value);
-// }
 
 char	*get_env_value(char *name, t_shell *shell)
 {
@@ -268,6 +201,7 @@ char	*get_env_value(char *name, t_shell *shell)
 	temp = ft_strdup(env[i] + ft_strlen(name) + 1);
 	return (free_env(env), temp);
 }
+
 int	ft_isdigit(int c)
 {
 	if (c >= '0' && c <= '9')
@@ -325,7 +259,7 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 {
 	int	sq;
 	int	dq;
-	int i;
+	int	i;
 
 	dq = 0;
 	sq = 0;
@@ -343,7 +277,11 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 			sq = !sq;
 		else if (node->cmd[i] == '$' && !sq)
 		{
-			if (node->cmd[i + 1] == '\0' || (!ft_isalnum(node->cmd[i + 1]) && node->cmd[i + 1] != '_' && node->cmd[i + 1] != '?' && node->cmd[i + 1] != '"' && node->cmd[i + 1] != '\''))
+			if (node->cmd[i + 1] == '\0' || (!ft_isalnum(node->cmd[i + 1])
+				&& node->cmd[i + 1] != '_'
+				&& node->cmd[i + 1] != '?'
+				&& node->cmd[i + 1] != '"'
+				&& node->cmd[i + 1] != '\''))
 				i++;
 			else
 			{

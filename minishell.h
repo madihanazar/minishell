@@ -202,4 +202,10 @@ void	print_signal_errors(int status);
 int		skip_whitespaces(char	*input);
 void	ft_putnbr_fd(int n, int fd);
 
+//main.c
+bool	is_valid_string(char *input);
+char	*is_valid_redir(char *str);
+char	*is_valid_pipe(char *input);
+void	convert_to_whitespace(char	*input);
+
 #endif

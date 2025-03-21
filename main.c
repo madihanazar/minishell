@@ -6,7 +6,7 @@
 /*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/18 16:19:48 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/21 16:18:39 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,20 +28,6 @@ void	handle_sigint(int sig)
 	}
 }
 
-void	convert_to_whitespace(char	*input)
-{
-	while (*input)
-	{
-		if (*input == '"' || *input == '\'')
-			input = ft_strchr(input + 1, *input);
-		else if (*input > 8 && *input < 13)
-			*input = ' ';
-		if (input == NULL)
-			return ;
-		input += 1;
-	}
-}
-
 int	skip_whitespaces(char	*input)
 {
 	int	i;
@@ -50,73 +36,6 @@ int	skip_whitespaces(char	*input)
 	while (input[i] == ' ')
 		i += 1;
 	return (i);
-}
-
-char	*is_valid_pipe(char *input)
-{
-	input += 1;
-	while (*input)
-	{
-		if (*input != ' ')
-			break ;
-		input += 1;
-	}
-	if (*input == '\0' || *input == '|')
-		return (NULL);
-	return (input - 1);
-}
-
-char	*is_valid_redir(char *str)
-{
-	if (*str == *(str + 1))
-		str++;
-	str++;
-	while (*str)
-	{
-		if (*str != ' ')
-			break ;
-		str++;
-	}
-	if (ft_strchr("<>|&", *str) != NULL)
-		return (NULL);
-	while (*str)
-	{
-		if (*str == '"' || *str == '\'')
-			str = ft_strchr(str + 1, *str);
-		else if (ft_strchr(" <>|&", *str))
-			break ;
-		if (!str)
-			return (NULL);
-		str++;
-	}
-	return (str - 1);
-}
-
-bool	is_valid_string(char *input)
-{
-	int	words;
-
-	words = 0;
-	while (*input)
-	{
-		if ((*input == '"' || *input == '\'') && ++words)
-			input = ft_strchr(input + 1, *input);
-		else if ((*input == '>' || *input == '<') && ++words)
-			input = is_valid_redir(input);
-		else if (*input == '|')
-		{
-			input = is_valid_pipe(input);
-			if (input == NULL || words == 0)
-				return (false);
-			words = 0;
-		}
-		else if (*input != ' ' && *input != '\t')
-			words += 1;
-		if (input == NULL)
-			return (false);
-		input += 1;
-	}
-	return (true);
 }
 
 char	*get_input(void)
@@ -153,10 +72,7 @@ int	main_loop(t_shell *shell)
 	char	*input;
 
 	if (env_init(&(shell->env_list)))
-	{
-		ft_putstr_fd("An error has occured\n", 2);
-		return (1);
-	}
+		return (ft_putstr_fd("An error has occured\n", 2), 1);
 	while (1)
 	{
 		signal(SIGINT, handle_sigint);
