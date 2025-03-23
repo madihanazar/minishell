@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   built_in_helpers.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/23 13:47:31 by nkunnath          #+#    #+#             */
+/*   Updated: 2025/03/23 13:48:07 by nkunnath         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 char	*find_from_env_list(char *to_find, t_list *env_list)
@@ -53,7 +65,7 @@ char	*set_new_path(char **args, t_list *env_list, int fd)
 {
 	char	*new_path;
 
-	if(fd == -1)
+	if (fd == -1)
 		fd = 1;
 	if (args[1] == NULL || (ft_strncmp(args[1], "~", 2) == 0))
 	{

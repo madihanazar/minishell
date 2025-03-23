@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   new_exec_context.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/23 13:52:44 by nkunnath          #+#    #+#             */
+/*   Updated: 2025/03/23 13:55:27 by nkunnath         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	get_execution_error(char *cmd)
@@ -22,18 +34,25 @@ int	get_execution_error(char *cmd)
 		ft_putstr_fd(": No such file or directory\n", 2);
 	else
 		ft_putstr_fd(": command not found\n", 2);
-    return (127);
+	return (127);
 }
 
 int	execute_command(t_context *context, char **env)
 {
-	int		status = 0;
+	int		status;
 
+	status = 0;
 	free_context_list(context->next);
 	if (context->input != -1)
-		dup2(context->input, 0), close(context->input);
+	{
+		dup2(context->input, 0);
+		close(context->input);
+	}
 	if (context->output != -1)
-		dup2(context->output, 1), close(context->output);
+	{
+		dup2(context->output, 1);
+		close(context->output);
+	}
 	if (!context->args || !context->args[0])
 	{
 		if (!context->args)
@@ -46,14 +65,13 @@ int	execute_command(t_context *context, char **env)
 	return (status);
 }
 
-
 bool	execute_context(t_shell *shell, char **env, pid_t *pid)
 {
-    t_context	*next;
+	t_context	*next;
 	int			status;
 
 	while (shell->context)
-    {
+	{
 		next = shell->context->next;
 		*pid = fork();
 		if (*pid == -1)
@@ -72,7 +90,6 @@ bool	execute_context(t_shell *shell, char **env, pid_t *pid)
 		}
 		free_context(shell->context);
 		shell->context = next;
-    }
-    return (true);
+	}
+	return (true);
 }
-
