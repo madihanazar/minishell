@@ -6,7 +6,7 @@
 /*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 13:52:44 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/23 13:55:27 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 23:06:12 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,4 +92,14 @@ bool	execute_context(t_shell *shell, char **env, pid_t *pid)
 		shell->context = next;
 	}
 	return (true);
+}
+
+int	atoi_skip(char	*str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] == ' ' || str[i] == '\t' || (str[i] >= 9 && str[i] <= 13))
+		i += 1;
+	return (i);
 }

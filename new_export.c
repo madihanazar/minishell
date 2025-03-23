@@ -93,17 +93,13 @@ bool	add_to_env_list(t_shell *shell, char *str)
 		ft_lstadd_back(&(shell->env_list), node);
 		return (true);
 	}
-	else
+	if (ft_strchr(str, '=') != NULL)
 	{
-		if (ft_strchr(str, '=') != NULL)
-		{
-			temp = ft_strdup(str);
-			if (!temp)
-				return (false);
-			free(node->content);
-			node->content = temp;
-			return (true);
-		}
+		temp = ft_strdup(str);
+		if (!temp)
+			return (false);
+		free(node->content);
+		node->content = temp;
 	}
 	return (true);
 }

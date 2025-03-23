@@ -6,7 +6,7 @@
 /*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 18:23:28 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 22:43:34 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 23:45:52 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,7 @@ static bool	exit_atoi(char *str)
 	i = 0;
 	answer = 0;
 	sign = 1;
-	while (str[i] == ' ' || str[i] == '\t' || (str[i] >= 9 && str[i] <= 13))
-		i++;
+	i = atoi_skip(str);
 	if (str[i] == '+' || str[i] == '-')
 	{
 		if (str[i++] == '-')
@@ -66,8 +65,7 @@ static bool	exit_atoi(char *str)
 	}
 	while (ft_isdigit(str[i]))
 		answer = ((answer * 10) + (str[i++] - 48)) % 256;
-	while (str[i] == ' ' || str[i] == '\t' || (str[i] >= 9 && str[i] <= 13))
-		i++;
+	i += atoi_skip(str + i);
 	if (str[i])
 	{
 		g_status = 2;
@@ -88,7 +86,7 @@ int	builtin_exit(t_shell *shell, char **env)
 		fd = 1;
 	if (shell->context->args[1] == NULL)
 	{
-		(ft_putendl_fd("exit", fd), free_env(env), free_shell(shell));
+		free_env_and_shell(env, shell, fd, 0);
 		exit(g_status);
 	}
 	if (exit_atoi(shell->context->args[1]) == false)
@@ -96,7 +94,7 @@ int	builtin_exit(t_shell *shell, char **env)
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(shell->context->args[1], 2);
 		ft_putendl_fd(": numeric argument required", 2);
-		(free_env(env), free_shell(shell));
+		free_env_and_shell(env, shell, fd, 1);
 		exit(g_status);
 	}
 	if (shell->context->args[2] != NULL)
@@ -104,7 +102,7 @@ int	builtin_exit(t_shell *shell, char **env)
 		ft_putstr_fd("exit\n", 2);
 		return (ft_putstr_fd("minishell: exit: too many arguments\n", 2), 1);
 	}
-	(free_env(env), free_shell(shell));
+	free_env_and_shell(env, shell, fd, 0);
 	exit(g_status);
 }
 

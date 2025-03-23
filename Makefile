@@ -1,7 +1,6 @@
 NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror 
-# CFLAGS = -g3
 RM = rm -rf
 
 READLINE_FLAGS = -L/opt/vagrant/embedded/lib -lreadline
@@ -34,8 +33,8 @@ SRC_FILES = main.c \
 			new_built_in_2.c \
 			new_unset.c \
 			new_export.c \
-			new_exec_context.c
-
+			new_exec_context.c \
+			extra_free.c
 
 OBJS = $(SRC_FILES:.c=.o)
 
@@ -46,7 +45,6 @@ all: $(NAME)
 
 $(NAME): $(OBJS) $(HEADER)
 	$(CC) $(OBJS) $(READLINE_FLAGS) -o $(NAME)
-
 
 %.o: %.c $(HEADER)
 	$(CC) $(CFLAGS) -c $< -o $@

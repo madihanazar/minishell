@@ -44,13 +44,12 @@ static char	*extract_path(char *cmd, char **env)
 	i = 0;
 	while (paths[i])
 	{
-		full_cmd = join_path(paths[i], cmd);
+		full_cmd = join_path(paths[i++], cmd);
 		if (full_cmd == NULL)
 			return (free_split(paths), NULL);
 		if (access(full_cmd, X_OK) == 0)
 			return (free_split(paths), full_cmd);
 		free(full_cmd);
-		i++;
 	}
 	return (free_split(paths), NULL);
 }

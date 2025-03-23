@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   new_execute.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 16:16:25 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 18:00:47 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/23 23:58:48 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,5 @@ int	new_execute(t_shell *shell)
 	waitpid(pid, &status, 0);
 	while (wait(NULL) != -1)
 		;
-	if (WIFSIGNALED(status))
-		return (print_signal_errors(WTERMSIG(status)), 128 + WTERMSIG(status));
-	return (WEXITSTATUS(status));//u can do check_Status
+	return (check_status(status));
 }
