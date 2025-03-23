@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 13:40:41 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 15:03:31 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ char	*get_word(char *str)
 	return (str);
 }
 
-bool	perform_exp(t_tree *node, t_shell *shell)
+char	*helper_exp(char *str, t_shell *shell)
 {
 	int	sq;
 	int	dq;
@@ -74,33 +74,33 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 	dq = 0;
 	sq = 0;
 	i = 0;
+	while (str && str[i++])
+	{
+		dq = check_symbol(dq, str[i], sq, 2);
+		sq = check_symbol(sq, str[i], dq, 1);
+		else if (str[i] == '$' && !sq)
+		{
+			if (str[i + 1] == '\0' || (!ft_isalnum(str[i + 1]))
+				&& !(ft_strchr("_?\'\"", str[i + 1])))
+				i++;
+			else
+			{
+				str[i++] = '\0';
+				str = expanded_str(str, &str[i--], shell);
+				i--;
+			}
+		}
+	}
+	return (str);
+}
+
+bool	perform_exp(t_tree *node, t_shell *shell)
+{
 	if (node->type == HEREDOC)
 		return (perform_exp(node->left, shell));
 	if (node->type != NODE_COMMAND)
 		return (perform_exp(node->left, shell)
 			&& perform_exp(node->right, shell));
-	while (node->cmd && node->cmd[i])
-	{
-		if (node->cmd[i] == '"' && !sq)
-			dq = !dq;
-		else if (node->cmd[i] == '\'' && !dq)
-			sq = !sq;
-		else if (node->cmd[i] == '$' && !sq)
-		{
-			if (node->cmd[i + 1] == '\0' || (!ft_isalnum(node->cmd[i + 1])
-					&& node->cmd[i + 1] != '_'
-					&& node->cmd[i + 1] != '?'
-					&& node->cmd[i + 1] != '"'
-					&& node->cmd[i + 1] != '\''))
-				i++;
-			else
-			{
-				node->cmd[i++] = '\0';
-				node->cmd = expanded_str(node->cmd, &node->cmd[i--], shell);
-				i--;
-			}
-		}
-		i++;
-	}
+	node->cmd = helper_exp(node->cmd, shell);
 	return (node->cmd != NULL);
 }

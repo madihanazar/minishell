@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_itoa.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/23 15:34:15 by mnazar            #+#    #+#             */
+/*   Updated: 2025/03/23 15:36:59 by mnazar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void	make_string(char *f_string, unsigned int num, int index, int n)
+static void	make_string(char *f_string, unsigned int num, int index, int n)
 {
 	char	digit;
 
@@ -56,7 +68,7 @@ int	ft_atoi(const char *str)
 	return (sign * answer);
 }
 
-int	find_num_of_digits(int n)
+static int	find_num_of_digits(int n)
 {
 	int				number_of_digits;
 	unsigned int	number;
@@ -103,72 +115,3 @@ char	*ft_itoa(int n)
 	final_string[number_of_digits] = '\0';
 	return (final_string);
 }
-
-// char	*get_env_value_helper(char *name, t_shell *shell)
-// {
-// 	int		i;
-// 	int		len;
-// 	char	*value;
-// 	char	**env_array;
-
-// 	i = 0;
-// 	env_array = list_to_env(shell->env_list);
-// 	if (!name || !env_array)
-// 		return (NULL); 
-// 	len = ft_strlen(name);
-// 	while (env_array[i])
-// 	{
-// 		if (ft_strncmp(env_array[i], name, len) == 0 && env_array[i][len] == '=')
-// 		{
-// 			value = ft_strdup(env_array[i] + len + 1); // Automatically, NULL is taken care of
-// 			free_env(env_array);
-// 			return (value);
-// 		}
-// 		i++;
-// 	}
-// 	free_env(env_array);
-// 	return (NULL);
-// }
-
-// char	*get_env_value(char *str, int **i, int len, t_shell *shell)
-// {
-// 	char	*value;
-// 	char	*var_name;
-
-// 	var_name = NULL;
-// 	value = NULL;
-// 	if (len == 0)
-// 	{
-// 		value = ft_strdup("$"); // Automatically, NULL is taken care of
-// 		return (value);
-// 	}
-// 	var_name = ft_substr(str, **i, len);
-// 	if (!var_name)
-//         return (NULL);
-// 	**i += len;
-// 	value = get_env_value_helper(var_name, shell);
-// 	free(var_name);
-// 	if (value)
-// 		return (value);
-// 	value = ft_strdup(""); // Automatically, NULL is taken care of
-// 	return (value);
-// }
-
-// char	*expand_var(char *str, int *i, t_shell *shell)
-// {
-// 	int		len;
-// 	char	*value;
-
-// 	len = 0;
-// 	value = NULL;
-// 	(*i)++;
-// 	if (str[*i] == '?')
-// 	{
-// 		value = ft_itoa(g_status);
-// 		return (value);
-// 	}
-// 	while (str[*i + len] && (str[*i + len] == '_' || ft_isalnum(str[*i + len])))
-// 		len++;
-// 	value = get_env_value(str, &i, len, shell);
-// 	return (value);
-// }

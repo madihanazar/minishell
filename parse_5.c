@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_5.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 13:40:11 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/23 13:40:49 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 15:03:24 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,21 @@ int	get_len_separator(char *str)
 			return (i);
 	}
 	return (i);
+}
+
+int	check_symbol(int symbol, char c, int neg, int flag)
+{
+	if (flag == 2)
+	{
+		if (c == '"' && !neg)
+			return (!symbol);
+		else
+			return (symbol);
+	}
+	else
+	{
+		if (c == '\'' && !neg)
+			return (!symbol);
+	}
+	return (symbol);
 }

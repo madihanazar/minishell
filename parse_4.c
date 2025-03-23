@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_4.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 13:37:49 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/23 13:38:12 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:55:55 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,11 +90,4 @@ char	*get_env_value(char *name, t_shell *shell)
 		return (free_env(env), ft_strdup(""));
 	temp = ft_strdup(env[i] + ft_strlen(name) + 1);
 	return (free_env(env), temp);
-}
-
-int	ft_isdigit(int c)
-{
-	if (c >= '0' && c <= '9')
-		return (1);
-	return (0);
 }

@@ -77,23 +77,6 @@ char	*find_first_redir(t_tree *node, char *str)
 	return (NULL);
 }
 
-t_tree	*free_handle_pipe_redir(int *flag, t_tree *node, char *str)
-{
-	*flag = 1;
-	if (node)
-		free_ast(node);
-	if (str)
-		free(str);
-	return (NULL);
-}
-
-t_tree	*free_commands(int *flag, char **cmd_tokens, t_tree *node, char *str)
-{
-	if (cmd_tokens)
-		free_split(cmd_tokens);
-	return (free_handle_pipe_redir(flag, node, str));
-}
-
 void	free_strings(char *str1, char *str2)
 {
 	if (str1)

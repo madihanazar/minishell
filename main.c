@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/22 13:52:44 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 14:24:01 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	g_status = 0;
 
-void	handle_sigint(int sig)
+static void	handle_sigint(int sig)
 {
 	g_status = sig;
 	if (sig == SIGINT)
@@ -26,7 +26,7 @@ void	handle_sigint(int sig)
 	}
 }
 
-int	skip_whitespaces(char	*input)
+static int	skip_whitespaces(char	*input)
 {
 	int	i;
 

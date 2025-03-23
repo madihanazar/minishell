@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   string_utils_two.c                                 :+:      :+:    :+:   */
+/*   string_utils_2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:22:52 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/22 18:23:29 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:53:03 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,21 @@ static char	*ft_get_word(const char *s, int start, int end)
 	return (word);
 }
 
-char	**get_array(const char *s, char c, size_t i, int j)
+static char	**malloc_free(char **array, int position)
+{
+	int	i;
+
+	i = 0;
+	while (i < position)
+	{
+		free(array[i]);
+		i++;
+	}
+	free(array);
+	return (NULL);
+}
+
+static char	**get_array(const char *s, char c, size_t i, int j)
 {
 	char	**ptr;
 	int		k;
@@ -81,11 +95,4 @@ char	**ft_split(const char *s, char c)
 		return (NULL);
 	ptr = get_array(s, c, 0, 0);
 	return (ptr);
-}
-
-void	ft_putstr_fd(char *s, int fd)
-{
-	if (!s || !fd)
-		return ;
-	write(fd, s, ft_strlen(s));
 }

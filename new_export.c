@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   new_export.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/23 21:09:50 by mnazar            #+#    #+#             */
+/*   Updated: 2025/03/23 21:09:50 by mnazar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static void	bubble_sort(char **env)
@@ -34,7 +46,6 @@ static void	print_export(char **env)
 	int		i;
 	char	*equals;
 
-
 	i = 0;
 	bubble_sort(env);
 	while (env[i])
@@ -51,7 +62,7 @@ static void	print_export(char **env)
 	}
 }
 
-int	check_export(char *str)
+static int	check_export(char *str)
 {
 	if (!ft_isalpha(*str) && *str != '_')
 		return (0);
@@ -63,54 +74,6 @@ int	check_export(char *str)
 	}
 	return (1);
 }
-
-void	display_export_error(char *str, int *status)
-{
-	ft_putstr_fd("bash: export: ", 2);
-	ft_putstr_fd(str, 2);
-	ft_putstr_fd(" not a valid identifier\n", 2);
-	*status = 1;
-}
-
-// void	update_env_list(char *temp, t_list *node)
-// {
-// 	char	*key;
-
-// 	key = ft_strchr(temp, '=');
-// 	if (*(key + 1) == '\0')
-// 	{
-// 		free(temp);
-// 		return ;
-// 	}
-// 	free(node->content);
-// 	node->content = temp;
-// }
-
-// bool	add_to_env_list(t_shell *shell, char *str)
-// {
-// 	char	*temp;
-// 	t_list	*node;
-
-// 	// temp = ft_strchr(str, '=');
-// 	// if (temp == NULL)
-// 	// 	temp = ft_strjoin(str, "=");
-// 	// else
-// 	temp = ft_strdup(str);
-// 	if (!temp)
-// 		return (false);
-// 	node = find_node_from_env(temp, shell->env_list);
-// 	if (node == NULL)
-// 	{
-// 		node = ft_lstnew(temp);
-// 		if (!node)
-// 			return (free(temp), false);
-// 		ft_lstadd_back(&(shell->env_list), node);
-// 		free(temp);
-// 	}
-// 	else
-// 		update_env_list(temp, node);
-// 	return (true);
-// }
 
 bool	add_to_env_list(t_shell *shell, char *str)
 {
@@ -171,74 +134,4 @@ int	builtin_export(t_shell *shell, char **env)
 		}
 	}
 	return (status);
-}
-
-void	remove_from_env_list(t_list **head, char *name)
-{
-	t_list	*tmp;
-
-	if (*head == NULL)
-		return ;
-	if (ft_strncmp((*head)->content, name, ft_strlen(name)) == 0)
-	{
-		tmp = (*head)->next;
-		ft_lstdelone(*head, free);
-		*head = tmp;
-		remove_from_env_list(head, name);
-		return ;
-	}
-	remove_from_env_list(&((*head)->next), name);
-}
-
-int	check_unset(char *str)
-{
-	// if (!ft_isalnum(*str) && *str != '_')
-	// 	return (0);
-	// while (*str != '\0')
-	// {
-	// 	if (!ft_isalnum(*str) && ft_strchr("!$^?{}+-=\'\".", *str))
-	// 		return (0);
-	// 	str++;
-	// }
-	while (*str != '\0')
-	{
-		if (ft_isalnum(*str) || ft_strchr("_", *str))
-			str++;
-		return (0);
-	}
-	return (1);
-}
-
-void   display_unset_error(char *str)
-{
-	printf("bash: unset: ");
-	printf("`%s': ", str);
-	printf("not a valid identifier\n");
-}
-
-int	builtin_unset(t_shell *shell)
-{
-	char	**args;
-    int		i;
-	int		j;
-	int		status;
-
-    i = 1;
-	status = 0;
-	args = shell->context->args; 
-	while (shell->context->args[i])
-	{
-		j = 0;
-		if (!ft_isalpha(shell->context->args[i][j]) &&
-			shell->context->args[i][j] != '_')
-			return (display_unset_error(args[i]), 1);
-		while (ft_isalnum(shell->context->args[i][j]) ||
-			shell->context->args[i][j] == '_')
-			j++;
-		if (shell->context->args[i][j] != '\0')
-			return (display_unset_error(args[i]), 1);
-		remove_from_env_list(&(shell->env_list), args[i]);
-		i++;
-	}
-    return (status);
 }

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   string_utils_three.c                               :+:      :+:    :+:   */
+/*   string_utils_3.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:25:00 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/22 18:25:21 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:17:48 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,20 +45,6 @@ char	*ft_strcpy(char *dest, const char *src)
 	return (dest);
 }
 
-void	ft_bzero(void *ptr, size_t n)
-{
-	char	*str;
-	size_t	i;
-
-	str = ptr;
-	i = 0;
-	while (i < n)
-	{
-		str[i] = '\0';
-		i++;
-	}
-}
-
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	size_t	i;
@@ -86,16 +72,18 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (res);
 }
 
-static char	**malloc_free(char **array, int position)
+void	ft_putstr_fd(char *s, int fd)
 {
-	int	i;
+	if (!s || !fd)
+		return ;
+	write(fd, s, ft_strlen(s));
+}
 
-	i = 0;
-	while (i < position)
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
-	return (NULL);
+void	ft_putendl_fd(char *s, int fd)
+{
+	int		size;
+
+	size = ft_strlen(s);
+	write(fd, s, size);
+	write(fd, "\n", 1);
 }

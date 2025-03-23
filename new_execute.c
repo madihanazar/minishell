@@ -1,251 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   new_execute.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/23 16:16:25 by mnazar            #+#    #+#             */
+/*   Updated: 2025/03/23 18:00:47 by mnazar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void heredoc_sig(int sig)
+void	heredoc_sig(int sig)
 {
 	g_status = sig;
 	write(1, "\n", 1);
 	close(0);
-}
-
-t_context *create_context(void)
-{
-	t_context	*context;
-
-	context = malloc(sizeof(t_context));
-	if (!context)
-		return (NULL);
-	context->args = NULL;
-	context->cmd = NULL;
-	context->input = -1;
-	context->output = -1;
-	context->error = 0;
-	context->next = NULL;
-	return (context);
-}
-
-void	free_context(t_context *context)
-{
-	if (!context)
-		return ;
-	if (context->args != NULL)
-	{
-		free_split(context->args);
-		context->args = NULL;
-	}
-	if (context->cmd)
-	{
-		free(context->cmd);
-		context->cmd = NULL;
-	}
-	if (context->input >= 0)
-		close(context->input);
-	context->input = -1;
-	if (context->output >= 0)
-		close(context->output);
-	context->output = -1;
-	context->error = 0;
-	context->next = NULL;
-	free(context);
-}
-
-void free_context_list(t_context *context)
-{
-	t_context	*curr;
-	t_context	*temp;
-
-	curr = context;
-	temp = curr;
-	while (curr)
-	{
-		temp = curr->next;
-		free_context(curr);
-		curr = temp;
-	}
-}
-
-char *expand_heredocs(char *str, t_shell *shell)
-{
-	int i;
-
-	i = 0;
-	if (ft_strchr(str, '$') == NULL)
-		return (str);
-	while (str[i])
-	{
-		if (str[i] == '$')
-		{
-			str[i++] = '\0';
-			str = expanded_str(str, &str[i--], shell);
-			i--;
-		}
-		i++;
-	}
-	return (str);
-}
-
-void ft_putendl_fd(char *s, int fd)
-{
-	int size;
-
-	size = ft_strlen(s);
-	write(fd, s, size);
-	write(fd, "\n", 1);
-}
-
-bool process_heredocs(t_shell *shell, t_context *context, t_tree *node, char **env)
-{
-	int pid;
-	int status;
-	int fd[2];
-
-	if (pipe(fd) == -1)
-		return (ft_putstr_fd("An error has occured\n", 2), false);
-	pid = fork();
-	if (pid == 0)
-		child_heredoc(fd, shell, node, env);
-	waitpid(pid, &status, 0);
-	if (context->input >= 0)
-		close(context->input);
-	context->input = fd[0];
-	// close(fd[0]);
-	close(fd[1]);
-	return (WEXITSTATUS(status) == 0);
-}
-
-void child_heredoc(int *fd, t_shell *shell, t_tree *node, char **env)
-{
-	char *str;
-	char *delim;
-
-	signal(SIGINT, heredoc_sig);
-	close(fd[0]);
-	str = readline(">");
-	delim = node->right->args[0];
-	while (str && (ft_strcmp(str, delim) != 0))
-	{
-		str = expand_heredocs(str, shell);
-		ft_putendl_fd(str, fd[1]);
-		free(str);
-		str = readline(">");
-	}
-	if (str)
-		free(str);
-	close(fd[1]);
-	free_env(env);
-	free_shell(shell);
-	exit(g_status == SIGINT);
-}
-
-bool process_pipes(t_shell *shell, t_context *context, t_tree *node, char **env)
-{
-	int	fd[2];
-
-	if (pipe(fd) == -1)
-		return (ft_putstr_fd("An error has occured\n", 2), false);
-	context->next = create_context();
-	if (!context->next)
-	{
-		close(fd[0]);
-		close(fd[1]);
-		return (false);
-	}
-	context->next->input = fd[0];
-	context->output = fd[1];
-	return (preprocess(shell, context->next, node->right, env));
-}
-
-bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env)
-{
-	if (node == NULL)
-		return (true);
-	if (node->type == HEREDOC)
-		if (process_heredocs(shell, context, node, env) == false)
-			return (false);
-	if (!preprocess(shell, context, node->left, env))
-		return (false);
-	if (node->type == PIPE)
-		if (process_pipes(shell, context, node, env) == false)
-			return (false);
-	return (true);
-}
-
-int	is_builtin(char *cmd)
-{
-	if (!cmd)
-		return (false);
-	return (!ft_strncmp(cmd, "cd", 3) || !ft_strncmp(cmd, "echo", 5) ||
-		!ft_strncmp(cmd, "pwd", 4) || !ft_strncmp(cmd, "export", 7) ||
-		!ft_strncmp(cmd, "unset", 6) || !ft_strncmp(cmd, "env", 4) ||
-		!ft_strncmp(cmd, "exit", 5)
-	);
-}
-
-char	*join_path(char *path, char *args)
-{
-	char	*temp;
-	char	*full_cmd;
-
-	temp = ft_strjoin(path, "/");
-	if (temp == NULL)
-		return (NULL);
-	full_cmd = ft_strjoin(temp, args);
-	free(temp);
-	return (full_cmd);
-}
-
-char	*extract_path(char *cmd, char **env)
-{
-	int		i;
-	char	**paths;
-	char	*full_cmd;
-
-	i = 0;
-	if (ft_strchr(cmd, '/'))
-		return (ft_strdup(cmd));
-	while (env[i] != NULL && (ft_strncmp(env[i], "PATH=", 5) != 0))
-		i++;
-	if (env[i] == NULL)
-		return (NULL);
-	paths = ft_split(env[i] + 5, ':');
-	if (paths == NULL)
-		return (NULL);
-	i = 0;
-	while (paths[i])
-	{
-		full_cmd = join_path(paths[i], cmd);
-		if (full_cmd == NULL)
-			return (free_split(paths), NULL);
-		if (access(full_cmd, X_OK) == 0)
-			return (free_split(paths), full_cmd);
-		free(full_cmd);
-		i++;
-	}
-	return (free_split(paths), NULL);
-}
-
-bool	process_command(t_context *context, t_tree *node, char **env)
-{
-	context->args = node->args;
-	node->args = NULL;
-	if (!context->args)
-		return (false);
-	if (context->args[0])
-	{
-		if (is_builtin(context->args[0]))
-			context->cmd = ft_strdup(context->args[0]);
-		else
-			context->cmd = extract_path(context->args[0], env);
-	}
-	return (true);
-}
-
-bool	check_heredoc(t_tree *node)
-{
-	if (node == NULL)
-		return (false);
-	if (node->type == HEREDOC)
-		return (true);
-	return (check_heredoc(node->left));
 }
 
 bool	process_input(t_context *context, t_tree *node, char **env)
@@ -278,10 +49,10 @@ bool	process_output(t_context *context, t_tree *node, char **env, int flag)
 		close(context->output);
 	if (!flag)
 		context->output = open(node->right->args[0],
-			O_WRONLY | O_CREAT | O_APPEND, 0644);
+				O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else
 		context->output = open(node->right->args[0],
-			O_WRONLY | O_CREAT | O_TRUNC, 0644);
+				O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (context->output == -1)
 	{
 		ft_putstr_fd(node->right->args[0], 2);
@@ -312,54 +83,12 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env)
 	return (true);
 }
 
-void	ft_putchar_fd(char c, int fd)
-{
-	if (!fd)
-		return ;
-	write(fd, &c, 1);
-}
-void	ft_putnbr_fd(int n, int fd)
-{
-	if (n == -2147483648)
-		ft_putstr_fd("-2147483648", fd);
-	else if (n < 0)
-	{
-		ft_putchar_fd('-', fd);
-		ft_putnbr_fd(-n, fd);
-	}
-	else if (n >= 10)
-	{
-		ft_putnbr_fd(n / 10, fd);
-		ft_putchar_fd(n % 10 + 48, fd);
-	}
-	else
-		ft_putchar_fd(n + 48, fd);
-}
-
-void	print_signal_errors(int status)
-{
-	if (status == SIGINT)
-		ft_putstr_fd("\n", 2);
-	else if (status == SIGQUIT)
-	{
-		ft_putstr_fd("Quit: ", 2);
-		ft_putnbr_fd(status, 2);
-		ft_putstr_fd("\n", 2);
-	}
-	else if (status == SIGSEGV)
-	{
-		ft_putstr_fd("Segmentation fault: ", 2);
-		ft_putnbr_fd(status, 2);
-		ft_putstr_fd("\n", 2);
-	}
-}
-
 int	new_execute(t_shell *shell)
 {
 	char	**env;
 	int		status;
-	pid_t		pid;
-	
+	pid_t	pid;
+
 	status = 0;
 	signal(SIGINT, SIG_IGN);
 	env = list_to_env(shell->env_list);
@@ -386,5 +115,5 @@ int	new_execute(t_shell *shell)
 		;
 	if (WIFSIGNALED(status))
 		return (print_signal_errors(WTERMSIG(status)), 128 + WTERMSIG(status));
-	return (WEXITSTATUS(status));
+	return (WEXITSTATUS(status));//u can do check_Status
 }
