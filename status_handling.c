@@ -1,14 +1,16 @@
-#include "minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   status_handling.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/22 18:27:05 by nkunnath          #+#    #+#             */
+/*   Updated: 2025/03/22 18:27:06 by nkunnath         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// void	print_signal_errors(int status)
-// {
-// 	if (status == SIGINT)
-// 		ft_putstr_fd("\n", 2);
-// 	else if (status == SIGQUIT)
-// 		printf("Quit: %d\n", status);
-// 	else if (status == SIGSEGV)
-// 		printf("Segmentation fault: %d\n", status);
-// }
+#include "minishell.h"
 
 int	check_status(int status)
 {

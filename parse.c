@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/21 15:49:17 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/22 17:22:51 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,10 +278,10 @@ bool	perform_exp(t_tree *node, t_shell *shell)
 		else if (node->cmd[i] == '$' && !sq)
 		{
 			if (node->cmd[i + 1] == '\0' || (!ft_isalnum(node->cmd[i + 1])
-				&& node->cmd[i + 1] != '_'
-				&& node->cmd[i + 1] != '?'
-				&& node->cmd[i + 1] != '"'
-				&& node->cmd[i + 1] != '\''))
+					&& node->cmd[i + 1] != '_'
+					&& node->cmd[i + 1] != '?'
+					&& node->cmd[i + 1] != '"'
+					&& node->cmd[i + 1] != '\''))
 				i++;
 			else
 			{

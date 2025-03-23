@@ -3,14 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/21 16:18:39 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/22 13:52:44 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// echo hi | echo >>./outfiles/outfile01 bye >./test_files/invalid_permission
 
 #include "minishell.h"
 

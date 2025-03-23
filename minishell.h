@@ -12,7 +12,7 @@
 # include <termios.h>
 # include <stdbool.h>
 # include <errno.h>
-#include <dirent.h>
+# include <dirent.h>
 
 
 extern int	g_status;
