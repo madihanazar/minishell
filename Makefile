@@ -4,46 +4,37 @@ CFLAGS = -Wall -Wextra -Werror
 # CFLAGS = -g3
 RM = rm -rf
 
-
 READLINE_FLAGS = -L/opt/vagrant/embedded/lib -lreadline
 
-
-# SRC_FILES = main.c \
-#            build_tree.c \
-#            built_in.c \
-#            env_expand.c \
-#            exec.c \
-#            string_utils.c \
-#            tree_nodes.c  \
-# 		   pipe_redir.c  \
-# 		   ft_export.c  \
-# 		   list_utils.c \
-# 		   ft_unset.c \
-# 		   heredoc.c \
-# 		   status_handling.c \
-# 		   shell_env_init.c
-
 SRC_FILES = main.c \
-           build_tree.c \
-           env_expand.c \
-           string_utils.c \
-           tree_nodes.c  \
-           list_utils.c \
-           status_handling.c \
-           pipe_redir.c  \
-           parse.c \
-           shell_env_init.c \
-		   new_execute.c \
-		   new_built_in.c \
-		   built_in_helpers.c \
-		   new_export.c \
-		   new_exec_context.c
-           # built_in.c \
-           # exec.c \
-           # ft_export.c  \
-           # ft_unset.c \
-           # heredoc.c
-
+			build_tree.c \
+			string_utils.c \
+			string_utils_2.c \
+			string_utils_3.c \
+			string_utils_4.c \
+			parse.c \
+			parse_2.c \
+			parse_3.c \
+			parse_4.c \
+			parse_5.c \
+			pipe_redir.c \
+			tree_nodes.c \
+			ft_itoa.c \
+			shell_env_init.c \
+			shell_env_init_2.c \
+			shell_env_init_3.c \
+			list_utils.c \
+			context_utils.c \
+			preprocess.c \
+			status_handling.c \
+			built_in_helpers.c \
+			process_cmd.c \
+			new_execute.c \
+			new_built_in.c \
+			new_built_in_2.c \
+			new_unset.c \
+			new_export.c \
+			new_exec_context.c
 
 
 OBJS = $(SRC_FILES:.c=.o)

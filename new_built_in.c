@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   new_built_in.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 18:23:28 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 21:07:27 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/23 22:43:34 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ int	builtin_exit(t_shell *shell, char **env)
 	}
 	if (shell->context->args[2] != NULL)
 	{
-		ft_putstr_fd("exit\n");
+		ft_putstr_fd("exit\n", 2);
 		return (ft_putstr_fd("minishell: exit: too many arguments\n", 2), 1);
 	}
 	(free_env(env), free_shell(shell));

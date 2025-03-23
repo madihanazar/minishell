@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 21:59:15 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 21:59:16 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/23 22:43:10 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@
 # include <stdbool.h>
 # include <errno.h>
 # include <dirent.h>
-
 
 extern int	g_status;
 
@@ -190,19 +189,18 @@ void	ft_lstadd_back(t_list **lst, t_list *new);
 void	ft_lstdelone(t_list *lst, void (*del)(void *));
 
 //context_utils.c
+void	free_context_list(t_context *context);
+void	free_context(t_context *context);
 t_context	*create_context(void);
-void		free_context_list(t_context *context);
-void		free_context(t_context *context);
 
-//process.c
-bool	preprocess(t_shell *shell, t_context *context, t_tree *node, char **env);
-bool	proc_hdocs(t_shell *shell, t_context *context, t_tree *node, char **env);
-bool	proc_pipes(t_shell *shell, t_context *context, t_tree *node, char **env);
+//preprocess.c
+bool	preprocess(t_shell *shell, t_context *con, t_tree *node, char **env);
+bool	proc_hdocs(t_shell *shell, t_context *con, t_tree *node, char **env);
+bool	proc_pipes(t_shell *shell, t_context *con, t_tree *node, char **env);
 
 //status_handling.c
 void	print_signal_errors(int status);
 int		check_status(int status);
-
 
 //built_in_helpers.c
 int		is_builtin(char *cmd);
@@ -219,16 +217,17 @@ bool	traverse_tree(t_context *context, t_tree *node, char **env);
 int		new_execute(t_shell *shell);
 bool	process_input(t_context *context, t_tree *node, char **env);
 bool	process_output(t_context *context, t_tree *node, char **env, int flag);
+void	heredoc_sig(int sig);
 
 //new_built_in.c
-int	new_execute_builtin(t_shell *shell, char **env);
-int	builtin_exit(t_shell *shell, char **env);
-int	builtin_pwd(int fd);
-int	builtin_env(char **env, int fd);
+int		new_execute_builtin(t_shell *shell, char **env);
+int		builtin_exit(t_shell *shell, char **env);
+int		builtin_pwd(int fd);
+int		builtin_env(char **env, int fd);
 
 //new_built_in_2.c
-int	builtin_cd(t_shell *shell, t_context *context);
-int	builtin_echo(char **argv, int fd);
+int		builtin_cd(t_shell *shell, t_context *context);
+int		builtin_echo(char **argv, int fd);
 
 //new_unset.c
 int		builtin_unset(t_shell *shell);
@@ -239,8 +238,8 @@ bool	add_to_env_list(t_shell *shell, char *str);
 int		builtin_export(t_shell *shell, char **env);
 
 //new_exec_context.c
-int	get_execution_error(char *cmd);
-int	execute_command(t_context *context, char **env);
+int		get_execution_error(char *cmd);
+int		execute_command(t_context *context, char **env);
 bool	execute_context(t_shell *shell, char **env, pid_t *pid);
 
 #endif

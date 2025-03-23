@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 14:10:51 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 15:03:31 by marvin           ###   ########.fr       */
+/*   Updated: 2025/03/23 22:46:16 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,10 @@ char	*helper_exp(char *str, t_shell *shell)
 	{
 		dq = check_symbol(dq, str[i], sq, 2);
 		sq = check_symbol(sq, str[i], dq, 1);
-		else if (str[i] == '$' && !sq)
+		if (str[i] == '$' && !sq)
 		{
-			if (str[i + 1] == '\0' || (!ft_isalnum(str[i + 1]))
-				&& !(ft_strchr("_?\'\"", str[i + 1])))
+			if (str[i + 1] == '\0' || (!ft_isalnum(str[i + 1])
+					&& !ft_strchr("_?\'\"", str[i + 1])))
 				i++;
 			else
 			{
