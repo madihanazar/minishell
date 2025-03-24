@@ -6,7 +6,7 @@
 /*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 13:52:44 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/24 12:25:21 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 12:40:21 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,4 +110,5 @@ bool	preproc_traverse(t_shell *shell, char **env)
 		return (false);
 	if (!traverse_tree(shell->context, shell->tree, env))
 		return (false);
+	return (true);
 }
