@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:11:09 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/23 22:39:42 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 16:15:11 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ char	*get_input(void)
 	{
 		i = 0;
 		if (isatty(0))
-			input = readline("minishell> ");
+			input = readline("mONEYshell> ");
 		else
 			input = readline("");
 		if (!input)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shell_env_init.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 14:04:26 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/22 18:21:05 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 16:12:46 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ t_shell	*create_shell(void)
 	shell = (t_shell *)malloc(sizeof(t_shell));
 	if (!shell)
 		return (NULL);
-	shell->export_list = NULL;
 	shell->env_list = NULL;
 	shell->tree = NULL;
 	shell->context = NULL;
@@ -30,8 +29,6 @@ void	free_shell(t_shell *shell)
 {
 	if (shell)
 	{
-		if (shell->export_list)
-			free_env_list(&(shell->export_list));
 		if (shell->env_list)
 			free_env_list(&(shell->env_list));
 		if (shell->tree)

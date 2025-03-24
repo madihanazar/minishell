@@ -23,7 +23,6 @@ t_context	*create_context(void)
 	context->cmd = NULL;
 	context->input = -1;
 	context->output = -1;
-	context->error = 0;
 	context->next = NULL;
 	return (context);
 }
@@ -63,7 +62,6 @@ void	free_context(t_context *context)
 	if (context->output >= 0)
 		close(context->output);
 	context->output = -1;
-	context->error = 0;
 	context->next = NULL;
 	free(context);
 }

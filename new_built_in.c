@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   new_built_in.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 18:23:28 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 23:45:52 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 14:55:18 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ static bool	exit_atoi(char *str)
 	i += atoi_skip(str + i);
 	if (str[i])
 	{
-		g_status = 2;
+		g_status = 255;
 		return (false);
 	}
 	if (sign == -1)

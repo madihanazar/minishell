@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnazar <mnazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 21:59:15 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/24 12:27:34 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 16:08:02 by mnazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,11 @@
 # include <string.h>
 # include "readline/readline.h"
 # include "readline/history.h"
-# include <termios.h>
 # include <stdbool.h>
 # include <errno.h>
 # include <dirent.h>
 
 extern int	g_status;
-
-typedef struct s_cmd
-{
-	char	*cmd_name;
-	char	**args;
-	int		arg_count;
-}	t_cmd;
 
 typedef enum e_node_type
 {
@@ -53,7 +45,6 @@ typedef struct s_tree
 	char			*cmd;
 	char			**args;
 	t_node_type		type;
-	int				heredoc_fd;
 }	t_tree;
 
 typedef struct s_list
@@ -69,7 +60,6 @@ typedef struct s_context
 	char				**args;
 	int					input;
 	int					output;
-	int					error;
 }	t_context;
 
 typedef struct s_shell
@@ -77,7 +67,6 @@ typedef struct s_shell
 	t_list		*env_list;
 	t_tree		*tree;
 	t_context	*context;
-	t_list		*export_list;
 }	t_shell;
 
 t_context	*create_context(void);
