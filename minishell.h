@@ -6,7 +6,7 @@
 /*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 21:59:15 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 23:45:20 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 12:27:34 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,6 +242,7 @@ int			get_execution_error(char *cmd);
 int			execute_command(t_context *context, char **env);
 bool		execute_context(t_shell *shell, char **env, pid_t *pid);
 int			atoi_skip(char	*str);
+bool		preproc_traverse(t_shell *shell, char **env);
 
 //extra_free.c
 void		free_env_and_shell(char **env, t_shell *shell, int fd, int flag);

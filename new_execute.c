@@ -6,7 +6,7 @@
 /*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 16:16:25 by mnazar            #+#    #+#             */
-/*   Updated: 2025/03/23 23:58:48 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 12:38:10 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,20 +92,15 @@ int	new_execute(t_shell *shell)
 	status = 0;
 	signal(SIGINT, SIG_IGN);
 	env = list_to_env(shell->env_list);
-	if (!env)
-		return (ft_putstr_fd("An error has occured\n", 2), 1);
 	shell->context = create_context();
-	if (!(shell->context))
+	if (!env || !(shell->context))
 		return (free_env(env), ft_putstr_fd("An error has occured\n", 2), 1);
-	if (!preprocess(shell, shell->context, shell->tree, env))
-		return (free_env(env), 1);
-	if (!traverse_tree(shell->context, shell->tree, env))
+	if (!(preproc_traverse(shell, env)))
 		return (free_env(env), 1);
 	if (shell->context->next == NULL && is_builtin(shell->context->cmd))
 	{
 		status = new_execute_builtin(shell, env);
-		free_env(env);
-		return (status);
+		return (free_env(env), status);
 	}
 	if (!execute_context(shell, env, &pid))
 		return (ft_putstr_fd("An error has occurred: ", 2), free_env(env), 1);

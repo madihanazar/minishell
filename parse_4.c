@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_4.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnazar <mnazar@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 13:37:49 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/23 17:55:55 by mnazar           ###   ########.fr       */
+/*   Updated: 2025/03/24 12:38:35 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ void	free_env(char **env_copy)
 	int		i;
 
 	i = 0;
+	if (env_copy == NULL)
+		return ;
 	while (env_copy[i])
 	{
 		free(env_copy[i]);

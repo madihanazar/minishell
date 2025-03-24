@@ -6,7 +6,7 @@
 /*   By: nkunnath <nkunnath@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 13:52:44 by nkunnath          #+#    #+#             */
-/*   Updated: 2025/03/23 23:06:12 by nkunnath         ###   ########.fr       */
+/*   Updated: 2025/03/24 12:25:21 by nkunnath         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,4 +102,12 @@ int	atoi_skip(char	*str)
 	while (str[i] == ' ' || str[i] == '\t' || (str[i] >= 9 && str[i] <= 13))
 		i += 1;
 	return (i);
+}
+
+bool	preproc_traverse(t_shell *shell, char **env)
+{
+	if (!preprocess(shell, shell->context, shell->tree, env))
+		return (false);
+	if (!traverse_tree(shell->context, shell->tree, env))
+		return (false);
 }
